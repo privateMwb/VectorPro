@@ -9,6 +9,10 @@ It was built to explore:
 - exception safety
 - container design
 
+This project is primarily educational and is not intended to replace `std::vector`.
+The goal is to better understand how dynamic containers and low-level memory
+management work internally through a custom implementation.
+
 ---
 
 # Features
