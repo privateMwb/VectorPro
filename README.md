@@ -59,7 +59,7 @@ g++ -std=c++23 examples/example.cpp -Iinclude -o example
 ## Benchmark
 
 ```bash
-g++ -std=c++23 benchmarks/benchmark.cpp -Iinclude -O2 -o benchmark
+g++ -std=c++23 benchmarks/benchmark.cpp -Iinclude -o benchmark
 ./benchmark
 ```
 
