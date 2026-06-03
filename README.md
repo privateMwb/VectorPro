@@ -38,9 +38,25 @@ management work internally through a custom implementation.
 ```txt
 VectorPro/
 ├── include/
-├── benchmarks/
+│   ├── VectorPro.h
+│   ├── VectorPro.tpp
+│   ├── Iterator.h
+│   └── ReverseIterator.h
+│
+├── tests/
+│   └── test.cpp
+│
 ├── examples/
-├── test/
+│   └── example.cpp
+│
+├── benchmarks/
+│   └── benchmark.cpp
+│
+├── build/
+│   ├── benchmark
+│   ├── examples
+│   └── test
+│
 ├── README.md
 └── LICENSE
 ```
