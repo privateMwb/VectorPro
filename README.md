@@ -47,10 +47,10 @@ VectorPro/
 │   └── test.cpp
 │
 ├── examples/
-│   └── example.cpp
+│   └── examples.cpp
 │
 ├── benchmarks/
-│   └── benchmark.cpp
+│   └── benchmarks.cpp
 │
 ├── build/
 │   ├── benchmark
