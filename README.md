@@ -1,5 +1,8 @@
 # VectorPro
 
+![C++](https://img.shields.io/badge/C%2B%2B-23-blue)
+![Status](https://img.shields.io/badge/status-learning-green)
+
 A custom C++ dynamic array implementation built for learning low-level memory management, STL-like container design, iterators, and performance benchmarking.
 
 ---
@@ -466,4 +469,85 @@ Benchmarks compare `VectorPro` against `std::vector` across core operations.
 
 ---
 
+## Project Structure
 
+```text
+VectorPro/
+├── include/
+│   ├── VectorPro.h
+│   ├── VectorPro.tpp
+│   ├── Iterator.h
+│   └── ReverseIterator.h
+│
+├── benchmarks/
+│   ├── benchmarks.cpp
+│   └── utils/
+│       ├── Table.h
+│       └── Table.tpp
+│
+├── tests/
+│   └── test.cpp
+│
+├── examples/
+│   └── examples.cpp
+│
+├── README.md
+└── LICENSE
+```
+
+---
+
+## Build Instructions
+
+### Requirements
+- C++23 compatible compiler (GCC / Clang / MSVC)
+- CMake (optional, if you later switch to build system)
+- Git (for cloning repository)
+
+
+### Compile Tests
+
+```bash
+g++ -std=c++23 tests/vectorpro_tests.cpp -Iinclude -o build/tests
+./build/tests
+```
+
+
+### Compile Benchmarks
+
+```bash
+g++ -std=c++23 benchmarks/benchmarks.cpp -Iinclude -Ibenchmarks/utils -O2 -o build/benchmarks
+./build/benchmarks
+```
+
+
+### Compile Examples
+
+```bash
+g++ -std=c++23 examples/main.cpp -Iinclude -o build/examples
+./build/examples
+```
+
+
+### Notes
+- Use `-O2` or `-O3` for benchmark accuracy
+- Debug builds (`-g`) may distort performance results
+```
+
+---
+
+## Notes
+
+- This project is purely educational and not intended as a production-ready STL replacement
+- Some optimizations used in `std::vector` are not fully replicated (allocator traits, small buffer optimizations, etc.)
+- Performance results may vary depending on compiler, platform, and optimization flags
+- The implementation prioritizes learning clarity over micro-optimizations
+- Exception safety is handled in core operations but may not match full STL guarantees in all edge cases
+
+---
+
+## License
+
+MIT License
+
+You are free to use, modify, and distribute this project for educational and personal purposes.
