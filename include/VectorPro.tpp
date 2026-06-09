@@ -73,16 +73,19 @@ void VectorPro<T>::reallocateListener(size_type newCap) {
 
 template<typename T>
 typename VectorPro<T>::size_type VectorPro<T>::growData() {
-	return v_cap == 0 ? 1 : v_cap + (v_cap/2);
+	return v_cap == 0 ? 8 : v_cap + (v_cap/2);
+
 }
 
 template<typename T>
 typename VectorPro<T>::size_type VectorPro<T>::growListener() {
-	return l_cap == 0 ? 1 : l_cap + (l_cap/2);
+	return l_cap == 0 ? 8 : l_cap + (l_cap/2);
 }
 
 template<typename T>
 void VectorPro<T>::notify(EventType type) {
+	if(l_size == 0) return;
+
 	for(size_type i = 0; i<l_size; i++) {
 		listeners[i](*this, type);
 	}
@@ -102,6 +105,15 @@ void VectorPro<T>::swap(VectorPro<T>& a, VectorPro<T>& b) noexcept {
 }
 
 // Constructors & Destructor
+template<typename T>
+VectorPro<T>::VectorPro(std::initializer_list<T> init) {
+    reserve(init.size());
+    
+    for(const auto& value : init) {
+        push_back(value);
+    }
+}
+
 template<typename T>
 VectorPro<T>::~VectorPro() noexcept {
 	release();
@@ -209,36 +221,19 @@ template<typename T>
 void VectorPro<T>::insert(size_type pos, const T& value) {
 	if(pos > v_size) throw std::out_of_range("VectorPro::insert position is out of range");
 
-	size_type newCap = v_size == v_cap ? growData() : v_cap;
+	if(v_size == v_cap) reallocateData(growData());
 
-	T* newData = static_cast<T*>(::operator new(sizeof(T) * newCap));
-	size_type i = 0;
-
-	try {
-		for(; i < pos; ++i) {
-			new(newData + i) T(std::move_if_noexcept(data[i]));
+	if constexpr (std::is_trivially_copyable_v<T>) {
+		std::memmove(data + pos + 1, data + pos, (v_size - pos) * sizeof(T));
+	} else {
+		for(size_type i = v_size; i > pos; --i) {
+			new(data + i) T(std::move_if_noexcept(data[i - 1]));
+			data[i - 1].~T();
 		}
-		new(newData + pos) T(value);
-		for(i = pos; i < v_size; ++i) {
-			new(newData + i + 1) T(std::move_if_noexcept(data[i]));
-		}
-	} catch(...) {
-		for(size_type j = 0; j < i; ++j) {
-			newData[j].~T();
-		}
-		::operator delete(newData);
-
-		throw;
 	}
 
-	for(size_type k = 0; k<v_size; ++k) {
-		data[k].~T();
-	}
-	::operator delete(data);
-
-	data = newData;
+	new(data + pos) T(value);
 	++v_size;
-	v_cap = newCap;
 
 	notify(EventType::Insert);
 }
@@ -247,36 +242,19 @@ template<typename T>
 void VectorPro<T>::insert(size_type pos, T&& value) {
 	if(pos > v_size) throw std::out_of_range("VectorPro::insert position is out of range");
 
-	size_type newCap = v_size == v_cap ? growData() : v_cap;
+	if(v_size == v_cap) reallocateData(growData());
 
-	T* newData = static_cast<T*>(::operator new(sizeof(T) * newCap));
-	size_type i = 0;
-
-	try {
-		for(; i < pos; ++i) {
-			new(newData + i) T(std::move_if_noexcept(data[i]));
+	if constexpr (std::is_trivially_copyable_v<T>) {
+		std::memmove(data + pos + 1, data + pos, (v_size - pos) * sizeof(T));
+	} else {
+		for(size_type i = v_size; i > pos; --i) {
+			new(data + i) T(std::move_if_noexcept(data[i - 1]));
+			data[i - 1].~T();
 		}
-		new(newData + pos) T(std::move(value));
-		for(i = pos; i < v_size; ++i) {
-			new(newData + i + 1) T(std::move_if_noexcept(data[i]));
-		}
-	} catch(...) {
-		for(size_type j = 0; j < i; ++j) {
-			newData[j].~T();
-		}
-		::operator delete(newData);
-
-		throw;
 	}
 
-	for(size_type k = 0; k<v_size; ++k) {
-		data[k].~T();
-	}
-	::operator delete(data);
-
-	data = newData;
+	new(data + pos) T(std::move(value));
 	++v_size;
-	v_cap = newCap;
 
 	notify(EventType::Insert);
 }
@@ -286,33 +264,23 @@ template<typename Predicate>
 void VectorPro<T>::remove_if(Predicate pred) {
 	if(v_size == 0) return;
 
-	T* newData = static_cast<T*>(::operator new(sizeof(T) * v_cap));
-	size_type newSize = 0;
+	size_type write = 0;
 
-	try {
-		for(size_type i = 0; i<v_size; ++i) {
-			if(!pred(data[i])) {
-				new(newData + newSize) T(std::move_if_noexcept(data[i]));
-				++newSize;
-			} 
+	for(size_type read = 0; read < v_size; ++read) {
+		if(!pred(data[read])) {
+			if(write != read) {
+				data[write].~T();
+				new (data + write) T(std::move_if_noexcept(data[read]));
+			}
+			++write;
 		}
-	} catch(...) {
-	    for(size_type j = 0; j<newSize; ++j) {
-	        newData[j].~T();
-	    }
-	    ::operator delete(newData);
-	    
-	    throw;
 	}
-	
-	for(size_type k = 0; k<v_size; ++k) {
-	    data[k].~T();
-	}
-	::operator delete(data);
-	
-	data = newData;
-	v_size = newSize;
 
+	for(size_type i = write; i < v_size; ++i) {
+		data[i].~T();
+	}
+
+	v_size = write;
 	notify(EventType::Remove);
 }
 
@@ -330,32 +298,18 @@ template<typename T>
 void VectorPro<T>::erase(size_type index) {
 	if(index >= v_size) throw std::out_of_range("VectorPro::erase index out of range");
 
-	size_type newSize = 0;
-	T* newData = static_cast<T*>(::operator new(sizeof(T) * v_cap));
+	data[index].~T();
 
-	try {
-		for(size_type i = 0; i<v_size; ++i) {
-			if(i != index) {
-				new(newData + newSize) T(std::move_if_noexcept(data[i]));
-				++newSize;
-			}
+	if constexpr (std::is_trivially_copyable_v<T>) {
+        std::memmove(data + index, data + index + 1, (v_size - index - 1) * sizeof(T));
+	} else {
+		for(size_type i = index; i < v_size - 1; ++i) {
+			new (data + i) T(std::move_if_noexcept(data[i+1]));
+			data[i+1].~T();
 		}
-	} catch(...) {
-		for(size_type j = 0; j<newSize; ++j) {
-			newData[j].~T();
-		}
-		::operator delete(newData);
-
-		throw;
 	}
 
-	for(size_type k = 0; k<v_size; ++k) {
-		data[k].~T();
-	}
-	::operator delete(data);
-
-	data = newData;
-	v_size = newSize;
+	--v_size;
 
 	notify(EventType::Erase);
 }

@@ -1,212 +1,197 @@
+// VectorPro Examples
+// Demonstrates the core features of VectorPro:
+//
+// - constructors
+// - push_back
+// - pop_back
+// - insert
+// - erase
+// - emplace_back
+// - remove_if
+// - shrink_to_fit
+// - reserve
+// - clear
+// - notify
+
 #include <iostream>
-#include <string>
-#include <iterator>
+#include <cstddef>
 
 #include "VectorPro.h"
 
-using std::size_t;
+// Constructors Example
+// demonstrates the different ways to construct a VectorPro
+void constructors() {
+    // Default construction
+    VectorPro<int> vp1;
+    VectorPro<std::string> vp2;
+    VectorPro<double> vp3;
+    VectorPro<bool> vp4;
 
-struct IntSample {
-    int values[5]  = {24, 789, 290, -89, 5000};
-    int inserts[3] = {-53, 798, -1};
-    int emplace = 777;
-};
+    // Dynamic construction
+    VectorPro<int>* vp5 = new VectorPro<int>();
 
-struct DoubleSample {
-    double values[5] = {2.32, -762.438, 89.99, 9000.0003, 1.00};
-    double inserts[3] = {0.0002, 1849.91, -67.88};
-    double emplace = 983.213;
-};
+    // Initializer list construction
+    VectorPro<int> vp6{1, 2, 3, 4, 5};
 
-struct StringSample {
-    std::string values[5] = {"apple", "banana", "mango", "grapes", "melon"};
-    std::string inserts[3] = {"oranges", "tomato", "potato"};
-    std::string emplace = "chilli";
-};
+    // Copy construction
+    VectorPro<int> vp7(vp6);
 
+    // Move construction
+    VectorPro<int> vp8(std::move(vp7));
 
-constexpr IntSample sample;
-//constexpr DoubleSample sample;
-//constexpr StringSample sample;
-
-template<typename T>
-void display_vector(
-    VectorPro<T>& old_vp,
-    VectorPro<T>& new_vp,
-    const std::string& action)
-{
-    std::cout << "=== "
-              << action
-              << " ===\n";
-
-    std::cout << "old: ";
-    for(const T& x : old_vp) {
-        std::cout << x << ' ';
-    }
-
-    std::cout << "\nnew: ";
-    for(const T& x : new_vp) {
-        std::cout << x << ' ';
-    }
-
-    std::cout << "\n\n";
+    delete vp5;
 }
 
-template<typename T>
-void push_back_sample(VectorPro<T>& vp) {
+// Push Back Example
+// appends elements to the end of the container
+void push_back() {
+    // Integer values
+    VectorPro<int> vp1;
+    vp1.push_back(10);
+    vp1.push_back(20);
+    vp1.push_back(30);
 
-    VectorPro<T> vp_copy(vp);
+    // String values
+    VectorPro<std::string> vp2;
+    vp2.push_back("apple");
+    vp2.push_back("banana");
+    vp2.push_back("orange");
 
-    for(size_t i = 0;
-        i < std::size(sample.values);
-        ++i)
-    {
-        vp.push_back(sample.values[i]);
-    }
+    // Boolean values
+    VectorPro<bool> vp3;
+    vp3.push_back(true);
+    vp3.push_back(false);
 
-    display_vector(vp_copy, vp, "PushBack");
+    // Floating-point values
+    VectorPro<double> vp4;
+    vp4.push_back(3.14);
+    vp4.push_back(2.718);
 }
 
-template<typename T>
-void insert_sample(VectorPro<T>& vp) {
+// Pop Back Example
+// removes the last element from the container
+void pop_back() {
+    VectorPro<int> vp = {2, 4, 6, 8, 10};
 
-    VectorPro<T> vp_copy(vp);
-
-    for(size_t i = 0;
-        i < std::size(sample.inserts);
-        ++i)
-    {
-        vp.insert(i, sample.inserts[i]);
-    }
-
-    display_vector(vp_copy, vp, "Insert");
+    vp.pop_back(); // {2, 4, 6, 8}
 }
 
-template<typename T>
-void pop_back_sample(VectorPro<T>& vp) {
+// Insert Example
+// inserts an element at the specified index
+void insert() {
+    VectorPro<int> vp = {1, 3, 4, 5};
 
-    VectorPro<T> vp_copy(vp);
-
-    vp.pop_back();
-
-    display_vector(vp_copy, vp, "PopBack");
+    vp.insert(1, 2); // insert value 2 at index 1 -> {1, 2, 3, 4, 5}
 }
 
-template<typename T>
-void erase_sample(VectorPro<T>& vp) {
+// Erase Example
+// removes the element at the specified index
+void erase() {
+    VectorPro<int> vp = {1, 2, 3, 4, 5};
 
-    VectorPro<T> vp_copy(vp);
-
-    if(!vp.empty()) {
-        vp.erase(1);
-    }
-
-    display_vector(vp_copy, vp, "Erase");
+    vp.erase(3); // erase index 3 -> {1, 2, 3, 5}
 }
 
-template<typename T>
-void remove_if_sample(VectorPro<T>& vp) {
+// Emplace Back Example
+// constructs an element directly at the end of the container
+void emplace_back() {
+    struct Person {
+        std::string name;
+        int age;
 
-    VectorPro<T> vp_copy(vp);
+        Person(std::string n, int a)
+            : name(std::move(n)), age(a) {}
+    };
 
-    vp.remove_if([](const T& x) {
-        return x % 2 == 0;
+    VectorPro<Person> vp;
+
+    vp.emplace_back("Alice", 20);
+    vp.emplace_back("Bob", 25);
+}
+
+// Remove If Example
+// removes all elements that satisfy a predicate
+void remove_if() {
+    VectorPro<int> vp = {21, 103, 0, 89, 70};
+
+    vp.remove_if([](int i) {
+        return i % 2 == 0;
+    }); // remove even numbers -> {21, 103, 89}
+}
+
+// Shrink To Fit Example
+// reduces capacity to match the current size
+void shrink_to_fit() {
+    VectorPro<int> vp;
+
+    vp.reserve(100);
+
+    vp.push_back(40);
+    vp.push_back(0);
+    vp.push_back(592);
+    vp.push_back(100);
+    vp.push_back(33);
+
+    vp.shrink_to_fit(); // capacity becomes equal to size
+}
+
+// Reserve Example
+// reserves storage for future elements
+void reserve() {
+    VectorPro<int> vp;
+
+    vp.reserve(100); // reserve capacity for at least 100 elements
+}
+
+// Clear Example
+// removes all elements from the container
+void clear() {
+    VectorPro<int> vp = {10, 20, 30, 40, 50};
+
+    vp.clear(); 
+}
+
+// Notify Example
+// shows event-driven updates from VectorPro
+void notify() {
+    VectorPro<int> vp;
+
+    vp.subscribe([](const VectorPro<int>& v, EventType event) {
+        switch (event) {
+            case EventType::PushBack:
+                std::cout << "PushBack triggered\n";
+                break;
+            case EventType::PopBack:
+                std::cout << "PopBack triggered\n";
+                break;
+            case EventType::Clear:
+                std::cout << "Clear triggered\n";
+                break;
+            default:
+                std::cout << "Other event triggered\n";
+        }
+
+        std::cout << "Current size: " << v.size() << '\n';
     });
 
-    display_vector(vp_copy, vp, "RemoveIf");
-}
-
-template<typename T>
-void reserve_sample(VectorPro<T>& vp) {
-
-    std::cout << "=== Reserve ===\n";
-
-    std::cout << "old capacity: "
-              << vp.capacity()
-              << '\n';
-
-    vp.reserve(50);
-
-    std::cout << "new capacity: "
-              << vp.capacity()
-              << "\n\n";
-}
-
-template<typename T>
-void shrink_to_fit_sample(VectorPro<T>& vp) {
-
-    std::cout << "=== ShrinkToFit ===\n";
-
-    std::cout << "old capacity: "
-              << vp.capacity()
-              << '\n';
-
-    vp.shrink_to_fit();
-
-    std::cout << "new capacity: "
-              << vp.capacity()
-              << "\n\n";
-}
-
-template<typename T>
-void clear_sample(VectorPro<T>& vp) {
-
-    VectorPro<T> vp_copy(vp);
-
+    vp.push_back(1);
+    vp.push_back(2);
+    vp.pop_back();
     vp.clear();
-
-    display_vector(vp_copy, vp, "Clear");
-}
-
-template<typename T>
-void emplace_back_sample(VectorPro<T>& vp) {
-
-    VectorPro<T> vp_copy(vp);
-
-    vp.emplace_back(sample.emplace);
-
-    display_vector(vp_copy, vp, "EmplaceBack");
-}
-
-template<typename T>
-void iterator_sample(VectorPro<T>& vp) {
-
-    std::cout << "=== Iterator ===\n";
-
-    for(auto it = vp.begin();
-        it != vp.end();
-        ++it)
-    {
-        std::cout << *it << ' ';
-    }
-
-    std::cout << "\n\n";
 }
 
 int main() {
-    VectorPro<int> vp;
-    //VectorPro<double> vp;
-    //VectorPro<std::string> vp;
-
-    push_back_sample(vp);
-
-    pop_back_sample(vp);
-
-    insert_sample(vp);
-
-    erase_sample(vp);
-
-    emplace_back_sample(vp);
-
-    iterator_sample(vp);
-
-    reserve_sample(vp);
-
-    //remove_if_sample(vp);
-
-    shrink_to_fit_sample(vp);
-
-    clear_sample(vp);
-
+    constructors();
+    push_back();
+    pop_back();
+    insert();
+    erase();
+    emplace_back();
+    remove_if();
+    shrink_to_fit();
+    reserve();
+    clear();
+    notify();
+    
     return 0;
 }

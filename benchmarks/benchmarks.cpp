@@ -1,351 +1,341 @@
+// VectorPro vs std::vector Benchmark Suite
+// Measures core dynamic array operations:
+//
+// - push_back (amortized growth)
+// - emplace_back (in-place construction efficiency)
+// - pop_back (O(1))
+// - insert (O(n) shifting)
+// - erase front (O(n) shifting)
+// - remove_if (O(n) filtering + compaction)
+
 #include <iostream>
-#include <vector>
 #include <chrono>
+#include <cstddef>
 
 #include "VectorPro.h"
+#include "Table.h"
 
-using size_type = std::size_t;
-namespace global {
-constexpr size_type reserve = 10'000'000;
-constexpr size_type num = 1'000'000;
-constexpr size_type index = 56700;
-constexpr size_type value = 999999;
-constexpr size_type inserts[] = {
-    456, 
-    2364, 
-    878, 
-    135, 
-    8};
-constexpr size_type erases[] = {
-	999999,
-	89873,
-	5673,
-	53100,
-	3};
-constexpr auto removeNums = [](int x) {
-	return x % 5 == 0; };
+// Timing utility (returns milliseconds)
+template<typename F>
+auto duration(F func) {
+	auto start = std::chrono::steady_clock::now();
+	func();
+	auto end = std::chrono::steady_clock::now();
+
+	return std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 }
 
-auto t() {
-	return std::chrono::high_resolution_clock::now();
-}
-
-template<typename T>
-void push_back_benchmark(VectorPro<T>& vp, std::vector<T>& v) {
-	auto vp_start = t();
-	for(size_type i = 0; i<global::num; ++i) {
-		vp.push_back(i);
-	}
-	auto vp_end = t();
-
-	auto v_start = t();
-	for(size_type j = 0; j<global::num; ++j) {
-		v.push_back(j);
-	}
-	auto v_end = t();
-
-	std::cout << "PushBack Benchmark\n";
-
-	std::cout << "VectorPro: " <<
-	          std::chrono::duration_cast<std::chrono::milliseconds>(vp_end-vp_start).count() <<
-	          "ms\n";
-
-	std::cout << "std::vector: " <<
-	          std::chrono::duration_cast<std::chrono::milliseconds>(v_end-v_start).count() <<
-	          "ms\n\n";
-}
-
-template<typename T>
-void emplace_back_benchmark(VectorPro<T>& vp, std::vector<T>& v) {
-	auto vp_start = t();
-	for(size_type i = 0; i<global::num; ++i) {
-		vp.emplace_back(i);
-	}
-	auto vp_end = t();
-
-	auto v_start = t();
-	for(size_type j = 0; j<global::num; ++j) {
-		v.emplace_back(j);
-	}
-	auto v_end = t();
-
-	std::cout << "EmplaceBack Benchmark\n";
-
-	std::cout << "VectorPro: " <<
-	          std::chrono::duration_cast<std::chrono::milliseconds>(vp_end-vp_start).count() <<
-	          "ms\n";
-
-	std::cout << "std::vector: " <<
-	          std::chrono::duration_cast<std::chrono::milliseconds>(v_end-v_start).count() <<
-	          "ms\n\n";
-}
-
-template<typename T>
-void pop_back_benchmark(VectorPro<T>& vp, std::vector<T>& v) {
-	auto vp_start = t();
-	for(size_type i = 0; i<global::num; ++i) {
-		vp.pop_back();
-	}
-	auto vp_end = t();
-
-	auto v_start = t();
-	for(size_type j = 0; j<global::num; ++j) {
-		v.pop_back();
-	}
-	auto v_end = t();
-
-	std::cout << "PopBack Benchmark\n";
-
-	std::cout << "VectorPro: " <<
-	          std::chrono::duration_cast<std::chrono::milliseconds>(vp_end-vp_start).count() <<
-	          "ms\n";
-
-	std::cout << "std::vector: " <<
-	          std::chrono::duration_cast<std::chrono::milliseconds>(v_end-v_start).count() <<
-	          "ms\n\n";
-}
-
-template<typename T>
-void insert_benchmark(VectorPro<T>& vp, std::vector<T>& v) {
-	auto vp_start = t();
-	for(size_type x : global::inserts) {
-		vp.insert(x, global::value);
-	}
-	auto vp_end = t();
-
-	auto v_start = t();
-	for(size_type x : global::inserts) {
-		v.insert(v.begin() + x, global::value);
-	}
-	auto v_end = t();
-
-	std::cout << "Insert Benchmark\n";
-
-	std::cout << "VectorPro: " <<
-	          std::chrono::duration_cast<std::chrono::milliseconds>(vp_end-vp_start).count() <<
-	          "ms\n";
-
-	std::cout << "std::vector: " <<
-	          std::chrono::duration_cast<std::chrono::milliseconds>(v_end-v_start).count() <<
-	          "ms\n\n";
-}
-
-template<typename T>
-void erase_benchmark(VectorPro<T>& vp, std::vector<T>& v) {
-	auto vp_start = t();
-	for(size_type x : global::erases) {
-		vp.erase(x);
-	}
-	auto vp_end = t();
-
-	auto v_start = t();
-	for(size_type x : global::erases) {
-		v.erase(v.begin() + x);
-	}
-	auto v_end = t();
-
-	std::cout << "Erase Benchmark\n";
-
-	std::cout << "VectorPro: " <<
-	          std::chrono::duration_cast<std::chrono::milliseconds>(vp_end-vp_start).count() <<
-	          "ms\n";
-
-	std::cout << "std::vector: " <<
-	          std::chrono::duration_cast<std::chrono::milliseconds>(v_end-v_start).count() <<
-	          "ms\n\n";
-}
-
-template<typename T>
-void reserve_benchmark(VectorPro<T>& vp, std::vector<T>& v) {
-	auto vp_start = t();
-	vp.reserve(global::reserve);
-	auto vp_end = t();
-
-	auto v_start = t();
-	v.reserve(global::reserve);
-	auto v_end = t();
-
-	std::cout << "Reserve Benchmark\n";
-
-	std::cout << "VectorPro: " <<
-	          std::chrono::duration_cast<std::chrono::milliseconds>(vp_end-vp_start).count() <<
-	          "ms\n";
-
-	std::cout << "std::vector: " <<
-	          std::chrono::duration_cast<std::chrono::milliseconds>(v_end-v_start).count() <<
-	          "ms\n\n";
-}
-
-template<typename T>
-void copy_benchmark(VectorPro<T>& vp, std::vector<T>& v) {
-	auto vp_start = t();
-	VectorPro<T> vp_copy(vp);
-	auto vp_end = t();
-
-	auto v_start = t();
-	std::vector<T> v_copy(v);
-	auto v_end = t();
-
-	std::cout << "Copy Benchmark\n";
-
-	std::cout << "VectorPro: " <<
-	          std::chrono::duration_cast<std::chrono::milliseconds>(vp_end-vp_start).count() <<
-	          "ms\n";
-
-	std::cout << "std::vector: " <<
-	          std::chrono::duration_cast<std::chrono::milliseconds>(v_end-v_start).count() <<
-	          "ms\n\n";
-}
-
-template<typename T>
-void move_benchmark(VectorPro<T>& vp, std::vector<T>& v) {
-	VectorPro<T> vp_copy(vp);
-	auto vp_start = t();
-	VectorPro<T> vp_moved(std::move(vp_copy));
-	auto vp_end = t();
-
-	std::vector<T> v_copy(v);
-	auto v_start = t();
-	std::vector<T> v_moved(std::move(v_copy));
-	auto v_end = t();
-
-	std::cout << "Move Benchmark\n";
-
-	std::cout << "VectorPro: " <<
-	          std::chrono::duration_cast<std::chrono::milliseconds>(vp_end-vp_start).count() <<
-	          "ms\n";
-
-	std::cout << "std::vector: " <<
-	          std::chrono::duration_cast<std::chrono::milliseconds>(v_end-v_start).count() <<
-	          "ms\n\n";
-}
-
-template<typename T>
-void iteration_benchmark(VectorPro<T>& vp, std::vector<T>& v) {
-	volatile long long vp_sum = 0;
-	auto vp_start = t();
-	for(auto it = vp.begin(); it != vp.end(); ++it) {
-		vp_sum += *it;
-	}
-	auto vp_end = t();
-
-	volatile long long v_sum = 0;
-	auto v_start = t();
-	for(auto it = v.begin(); it != v.end(); ++it) {
-		v_sum += *it;
-	}
-	auto v_end = t();
-
-	if(vp_sum == v_sum) {
-		std::cout << "Iteration Benchmark\n";
-
-		std::cout << "VectorPro: " <<
-		          std::chrono::duration_cast<std::chrono::milliseconds>(vp_end-vp_start).count() <<
-		          "ms\n";
-
-		std::cout << "std::vector: " <<
-		          std::chrono::duration_cast<std::chrono::milliseconds>(v_end-v_start).count() <<
-		          "ms\n\n";
-	}
-}
-
-template<typename T>
-void remove_if_benchmark(VectorPro<T>& vp, std::vector<T>& v) {
-	auto vp_start = t();
-	vp.remove_if(global::removeNums);
-	auto vp_end = t();
-
-	auto v_start = t();
-	v.erase(std::remove_if(v.begin(), v.end(), global::removeNums), v.end());
-	auto v_end = t();
-
-	std::cout << "RemoveIf Benchmark\n";
-
-	std::cout << "VectorPro: " <<
-	          std::chrono::duration_cast<std::chrono::milliseconds>(vp_end-vp_start).count() <<
-	          "ms\n";
-
-	std::cout << "std::vector: " <<
-	          std::chrono::duration_cast<std::chrono::milliseconds>(v_end-v_start).count() <<
-	          "ms\n\n";
-}
-
-template<typename T>
-void shrink_to_fit_benchmark(VectorPro<T>& vp, std::vector<T>& v) {
-	auto vp_start = t();
-	vp.shrink_to_fit();
-	auto vp_end = t();
-
-	auto v_start = t();
-	v.shrink_to_fit();
-	auto v_end = t();
-
-	std::cout << "ShrinkToFit Benchmark\n";
-
-	std::cout << "VectorPro: " <<
-	          std::chrono::duration_cast<std::chrono::milliseconds>(vp_end-vp_start).count() <<
-	          "ms\n";
-
-	std::cout << "std::vector: " <<
-	          std::chrono::duration_cast<std::chrono::milliseconds>(v_end-v_start).count() <<
-	          "ms\n\n";
-}
-
-template<typename T>
-void clear_benchmark(VectorPro<T>& vp, std::vector<T>& v) {
-	auto vp_start = t();
-	vp.clear();
-	auto vp_end = t();
-
-	auto v_start = t();
-	v.clear();
-	auto v_end = t();
-
-	std::cout << "Clear Benchmark\n";
-
-	std::cout << "VectorPro: " <<
-	          std::chrono::duration_cast<std::chrono::milliseconds>(vp_end-vp_start).count() <<
-	          "ms\n";
-
-	std::cout << "std::vector: " <<
-	          std::chrono::duration_cast<std::chrono::milliseconds>(v_end-v_start).count() <<
-	          "ms\n\n";
-}
-
-
-int main() {
+// Push Back Benchmark
+// tests amortized append performance
+void push_back() {
 	VectorPro<int> vp;
 	std::vector<int> v;
 
-	reserve_benchmark(vp, v);
+	VectorPro<long> vp_durations;
+	VectorPro<long> v_durations;
 
-	push_back_benchmark(vp, v);
+	// workload sizes
+	VectorPro<std::size_t> counts = {
+		1'000'000,
+		2'000'000,
+		4'000'000,
+		8'000'000
+	};
 
-	iteration_benchmark(vp, v);
+	for (std::size_t i = 0; i < counts.size(); ++i) {
 
-	insert_benchmark(vp, v);
+		auto vp_duration = duration([&]() {
+			for (std::size_t j = 0; j < counts[i]; ++j)
+				vp.push_back(j);
+		});
 
-	copy_benchmark(vp, v);
+		auto v_duration = duration([&]() {
+			for (std::size_t j = 0; j < counts[i]; ++j)
+				v.push_back(j);
+		});
 
-	erase_benchmark(vp, v);
+		vp_durations.push_back(vp_duration.count());
+		v_durations.push_back(v_duration.count());
+	}
 
-	move_benchmark(vp, v);
+	VectorPro<VectorPro<std::string>> data{
+		Table::convert(counts),
+		Table::convert(vp_durations, "ms"),
+		Table::convert(v_durations, "ms")
+	};
 
-	emplace_back_benchmark(vp, v);
-
-	remove_if_benchmark(vp, v);
-
-	shrink_to_fit_benchmark(vp, v);
-
-	pop_back_benchmark(vp, v);
-
-	clear_benchmark(vp, v);
-
-	return 0;
+	Table::table(
+	    "Push Back Benchmarks",
+	{"Count", "VectorPro", "std::vector"},
+	data,
+	50
+	);
 }
 
+// Pop Back Benchmark
+// tests O(1) removal from end
+void pop_back() {
+	VectorPro<int> vp;
+	std::vector<int> v;
 
+	VectorPro<long> vp_durations;
+	VectorPro<long> v_durations;
 
+	VectorPro<std::size_t> counts = {
+		100'000,
+		200'000,
+		400'000,
+		800'000
+	};
+
+	for (std::size_t i = 0; i < counts.size(); ++i) {
+
+		for (std::size_t j = 0; j < counts[i]; ++j) {
+			vp.push_back(j);
+			v.push_back(j);
+		}
+
+		auto vp_duration = duration([&]() {
+			for (std::size_t j = 0; j < counts[i]; ++j)
+				vp.pop_back();
+		});
+
+		auto v_duration = duration([&]() {
+			for (std::size_t j = 0; j < counts[i]; ++j)
+				v.pop_back();
+		});
+
+		vp_durations.push_back(vp_duration.count());
+		v_durations.push_back(v_duration.count());
+	}
+
+	VectorPro<VectorPro<std::string>> data{
+		Table::convert(counts),
+		Table::convert(vp_durations, "ms"),
+		Table::convert(v_durations, "ms")
+	};
+
+	Table::table(
+	    "Pop Back Benchmarks",
+	{"Count", "VectorPro", "std::vector"},
+	data,
+	50
+	);
+}
+
+// Insert Benchmark
+// tests O(n) shifting during insertion
+void insert() {
+	VectorPro<int> vp;
+	std::vector<int> v;
+
+	VectorPro<long> vp_durations;
+	VectorPro<long> v_durations;
+
+	VectorPro<std::size_t> counts = {
+		10'000,
+		20'000,
+		40'000,
+		80'000
+	};
+
+	for (std::size_t i = 0; i < counts.size(); ++i) {
+
+		for (std::size_t j = 0; j < counts[i]; ++j) {
+			vp.push_back(j);
+			v.push_back(j);
+		}
+
+		auto vp_duration = duration([&]() {
+			for (std::size_t j = 0; j < counts[i]; ++j)
+				vp.insert(j, j + 1);
+		});
+
+		auto v_duration = duration([&]() {
+			for (std::size_t j = 0; j < counts[i]; ++j)
+				v.insert(v.begin() + j, j + 1);
+		});
+
+		vp_durations.push_back(vp_duration.count());
+		v_durations.push_back(v_duration.count());
+	}
+
+	VectorPro<VectorPro<std::string>> data{
+		Table::convert(counts),
+		Table::convert(vp_durations, "ms"),
+		Table::convert(v_durations, "ms")
+	};
+
+	Table::table(
+	    "Insert Benchmarks",
+	{"Count", "VectorPro", "std::vector"},
+	data,
+	50
+	);
+}
+
+// Erase Benchmark
+// tests O(n) shifting from front
+void erase() {
+	VectorPro<int> vp;
+	std::vector<int> v;
+
+	VectorPro<long> vp_durations;
+	VectorPro<long> v_durations;
+
+	VectorPro<std::size_t> counts = {
+		10'000,
+		20'000,
+		40'000,
+		80'000
+	};
+
+	for (std::size_t i = 0; i < counts.size(); ++i) {
+
+		for (std::size_t j = 0; j < counts[i]; ++j) {
+			vp.push_back(j);
+			v.push_back(j);
+		}
+
+		auto vp_duration = duration([&]() {
+			for (std::size_t j = 0; j < counts[i]; ++j)
+				vp.erase(0);
+		});
+
+		auto v_duration = duration([&]() {
+			for (std::size_t j = 0; j < counts[i]; ++j)
+				v.erase(v.begin());
+		});
+
+		vp_durations.push_back(vp_duration.count());
+		v_durations.push_back(v_duration.count());
+	}
+
+	VectorPro<VectorPro<std::string>> data{
+		Table::convert(counts),
+		Table::convert(vp_durations, "ms"),
+		Table::convert(v_durations, "ms")
+	};
+
+	Table::table(
+	    "Erase Benchmarks",
+	{"Count", "VectorPro", "std::vector"},
+	data,
+	50
+	);
+}
+
+// Emplace Back Benchmark
+// tests in-place construction vs push_back overhead
+void emplace_back() {
+	VectorPro<int> vp;
+	std::vector<int> v;
+
+	VectorPro<long> vp_durations;
+	VectorPro<long> v_durations;
+
+	VectorPro<std::size_t> counts = {
+		1'000'000,
+		2'000'000,
+		4'000'000,
+		8'000'000
+	};
+
+	for (std::size_t i = 0; i < counts.size(); ++i) {
+
+		auto vp_duration = duration([&]() {
+			for (std::size_t j = 0; j < counts[i]; ++j)
+				vp.emplace_back(j);
+		});
+
+		auto v_duration = duration([&]() {
+			for (std::size_t j = 0; j < counts[i]; ++j)
+				v.emplace_back(j);
+		});
+
+		vp_durations.push_back(vp_duration.count());
+		v_durations.push_back(v_duration.count());
+	}
+
+	VectorPro<VectorPro<std::string>> data{
+		Table::convert(counts),
+		Table::convert(vp_durations, "ms"),
+		Table::convert(v_durations, "ms")
+	};
+
+	Table::table(
+		"Emplace Back Benchmarks",
+		{"Count", "VectorPro", "std::vector"},
+		data,
+		50
+	);
+}
+
+// Remove If Benchmark
+// tests filtering performance (O(n) traversal + compaction)
+void remove_if() {
+	VectorPro<int> vp;
+	std::vector<int> v;
+
+	VectorPro<long> vp_durations;
+	VectorPro<long> v_durations;
+
+	VectorPro<std::size_t> counts = {
+		100'000,
+		200'000,
+		400'000,
+		800'000
+	};
+
+	for (std::size_t i = 0; i < counts.size(); ++i) {
+
+		for (std::size_t j = 0; j < counts[i]; ++j) {
+			vp.push_back(j);
+			v.push_back(j);
+		}
+
+		auto vp_duration = duration([&]() {
+			vp.remove_if([](int x) {
+				return x % 2 == 0;
+			});
+		});
+
+		auto v_duration = duration([&]() {
+			v.erase(
+				std::remove_if(v.begin(), v.end(),
+					[](int x) { return x % 2 == 0; }),
+				v.end()
+			);
+		});
+
+		vp_durations.push_back(vp_duration.count());
+		v_durations.push_back(v_duration.count());
+	}
+
+	VectorPro<VectorPro<std::string>> data{
+		Table::convert(counts),
+		Table::convert(vp_durations, "ms"),
+		Table::convert(v_durations, "ms")
+	};
+
+	Table::table(
+		"Remove If Benchmarks",
+		{"Count", "VectorPro", "std::vector"},
+		data,
+		50
+	);
+}
+
+int main() {
+	push_back();
+	pop_back();
+	insert();
+	erase();
+	emplace_back();
+	remove_if();
+	
+	return 0;
+}
 
 
 

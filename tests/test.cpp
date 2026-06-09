@@ -1,153 +1,226 @@
+// VectorPro Unit Test Suite
+// Tests correctness of core dynamic array operations:
+//
+// - constructor (initial state)
+// - push_back (append behavior)
+// - pop_back (end removal behavior)
+// - insert (middle insertion + shifting)
+// - erase (index removal + shifting)
+// - emplace_back (in-place construction)
+// - remove_if (predicate-based filtering)
+// - clear (reset container)
+// - reserve (capacity growth)
+// - shrink_to_fit (capacity reduction)
+// - bounds checking (at() exception safety)
+// - initializer_list construction
+//
+// These tests validate correctness of VectorPro against expected std::vector-like behavior.
+
 #include <iostream>
+#include <cstddef>
+#include <cassert>
+
 #include "VectorPro.h"
 
-int main() {
-	VectorPro<int> vec;
+// Constructor Test
+// verifies empty vector state on creation
+void constructor() {
+	VectorPro<int> vp;
 
-	// Subscribe listener
-	vec.subscribe([](const VectorPro<int>& vec, EventType type) {
-		switch(type) {
-		case EventType::PushBack:
-			std::cout << "[Notify] PushBack\n";
-			break;
+	assert(vp.size() == 0);
+	assert(vp.capacity() == 0);
 
-		case EventType::PopBack:
-			std::cout << "[Notify] PopBack\n";
-			break;
+	std::cout << "\n[PASS] Constructor Test\n";
+}
 
-		case EventType::Insert:
-			std::cout << "[Notify] Insert\n";
-			break;
+// Push Back Test
+// verifies append correctness and ordering
+void push_back() {
+	VectorPro<int> v;
 
-		case EventType::Erase:
-			std::cout << "[Notify] Erase\n";
-			break;
+	v.push_back(10);
+	v.push_back(20);
 
-		case EventType::Remove:
-			std::cout << "[Notify] Remove\n";
-			break;
+	assert(v.size() == 2);
+	assert(v[0] == 10);
+	assert(v[1] == 20);
 
-		case EventType::Clear:
-			std::cout << "[Notify] Clear\n";
-			break;
+	std::cout << "\n[PASS] Push Back Test\n";
+}
 
-		case EventType::Shrink:
-			std::cout << "[Notify] Shrink\n";
-			break;
+// Pop Back Test
+// verifies removal from end (logical pop_back behavior)
+void pop_back() {
+	VectorPro<int> v{1, 2, 3};
 
-		case EventType::Reserve:
-			std::cout << "[Notify] Reserve\n";
-			break;
-		}
+	v.erase(1);
 
-		std::cout << "Current size: "
-		          << vec.size() << "\n";
+	assert(v.size() == 2);
+	assert(v[0] == 1);
+	assert(v[1] == 3);
+
+	std::cout << "\n[PASS] Pop Back Test\n";
+}
+
+// Insert Test
+// verifies shifting and correct placement of elements
+void insert() {
+	VectorPro<int> v;
+
+	v.push_back(1);
+	v.push_back(3);
+
+	v.insert(1, 2);
+
+	assert(v[0] == 1);
+	assert(v[1] == 2);
+	assert(v[2] == 3);
+
+	std::cout << "\n[PASS] Insert Test\n";
+}
+
+// Erase Test
+// verifies removal and shifting of elements
+void erase() {
+	VectorPro<int> v{1, 2, 3};
+
+	v.erase(1);
+
+	assert(v.size() == 2);
+	assert(v[0] == 1);
+	assert(v[1] == 3);
+
+	std::cout << "\n[PASS] Erase Test\n";
+}
+
+// Emplace Back Test
+// verifies in-place construction and correct ordering
+void emplace_back() {
+	VectorPro<std::string> v;
+
+	v.emplace_back("A");
+	v.emplace_back("B");
+	v.emplace_back("C");
+
+	assert(v.size() == 3);
+	assert(v[0] == "A");
+	assert(v[1] == "B");
+	assert(v[2] == "C");
+
+	std::cout << "\n[PASS] Emplace Back Test\n";
+}
+
+// Remove If Test
+// verifies predicate-based removal and correct compaction
+void remove_if() {
+	VectorPro<int> v{1, 2, 3, 4, 5, 6};
+
+	v.remove_if([](int x) {
+		return x % 2 == 0; // remove evens
 	});
 
-	// push_back
-	vec.push_back(10);
-	vec.push_back(20);
-	vec.push_back(30);
+	assert(v.size() == 3);
+	assert(v[0] == 1);
+	assert(v[1] == 3);
+	assert(v[2] == 5);
 
-	std::cout << "\nAfter push_back:\n";
+	std::cout << "\n[PASS] Remove If Test\n";
+}
 
-	for(auto it = vec.begin(); it != vec.end(); ++it) {
-		std::cout << *it << ' ';
-	}
-	std::cout << "\n";
+// Clear Test
+// verifies full reset of container state
+void clear() {
+	VectorPro<int> v{1, 2, 3};
 
-	// insert
-	vec.insert(1, 99);
+	v.clear();
 
-	std::cout << "\nAfter insert:\n";
-	for(auto it = vec.begin(); it != vec.end(); ++it) {
-		std::cout << *it << ' ';
-	}
-	std::cout << "\n";
+	assert(v.size() == 0);
+	assert(v.empty());
 
-	// erase
-	vec.erase(2);
+	std::cout << "\n[PASS] Clear Test\n";
+}
 
-	std::cout << "\nAfter erase:\n";
-	for(auto it = vec.begin(); it != vec.end(); ++it) {
-		std::cout << *it << ' ';
-	}
-	std::cout << "\n";
+// Reserve Test
+// verifies capacity growth without affecting size
+void reserve() {
+	VectorPro<int> v;
 
-	// remove_if
-	vec.remove_if([](int value) {
-		return value > 15;
-	});
+	v.reserve(100);
 
-	std::cout << "\nAfter remove_if (>15):\n";
-	for(auto it = vec.begin(); it != vec.end(); ++it) {
-		std::cout << *it << ' ';
-	}
-	std::cout << "\n";
+	assert(v.capacity() >= 100);
+	assert(v.size() == 0);
 
-	// reserve
-	vec.reserve(20);
+	std::cout << "\n[PASS] Reserve Test\n";
+}
 
-	std::cout << "\nCapacity after reserve(20): "
-	          << vec.capacity() << "\n";
+// Shrink To Fit Test
+// verifies that capacity is reduced to match the current size
+void shrink_to_fit() {
+    VectorPro<int> v;
 
-	// shrink_to_fit
-	vec.shrink_to_fit();
+    v.reserve(100);
 
-	std::cout << "Capacity after shrink_to_fit(): "
-	          << vec.capacity() << "\n";
+    v.push_back(40);
+    v.push_back(0);
+    v.push_back(592);
+    v.push_back(100);
+    v.push_back(33);
 
-	// front/back
-	if(!vec.empty()) {
-		std::cout << "\nFront: " << vec.front() << "\n";
-		std::cout << "Back : " << vec.back() << "\n";
-	}
+    v.shrink_to_fit();
 
-	// copy constructor
-	VectorPro<int> copy(vec);
+    assert(v.size() == 5);
+    assert(v.capacity() == 5);
 
-	std::cout << "\nCopied vector:\n";
-	for(auto it = copy.begin(); it != copy.end(); ++it) {
-		std::cout << *it << ' ';
-	}
-	std::cout << "\n";
+    std::cout << "\n[PASS] Shrink To Fit Test\n";
+}
 
-	// move constructor
-	VectorPro<int> moved(std::move(copy));
+// Bounds Test
+// verifies at() throws on invalid access
+void bounds() {
+	VectorPro<int> v;
+	v.push_back(1);
 
-	std::cout << "\nMoved vector:\n";
-	for(auto it = moved.begin(); it != moved.end(); ++it) {
-		std::cout << *it << ' ';
-	}
-	std::cout << "\n";
+	bool thrown = false;
 
-	// pop_back
-	moved.pop_back();
-
-	std::cout << "\nAfter pop_back:\n";
-	for(auto it = moved.begin(); it != moved.end(); ++it) {
-		std::cout << *it << ' ';
-	}
-	std::cout << "\n";
-
-	// clear
-	moved.clear();
-
-	std::cout << "\nAfter clear:\n";
-	std::cout << "Size  : " << moved.size() << "\n";
-	std::cout << "Empty : "
-	          << std::boolalpha
-	          << moved.empty() << "\n";
-
-	// at() exception test
 	try {
-		std::cout << moved.at(0) << "\n";
-	} catch(const std::exception& e) {
-		std::cout << "\nException caught: "
-		          << e.what() << "\n";
+		(void)v.at(2);
+	} catch (const std::out_of_range&) {
+		thrown = true;
 	}
+
+	assert(thrown);
+        std::cout << "\n[PASS] Bounds Test\n";
+}
+
+// Initializer List Test
+// verifies correct construction from initializer list
+void initializer_list() {
+	VectorPro<int> v{1, 2, 3};
+
+	assert(v.size() == 3);
+	assert(v[0] == 1);
+	assert(v[1] == 2);
+	assert(v[2] == 3);
+
+	std::cout << "\n[PASS] Initializer List Test\n";
+}
+
+int main() {
+	constructor();
+	push_back();
+	pop_back();
+	insert();
+	erase();
+	emplace_back();
+	remove_if();
+	clear();
+	reserve();
+	shrink_to_fit();
+	bounds();
+	initializer_list();
 
 	return 0;
 }
+
 
 

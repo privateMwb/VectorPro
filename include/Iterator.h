@@ -1,4 +1,4 @@
-#pragma once 
+#pragma once
 
 #include <iterator>
 #include <cstddef>
@@ -6,131 +6,122 @@
 
 template<typename T>
 class Iterator {
-    private:
-    T* ptr;
-    
-    public:
-    // Types
-    using value_type = std::remove_const_t<T>;
-    using pointer = T*;
-    using reference = T&;
-    using difference_type = std::ptrdiff_t;
-    using iterator_category = std::random_access_iterator_tag;
-    using iterator_concept = std::random_access_iterator_tag;
-    
-    // Constructor
-    constexpr explicit Iterator(T* p = nullptr) noexcept : ptr(p) {}
-    
-    // Conversion
-    template<typename U>
-    requires std::is_convertible_v<U*, T*>
-    constexpr Iterator(const Iterator<U>& other) noexcept : ptr(other.base()) {}
-    
-    // Base
-    [[nodiscard]]
-    constexpr T* base() const noexcept {
-        return ptr;
-    }
-    
-    // Dereference
-    constexpr reference operator*() const noexcept {
-        return *ptr;
-    }
-    
-    constexpr pointer operator->() const noexcept {
-        return ptr;
-    }
-    
-    // Increment / Decrement
-    constexpr Iterator& operator++() noexcept {
-        ++ptr;
-        
-        return *this;
-    }
-    
-    constexpr Iterator& operator--() noexcept {
-        --ptr;
-        
-        return *this;
-    }
-    
-    constexpr Iterator operator++(int) noexcept {
-        Iterator tmp(*this);
-        ++ptr;
-        
-        return tmp;
-    }
-    
-    constexpr Iterator operator--(int) noexcept {
-        Iterator tmp(*this);
-        --ptr;
-        
-        return tmp;
-    }
+private:
+	T* ptr;
 
-    // Arithmetic 
-    constexpr Iterator& operator+=(difference_type n) noexcept {
-        ptr += n;
-        
-        return *this;
-    }
-    
-    constexpr Iterator& operator-=(difference_type n) noexcept {
-        ptr -= n;
-        
-        return *this;
-    }
-    
-    [[nodiscard]]
-    constexpr Iterator operator+(difference_type n) const noexcept {
-        return Iterator(ptr + n);
-    }
-    
-    [[nodiscard]]
-    constexpr Iterator operator-(difference_type n) const noexcept {
-        return Iterator(ptr - n);
-    }
-    
-    // Iterator Difference 
-    template<typename U>
-    constexpr difference_type operator-(const Iterator<U>& other) const noexcept {
-        return ptr - other.base();
-    }
-    
-    // Indexing
-    constexpr reference operator[](difference_type n) const noexcept {
-        return *(ptr + n);
-    }
-    
-    // Comparison
-    template<typename U>
-    constexpr bool operator<(const Iterator<U>& other) const noexcept {
-        return ptr < other.base();
-    }
-    
-    template<typename U>
-    constexpr bool operator>(const Iterator<U>& other) const noexcept {
-        return ptr > other.base();
-    }
-    
-    template<typename U>
-    constexpr bool operator<=(const Iterator<U>& other) const noexcept {
-        return ptr <= other.base();
-    }
-    
-    template<typename U>
-    constexpr bool operator>=(const Iterator<U>& other) const noexcept {
-        return ptr >= other.base();
-    }
-    
-    template<typename U>
-    constexpr bool operator==(const Iterator<U>& other) const noexcept {
-        return ptr == other.base();
-    }
-    
-    template<typename U>
-    constexpr bool operator!=(const Iterator<U>& other) const noexcept {
-        return ptr != other.base();
-    }
-    
+public:
+	// Types
+	using value_type = std::remove_const_t<T>;
+	using pointer = T*;
+	using reference = T&;
+	using difference_type = std::ptrdiff_t;
+	using iterator_category = std::random_access_iterator_tag;
+	using iterator_concept = std::random_access_iterator_tag;
+
+	// Constructor
+	constexpr explicit Iterator(T* p = nullptr) noexcept : ptr(p) {}
+
+	// Conversion
+	template<typename U>
+	requires std::is_convertible_v<U*, T*>
+	constexpr Iterator(const Iterator<U>& other) noexcept : ptr(other.base()) {}
+
+	// Base
+	[[nodiscard]]
+	constexpr T* base() const noexcept {
+		return ptr;
+	}
+
+	// Dereference
+	[[nodiscard]]
+	constexpr reference operator*() const noexcept {
+		return *ptr;
+	}
+
+	[[nodiscard]]
+	constexpr pointer operator->() const noexcept {
+		return ptr;
+	}
+
+	// Increment / Decrement
+	constexpr Iterator& operator++() noexcept {
+		++ptr;
+
+		return *this;
+	}
+
+	constexpr Iterator& operator--() noexcept {
+		--ptr;
+
+		return *this;
+	}
+
+	constexpr Iterator operator++(int) noexcept {
+		Iterator tmp(*this);
+		++ptr;
+
+		return tmp;
+	}
+
+	constexpr Iterator operator--(int) noexcept {
+		Iterator tmp(*this);
+		--ptr;
+
+		return tmp;
+	}
+
+	// Arithmetic
+	constexpr Iterator& operator+=(difference_type n) noexcept {
+		ptr += n;
+
+		return *this;
+	}
+
+	constexpr Iterator& operator-=(difference_type n) noexcept {
+		ptr -= n;
+
+		return *this;
+	}
+
+	[[nodiscard]]
+	constexpr Iterator operator+(difference_type n) const noexcept {
+		return Iterator(ptr + n);
+	}
+
+	[[nodiscard]]
+	constexpr Iterator operator-(difference_type n) const noexcept {
+		return Iterator(ptr - n);
+	}
+
+	// Iterator Difference
+	template<typename U>
+	constexpr difference_type operator-(const Iterator<U>& other) const noexcept {
+		return ptr - other.base();
+	}
+
+	// Indexing
+	[[nodiscard]]
+	constexpr reference operator[](difference_type n) const noexcept {
+		return *(ptr + n);
+	}
+
+	// Comparison
+	template<typename U>
+	[[nodiscard]]
+	constexpr auto operator<=>(const Iterator<U>& other) const noexcept {
+		return ptr <=> other.base();
+	}
+
+	template<typename U>
+	[[nodiscard]]
+	constexpr bool operator==(const Iterator<U>& other) const noexcept {
+		return ptr == other.base();
+	}
 };
+
+// Arithmetic (free function)
+template<typename T>
+[[nodiscard]]
+constexpr Iterator<T> operator+(std::ptrdiff_t n, const Iterator<T>& it) noexcept {
+    return it + n;
+}
