@@ -532,7 +532,6 @@ g++ -std=c++23 examples/main.cpp -Iinclude -o build/examples
 ### Notes
 - Use `-O2` or `-O3` for benchmark accuracy
 - Debug builds (`-g`) may distort performance results
-```
 
 ---
 
