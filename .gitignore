@@ -1,11 +1,6 @@
 # Build outputs
 build/
 
-# Executables
-benchmarks
-examples
-tests
-
 # Windows
 *.exe
 
