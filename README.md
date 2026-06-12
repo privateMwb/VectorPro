@@ -40,6 +40,7 @@ A custom C++ dynamic array implementation built for learning low-level memory ma
 - [Project Structure](#project-structure)
 - [Build Instructions](#build-instructions)
 - [Notes](#notes)
+- [Contributing](#contributing)
 - [License](#license)
 
 ---
@@ -599,50 +600,56 @@ VectorPro/
 
 ### Requirements
 
-- C++23 compatible compiler (GCC / Clang / MSVC)
-- CMake (optional, if you later switch to build system)
-- Git (for cloning repository)
+- C++23-compatible compiler: GCC 13+, Clang 17+, or MSVC 19.38+
+- No external dependencies — header-only core library
 
-### Compile Tests
+### Compile & Run Tests
 
 ```bash
-g++ -std=c++23 tests/vectorpro_tests.cpp -Iinclude -o build/tests
+g++ -std=c++23 tests/test.cpp -Iinclude -o build/tests
 ./build/tests
 ```
 
-### Compile Benchmarks
+### Compile & Run Benchmarks
 
 ```bash
-g++ -std=c++23 benchmarks/benchmarks.cpp -Iinclude -Ibenchmarks/utils -O2 -o build/benchmarks
+g++ -std=c++23 -O2 benchmarks/benchmarks.cpp -Iinclude -Ibenchmarks/utils -o build/benchmarks
 ./build/benchmarks
 ```
 
-### Compile Examples
+> Use `-O2` or `-O3` for meaningful benchmark results. Debug builds distort timing significantly.
+
+### Compile & Run Examples
 
 ```bash
-g++ -std=c++23 examples/main.cpp -Iinclude -o build/examples
+g++ -std=c++23 examples/examples.cpp -Iinclude -o build/examples
 ./build/examples
 ```
-
-### Notes
-
-- Use `-O2` or `-O3` for benchmark accuracy
-- Debug builds (`-g`) may distort performance results
 
 ---
 
 ## Notes
 
-- This project is purely educational and not intended as a production-ready STL replacement
-- Some optimizations used in `std::vector` are not fully replicated (allocator traits, small buffer optimizations, etc.)
-- Performance results may vary depending on compiler, platform, and optimization flags
-- The implementation prioritizes learning clarity over micro-optimizations
-- Exception safety is handled in core operations but may not match full STL guarantees in all edge cases
+- **Not production-ready.** This is an educational project — use `std::vector` in real codebases.
+- Some `std::vector` optimizations are intentionally omitted: allocator traits, small-buffer optimization (SBO), SIMD-friendly layouts, etc.
+- Exception safety is handled for core operations but may not match full STL guarantees in all edge cases.
+- The observer system adds a small per-operation overhead — this is visible in the `emplace_back` and `pop_back` benchmarks.
+- Iterator invalidation rules mirror `std::vector`: any reallocation or structural modification (insert/erase) invalidates existing iterators.
+
+---
+
+## Contributing
+
+Contributions, improvements, and learning-focused PRs are welcome! Some areas worth exploring:
+
+- Allocator support (`std::allocator_traits`)
+- `std::span` compatibility
+- Additional iterator categories (random-access conformance)
+- CMake build system integration
+- CI pipeline (GitHub Actions)
 
 ---
 
 ## License
 
-MIT License
-
-You are free to use, modify, and distribute this project for educational and personal purposes.
+[MIT](LICENSE) — free to use, modify, and distribute for educational and personal purposes.
