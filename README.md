@@ -1,6 +1,9 @@
 # VectorPro
 
-[![C++](https://img.shields.io/badge/C%2B%2B-23-blue)](https://img.shields.io/badge/C%2B%2B-23-blue) [![Status](https://img.shields.io/badge/status-learning-green)](https://img.shields.io/badge/status-learning-green)
+[![C++23](https://img.shields.io/badge/C%2B%2B-23-blue)](https://en.cppreference.com/w/cpp/23)
+[![Status](https://img.shields.io/badge/status-learning%20project-green)](https://github.com/privateMwb/VectorPro)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 
 A custom C++ dynamic array implementation built for learning low-level memory management, STL-like container design, iterators, and performance benchmarking.
 
