@@ -9,6 +9,41 @@ A custom C++ dynamic array implementation built for learning low-level memory ma
 
 ---
 
+## Table of Contents
+
+- [Overview](#overview)
+- [Motivation / Goals](#motivation--goals)
+- [Features](#features)
+- [Design Overview](#design-overview)
+  - [Internal Structure](#internal-structure)
+  - [Growth Strategy](#growth-strategy)
+  - [Memory Management](#memory-management)
+  - [Iterator Design](#iterator-design)
+  - [Observer System](#observer-system)
+  - [Exception Safety Model](#exception-safety-model)
+  - [Design Philosophy](#design-philosophy)
+- [Complexity](#complexity)
+  - [Time Complexity](#time-complexity)
+  - [Space Complexity](#space-complexity)
+- [Quick Example](#quick-example)
+  - [Basic Operations](#basic-operations)
+  - [Advanced Example](#advanced-example-emplace--remove_if)
+- [Core API](#core-api)
+  - [Constructors](#constructors)
+  - [Modifiers](#modifiers)
+  - [Capacity](#capacity)
+  - [Element Access](#element-access)
+  - [Iterators](#iterators)
+  - [Observer System](#observer-system-1)
+  - [Utility](#utility)
+- [Benchmark Results](#benchmark-results)
+- [Project Structure](#project-structure)
+- [Build Instructions](#build-instructions)
+- [Notes](#notes)
+- [License](#license)
+
+---
+
 ## Overview
 
 VectorPro is a `std::vector`-like container implemented from scratch in modern C++ (C++23).  
