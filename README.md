@@ -1,274 +1,237 @@
 # VectorPro
 
-[![C++23](https://img.shields.io/badge/C%2B%2B-23-blue)](https://en.cppreference.com/w/cpp/23)
-[![Status](https://img.shields.io/badge/status-learning%20project-green)](https://github.com/privateMwb/VectorPro)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![C++](https://img.shields.io/badge/C%2B%2B-23-blue)](https://img.shields.io/badge/C%2B%2B-23-blue) [![Status](https://img.shields.io/badge/status-learning-green)](https://img.shields.io/badge/status-learning-green)
 
-A custom `std::vector`-like dynamic array implemented from scratch in **C++23**, built for learning low-level memory management, STL container design, iterators, and performance benchmarking.
-
----
-
-## Table of Contents
-
-- [Overview](#overview)
-- [Motivation](#motivation)
-- [Features](#features)
-- [Project Structure](#project-structure)
-- [Design Overview](#design-overview)
-  - [Internal Structure](#internal-structure)
-  - [Growth Strategy](#growth-strategy)
-  - [Memory Management](#memory-management)
-  - [Iterator Design](#iterator-design)
-  - [Observer System](#observer-system)
-  - [Exception Safety](#exception-safety)
-- [Complexity](#complexity)
-- [Quick Start](#quick-start)
-- [API Reference](#api-reference)
-- [Benchmark Results](#benchmark-results)
-- [Build Instructions](#build-instructions)
-- [Notes](#notes)
-- [License](#license)
+A custom C++ dynamic array implementation built for learning low-level memory management, STL-like container design, iterators, and performance benchmarking.
 
 ---
 
 ## Overview
 
-VectorPro is a feature-complete, `std::vector`-compatible container built from the ground up — no STL containers, no default allocator. It covers the full breadth of what makes `std::vector` work: amortized growth, placement-new lifetime management, copy/move semantics, iterator support, and more.
+VectorPro is a `std::vector`-like container implemented from scratch in modern C++ (C++23).  
+It focuses on understanding how dynamic arrays work internally, including memory allocation, growth strategies, and iterator support.
 
-It also goes a step further by adding an **observer/event system** that lets external code react to container mutations in real time.
+It also includes:
+
+- Custom iterator & reverse iterator
+- Observer/event system (`notify`)
+- Benchmark suite comparing against `std::vector`
+- Unit tests for correctness validation
 
 ---
 
-## Motivation
+## Motivation / Goals
 
-This project was built to deeply understand:
+This project was built to understand:
 
-- Dynamic memory management (`new`, placement `new`, `operator delete`)
-- The Rule of 5 (copy/move constructors and assignment operators)
+- Dynamic memory management (`new`, placement new, `operator delete`)
+- Rule of 5 (copy/move semantics)
 - Amortized complexity in dynamic arrays
 - STL container design principles
-- Iterator and reverse iterator implementation
+- Iterator implementation
 - Event-driven container design (observer pattern)
-- Real performance tradeoffs vs `std::vector`
+- Performance benchmarking vs `std::vector`
 
 ---
 
 ## Features
 
 - Dynamic array with automatic resizing
-- Full set of modifiers: `push_back`, `pop_back`, `insert`, `erase`, `emplace_back`, `remove_if`, `clear`
-- Capacity management: `reserve`, `shrink_to_fit`
-- Bounds-checked access via `at()`
-- Copy & move semantics (Rule of 5)
-- Custom forward and reverse iterators
-- Range-based for loop support
-- Initializer list construction
-- Observer/event system (`subscribe`, `notify`, `unsubscribe`)
-
----
-
-## Project Structure
-
-```
-VectorPro/
-├── include/
-│   ├── VectorPro.h          # Main template class declaration
-│   ├── VectorPro.tpp        # Template method definitions
-│   ├── Iterator.h           # Forward iterator
-│   └── ReverseIterator.h    # Reverse iterator
-│
-├── benchmarks/
-│   ├── benchmarks.cpp       # Benchmark suite vs std::vector
-│   └── utils/
-│       ├── Table.h          # Benchmark result formatting
-│       └── Table.tpp
-│
-├── tests/
-│   └── test.cpp             # Unit tests for correctness validation
-│
-├── examples/
-│   └── examples.cpp         # Usage examples
-│
-├── README.md
-└── LICENSE
-```
+- `push_back`, `pop_back`
+- `insert`, `erase`
+- `emplace_back`
+- `remove_if`
+- `reserve`, `shrink_to_fit`
+- `clear`
+- Bounds checking via `at()`
+- Copy & move semantics
+- Custom iterators (forward & reverse)
+- Observer system (`subscribe`, `notify`)
+- Initializer list support
 
 ---
 
 ## Design Overview
 
-### Internal Structure
+VectorPro uses a raw heap-allocated array with manual memory control.
 
-VectorPro maintains three core members on a raw heap-allocated block:
+It is designed to behave similarly to `std::vector`, but implemented from scratch for educational purposes.
+
+### Internal Structure
 
 ```
 data (T*)
   ↓
-[ T ][ T ][ T ][ T ][ T ][ ... ]
-                  ↑           ↑
-               v_size       v_cap
+[T][T][T][T][T][...]
+        ↑
+     v_size / v_cap
 ```
 
-| Member   | Role                                  |
-|----------|---------------------------------------|
-| `data`   | Pointer to raw heap memory            |
-| `v_size` | Number of live, constructed elements  |
-| `v_cap`  | Total allocated capacity (slots)      |
-
----
+- `data` → pointer to raw heap memory
+- `v_size` → number of constructed elements
+- `v_cap` → total allocated capacity
 
 ### Growth Strategy
 
-When capacity is exceeded during `push_back` or `insert`, VectorPro grows according to:
+When capacity is exceeded:
 
 ```cpp
-new_capacity = (v_cap == 0) ? 8 : v_cap + (v_cap / 2);
+new_capacity = (v_cap == 0)
+             ? 8
+             : v_cap + (v_cap / 2);
 ```
 
-This 1.5× growth factor (vs `std::vector`'s typical 2×) produces:
+This ensures:
+
+- Amortized O(1) `push_back`
+- Gradual growth (reduces realloc frequency)
+- Balanced memory vs performance tradeoff
 
 ```
-8 → 12 → 18 → 27 → 40 → 60 → 90 → ...
+8 → 12 → 18 → 27 → 40 → 60 → ...
 ```
-
-**Tradeoffs:**
-- Fewer reallocations than linear growth → amortized O(1) `push_back`
-- Smaller memory headroom vs 2× growth → better memory efficiency
-- Slightly more reallocations than 2× growth → marginal performance cost
-
----
 
 ### Memory Management
 
-VectorPro manually controls object lifetime using placement `new` for construction:
+VectorPro manually controls object lifetime using placement new:
 
 ```cpp
-new (data + i) T(value);   // Construct in-place
+new (data + i) T(value);
 ```
 
-And explicit destructor calls for destruction:
+And explicit destruction:
 
 ```cpp
-data[i].~T();              // Destroy without freeing memory
+data[i].~T();
 ```
 
-This separates allocation from construction — the same technique used internally by `std::vector`. Reallocation follows four steps:
+This enables:
 
-1. Allocate new raw memory block
-2. Move (or copy) existing elements into it
-3. Destroy elements in the old block
-4. Free the old memory
+- Fine-grained control of construction/destruction
+- Avoiding default allocator behavior
+- Learning low-level memory handling
 
----
+Reallocation involves:
+
+1. Allocate new raw memory
+2. Move or copy elements
+3. Destroy old elements
+4. Free old memory
 
 ### Iterator Design
 
-Iterators wrap a raw pointer with a minimal interface:
+Iterators are lightweight wrappers around raw pointers:
+
+```
+[T* ptr]
+```
+
+They support:
+
+- Dereference (`*ptr`)
+- Increment (`++ptr`)
+- Comparison (`ptr != end`)
+
+Reverse iterator:
+
+```
+rbegin() → end()
+rend()   → begin()
+```
+
+Enables range-based for loops:
 
 ```cpp
-struct Iterator {
-    T* ptr;
-
-    T& operator*()  { return *ptr; }
-    Iterator& operator++() { ++ptr; return *this; }
-    bool operator!=(const Iterator& o) const { return ptr != o.ptr; }
-};
+for (auto& x : v) {
+    // iteration
+}
 ```
-
-The reverse iterator maps:
-
-```
-rbegin() → points to last element  (end() - 1)
-rend()   → points before first     (begin() - 1)
-```
-
-Both iterators support range-based for loops:
-
-```cpp
-for (auto& x : v) { /* ... */ }
-```
-
-> **Note:** Iterators are invalidated by any operation that causes reallocation (`push_back` when full, `reserve`, `shrink_to_fit`) or shifts elements (`insert`, `erase`).
-
----
 
 ### Observer System
 
-VectorPro supports an event-listener system. Subscribers receive an `EventType` enum value whenever the container mutates:
+VectorPro supports an event-based listener system.
 
 ```
-Container operation
-       ↓
-  notify(EventType)
-       ↓
-All subscribed listeners are called
+operation (push/erase/clear/etc)
+        ↓
+notify(EventType)
+        ↓
+all subscribed listeners executed
 ```
 
-**Supported events:**
+Supported events:
 
-| Event       | Triggered by      |
-|-------------|-------------------|
-| `PushBack`  | `push_back`       |
-| `PopBack`   | `pop_back`        |
-| `Insert`    | `insert`          |
-| `Erase`     | `erase`           |
-| `Clear`     | `clear`           |
-| `Reserve`   | `reserve`         |
-| `Shrink`    | `shrink_to_fit`   |
+- PushBack
+- PopBack
+- Insert
+- Erase
+- Clear
+- Reserve
+- Shrink
 
-**Example:**
+This allows external systems to react to container changes.
 
-```cpp
-VectorPro<int> v;
+### Exception Safety Model
 
-v.subscribe([](EventType e) {
-    if (e == EventType::PushBack)
-        std::cout << "Element added!\n";
-});
+- Strong safety in copy and move operations
+- Reallocation uses rollback on failure
+- Bounds checking via `at()` throws `std::out_of_range`
+- Manual cleanup ensures no memory leaks on exceptions
 
-v.push_back(42); // → "Element added!"
-```
+### Design Philosophy
 
----
+VectorPro prioritizes:
 
-### Exception Safety
-
-| Scenario                         | Guarantee         |
-|----------------------------------|-------------------|
-| Copy/move construction           | Strong            |
-| Reallocation failure             | Rollback (strong) |
-| `at()` out-of-bounds             | Throws `std::out_of_range` |
-| Manual cleanup on exception      | No memory leaks   |
+- Learning STL internals
+- Explicit memory control
+- Performance awareness
+- Minimal abstraction over raw arrays
+- Understanding how std::vector works under the hood
 
 ---
 
 ## Complexity
 
+VectorPro is designed to match `std::vector`-like performance characteristics.
+
 ### Time Complexity
 
-| Operation       | Average    | Worst Case | Notes                              |
-|-----------------|------------|------------|------------------------------------|
-| `push_back`     | O(1)       | O(n)       | Amortized; O(n) on reallocation    |
-| `emplace_back`  | O(1)       | O(n)       | Same as `push_back`                |
-| `pop_back`      | O(1)       | O(1)       | Destructs last element             |
-| `insert`        | O(n)       | O(n)       | Shifts elements rightward          |
-| `erase`         | O(n)       | O(n)       | Shifts elements leftward           |
-| `operator[]`    | O(1)       | O(1)       | Direct pointer offset              |
-| `at()`          | O(1)       | O(1)       | Same + bounds check                |
-| `reserve`       | O(n)       | O(n)       | Realloc + move                     |
-| `shrink_to_fit` | O(n)       | O(n)       | Realloc + move                     |
-| `clear`         | O(n)       | O(n)       | Destructs all elements             |
-| `remove_if`     | O(n)       | O(n)       | Single-pass predicate filter       |
+| Operation           | Complexity | Notes                            |
+| ------------------- | ---------- | -------------------------------- |
+| push\_back          | O(1)\*     | Amortized due to growth strategy |
+| pop\_back           | O(1)       | Direct element destruction       |
+| insert              | O(n)       | Shifting elements after position |
+| erase               | O(n)       | Shifting elements after index    |
+| emplace\_back       | O(1)\*     | Amortized like push\_back        |
+| access (operator[]) | O(1)       | Direct pointer access            |
+| at()                | O(1)       | With bounds checking             |
+| reserve             | O(n)       | Reallocation + move              |
+| shrink\_to\_fit     | O(n)       | Reallocation + move              |
+| clear               | O(n)       | Destroys all elements            |
+
+\* Amortized O(1) due to exponential growth strategy
 
 ### Space Complexity
 
-- **O(n)** for stored elements
-- Additional overhead from growth strategy (up to ~50% excess capacity)
-- Listener array adds minimal overhead proportional to subscriber count
+- O(n) for stored elements
+- Additional capacity overhead due to growth strategy
+- Minimal overhead beyond raw array + listener array
+
+### Notes
+
+- Worst-case `push_back` is O(n) during reallocation
+- Iterator invalidation occurs on:
+  - reallocation
+  - insert
+  - erase
+  - reserve
+  - shrink_to_fit
 
 ---
 
-## Quick Start
+## Quick Example
+
+A minimal example showing basic usage of `VectorPro`.
 
 ### Basic Operations
 
@@ -279,22 +242,31 @@ v.push_back(42); // → "Element added!"
 int main() {
     VectorPro<int> v;
 
+    // push elements
     v.push_back(10);
     v.push_back(20);
     v.push_back(30);
 
-    std::cout << v[0] << "\n";   // 10
-    std::cout << v.size() << "\n"; // 3
+    // access elements
+    std::cout << v[0] << "\n"; // 10
+    std::cout << v[1] << "\n"; // 20
 
-    v.insert(1, 15);  // {10, 15, 20, 30}
-    v.erase(2);       // {10, 15, 30}
+    // insert in middle
+    v.insert(1, 15); // {10, 15, 20, 30}
 
-    for (auto& x : v)
-        std::cout << x << " ";  // 10 15 30
+    // erase element
+    v.erase(2); // {10, 15, 30}
+
+    // iterate
+    for (auto& x : v) {
+        std::cout << x << " ";
+    }
+
+    return 0;
 }
 ```
 
-### Emplace + remove_if
+### Advanced Example (emplace + remove_if)
 
 ```cpp
 #include "VectorPro.h"
@@ -303,46 +275,38 @@ int main() {
 struct Person {
     std::string name;
     int age;
-    Person(std::string n, int a) : name(std::move(n)), age(a) {}
+
+    Person(std::string n, int a)
+        : name(std::move(n)), age(a) {}
 };
 
 int main() {
     VectorPro<Person> people;
 
-    people.emplace_back("Alice",   20);
-    people.emplace_back("Bob",     25);
+    people.emplace_back("Alice", 20);
+    people.emplace_back("Bob", 25);
     people.emplace_back("Charlie", 17);
 
-    // Remove anyone under 18
-    people.remove_if([](const Person& p) { return p.age < 18; });
-    // Remaining: Alice, Bob
+    // remove minors
+    people.remove_if([](const Person& p) {
+        return p.age < 18;
+    });
+
+    return 0;
 }
-```
-
-### Initializer List + Observer
-
-```cpp
-VectorPro<int> v{1, 2, 3, 4, 5};
-
-v.subscribe([](EventType e) {
-    std::cout << "Event: " << static_cast<int>(e) << "\n";
-});
-
-v.push_back(6);  // triggers PushBack event
-v.pop_back();    // triggers PopBack event
 ```
 
 ---
 
-## API Reference
+## Core API
 
 ### Constructors
 
 ```cpp
-VectorPro<T> v;                    // Default (empty)
-VectorPro<T> v{1, 2, 3};           // Initializer list
-VectorPro<T> v(other);             // Copy constructor
-VectorPro<T> v(std::move(other));  // Move constructor
+VectorPro<T> v;                          // default
+VectorPro<T> v{1, 2, 3};                 // initializer list
+VectorPro<T> v(other);                   // copy constructor
+VectorPro<T> v(std::move(other));        // move constructor
 ```
 
 ### Modifiers
@@ -373,18 +337,18 @@ void clear();
 void reserve(size_type newCap);
 void shrink_to_fit();
 
-bool      empty()    const;
-size_type size()     const;
+bool empty() const;
+size_type size() const;
 size_type capacity() const;
 ```
 
 ### Element Access
 
 ```cpp
-T&       operator[](size_type index);
+T& operator[](size_type index);
 const T& operator[](size_type index) const;
 
-T&       at(size_type index);        // Bounds-checked; throws std::out_of_range
+T& at(size_type index);
 const T& at(size_type index) const;
 
 T& front();
@@ -394,18 +358,23 @@ T& back();
 ### Iterators
 
 ```cpp
-iterator       begin();    iterator       end();
-const_iterator begin() const; const_iterator end() const;
-reverse_iterator rbegin(); reverse_iterator rend();
+iterator begin();
+iterator end();
+
+const_iterator begin() const;
+const_iterator end() const;
+
+reverse_iterator rbegin();
+reverse_iterator rend();
 ```
 
 ### Observer System
 
 ```cpp
 template<typename Func>
-void subscribe(Func listener);       // Register a listener
+void subscribe(Func listener);
 
-void unsubscribe(size_type index);   // Remove listener by index
+void unsubscribe(size_type index);
 ```
 
 ### Utility
@@ -418,68 +387,173 @@ static void swap(VectorPro& a, VectorPro& b);
 
 ## Benchmark Results
 
-Benchmarks compare `VectorPro` against `std::vector` over representative workloads. Results were collected without `-O2`/`-O3`; **always use optimized builds for real performance comparisons**.
+Benchmarks compare `VectorPro` against `std::vector` across core operations.
+All times measured in microseconds (µs).
 
-### push_back (1.5× growth)
+> Results may vary depending on compiler optimizations and hardware.
+> Compiled with `-O2`.
 
-| Elements | VectorPro | std::vector |
-|----------|-----------|-------------|
-| 1M       | 24 ms     | 21 ms       |
-| 2M       | 55 ms     | 48 ms       |
-| 4M       | 100 ms    | 86 ms       |
-| 8M       | 215 ms    | 174 ms      |
+### Push Back — No Reserve
 
-### pop_back
+| Elements | VectorPro  | std::vector | Speedup      |
+| -------- | ---------- | ----------- | ------------ |
+| 500K     | 33,835 µs  | 38,664 µs   | ~1.14×       |
+| 1M       | 53,032 µs  | 77,677 µs   | ~1.46×       |
+| 2M       | 118,784 µs | 154,839 µs  | ~1.30×       |
+| 4M       | 256,010 µs | 310,441 µs  | ~1.21×       |
 
-| Elements | VectorPro | std::vector |
-|----------|-----------|-------------|
-| 100K     | 0 ms      | 0 ms        |
-| 200K     | 0 ms      | 0 ms        |
-| 400K     | 1 ms      | 0 ms        |
-| 800K     | 2 ms      | 0 ms        |
+### Push Back — With Reserve
 
-### insert (middle shifting)
+| Elements | VectorPro  | std::vector | Speedup      |
+| -------- | ---------- | ----------- | ------------ |
+| 500K     | 15,544 µs  | 36,671 µs   | ~2.36×       |
+| 1M       | 30,826 µs  | 72,916 µs   | ~2.37×       |
+| 2M       | 61,307 µs  | 146,070 µs  | ~2.38×       |
+| 4M       | 122,678 µs | 291,072 µs  | ~2.37×       |
 
-| Elements | VectorPro | std::vector |
-|----------|-----------|-------------|
-| 10K      | 29 ms     | 29 ms       |
-| 20K      | 407 ms    | 407 ms      |
-| 40K      | 2180 ms   | 2185 ms     |
-| 80K      | 11240 ms  | 10922 ms    |
+Pre-reserving capacity exposes VectorPro's strongest advantage — roughly **2.4× faster** than `std::vector` when reallocation is eliminated.
 
-### erase (front shifting)
+### Emplace Back
 
-| Elements | VectorPro | std::vector |
-|----------|-----------|-------------|
-| 10K      | 14 ms     | 14 ms       |
-| 20K      | 63 ms     | 63 ms       |
-| 40K      | 334 ms    | 334 ms      |
-| 80K      | 1551 ms   | 1531 ms     |
+| Elements | VectorPro  | std::vector | Speedup      |
+| -------- | ---------- | ----------- | ------------ |
+| 500K     | 14,077 µs  | 31,288 µs   | ~2.22×       |
+| 1M       | 30,841 µs  | 65,363 µs   | ~2.12×       |
+| 2M       | 61,873 µs  | 130,396 µs  | ~2.11×       |
+| 4M       | 123,486 µs | 260,195 µs  | ~2.11×       |
 
-### emplace_back
+### Pop Back
 
-| Elements | VectorPro | std::vector |
-|----------|-----------|-------------|
-| 1M       | 24 ms     | 9 ms        |
-| 2M       | 55 ms     | 26 ms       |
-| 4M       | 106 ms    | 39 ms       |
-| 8M       | 220 ms    | 79 ms       |
+| Elements | VectorPro  | std::vector | Speedup      |
+| -------- | ---------- | ----------- | ------------ |
+| 500K     | 10,819 µs  | 16,131 µs   | ~1.49×       |
+| 1M       | 21,317 µs  | 32,152 µs   | ~1.51×       |
+| 2M       | 42,550 µs  | 64,495 µs   | ~1.52×       |
+| 4M       | 85,056 µs  | 129,095 µs  | ~1.52×       |
 
-### remove_if
+### Insert Front — Worst Case
 
-| Elements | VectorPro | std::vector |
-|----------|-----------|-------------|
-| 100K     | 0 ms      | 0 ms        |
-| 200K     | 0 ms      | 0 ms        |
-| 400K     | 1 ms      | 1 ms        |
-| 800K     | 2 ms      | 2 ms        |
+| Elements | VectorPro   | std::vector | Speedup      |
+| -------- | ----------- | ----------- | ------------ |
+| 5K       | 3,690 µs    | 4,820 µs    | ~1.31×       |
+| 10K      | 13,894 µs   | 16,300 µs   | ~1.17×       |
+| 20K      | 59,506 µs   | 64,240 µs   | ~1.08×       |
+| 40K      | 321,890 µs  | 330,114 µs  | ~1.03×       |
 
-### Takeaways
+### Insert Middle — Average Case
 
-- `push_back`, `insert`, `erase`, and `remove_if` are **on par** with `std::vector`
-- `emplace_back` is noticeably slower — likely due to missing allocator-trait optimizations and the overhead of the observer notify path
-- `pop_back` shows a minor difference at scale, possibly due to the same observer overhead
-- All operations maintain the **expected asymptotic complexity**
+| Elements | VectorPro   | std::vector | Speedup      |
+| -------- | ----------- | ----------- | ------------ |
+| 5K       | 5,379 µs    | 6,581 µs    | ~1.22×       |
+| 10K      | 20,715 µs   | 23,068 µs   | ~1.11×       |
+| 20K      | 91,521 µs   | 96,879 µs   | ~1.06×       |
+| 40K      | 521,943 µs  | 532,839 µs  | ~1.02×       |
+
+As element count grows, O(n) shifting dominates and the gap narrows — expected behavior.
+
+### Erase Front — Worst Case
+
+| Elements | VectorPro   | std::vector | Speedup      |
+| -------- | ----------- | ----------- | ------------ |
+| 5K       | 3,575 µs    | 4,652 µs    | ~1.30×       |
+| 10K      | 13,678 µs   | 15,895 µs   | ~1.16×       |
+| 20K      | 57,344 µs   | 62,408 µs   | ~1.09×       |
+| 40K      | 302,379 µs  | 311,615 µs  | ~1.03×       |
+
+### Erase Middle — Average Case
+
+| Elements | VectorPro   | std::vector | Speedup      |
+| -------- | ----------- | ----------- | ------------ |
+| 5K       | 1,395 µs    | 1,949 µs    | ~1.40×       |
+| 10K      | 5,224 µs    | 6,381 µs    | ~1.22×       |
+| 20K      | 20,349 µs   | 22,688 µs   | ~1.11×       |
+| 40K      | 88,446 µs   | 93,379 µs   | ~1.06×       |
+
+### Remove If (avg of 5 cycles)
+
+| Elements | VectorPro  | std::vector | Speedup      |
+| -------- | ---------- | ----------- | ------------ |
+| 100K     | 1,247 µs   | 5,015 µs    | ~4.02×       |
+| 200K     | 2,494 µs   | 10,010 µs   | ~4.01×       |
+| 400K     | 4,966 µs   | 20,022 µs   | ~4.03×       |
+| 800K     | 9,968 µs   | 39,986 µs   | ~4.01×       |
+
+`remove_if` is VectorPro's most significant win — approximately **4× faster** than `std::vector`, scaling consistently with element count.
+
+### Iteration
+
+| Elements | VectorPro   | std::vector | Notes              |
+| -------- | ----------- | ----------- | ------------------ |
+| 1M       | 28,598 µs   | 24,288 µs   | std::vector faster |
+| 2M       | 57,517 µs   | 48,609 µs   | std::vector faster |
+| 4M       | 114,738 µs  | 97,098 µs   | std::vector faster |
+| 8M       | 229,734 µs  | 194,227 µs  | std::vector faster |
+
+`std::vector` is ~18% faster during iteration, likely due to tighter allocator and cache-line alignment optimizations not replicated here.
+
+### Copy Construction
+
+| Elements | VectorPro  | std::vector | Notes            |
+| -------- | ---------- | ----------- | ---------------- |
+| 500K     | 6,887 µs   | 7,099 µs    | Near-identical   |
+| 1M       | 14,823 µs  | 14,933 µs   | Near-identical   |
+| 2M       | 29,417 µs  | 28,772 µs   | Near-identical   |
+| 4M       | 55,034 µs  | 56,712 µs   | Near-identical   |
+
+Copy construction performance is essentially the same — both are bounded by the cost of the memory copy.
+
+### Move Construction
+
+| Elements | VectorPro | std::vector | Notes                      |
+| -------- | --------- | ----------- | -------------------------- |
+| 500K     | 3 µs      | 1 µs        | Both near-zero             |
+| 1M       | 4 µs      | 1 µs        | Both near-zero             |
+| 2M       | 3 µs      | 1 µs        | Both near-zero             |
+| 4M       | 4 µs      | 1 µs        | Both near-zero             |
+
+Both implementations achieve near-zero move construction (pointer swap only). The small raw difference is within measurement noise but may reflect minor overhead in VectorPro's observer state transfer.
+
+### Summary
+
+| Operation              | Winner       | Notes                                      |
+| ---------------------- | ------------ | ------------------------------------------ |
+| push_back (no reserve) | VectorPro    | ~1.2–1.5× faster                          |
+| push_back (reserved)   | VectorPro    | ~2.4× faster                              |
+| emplace_back           | VectorPro    | ~2.1× faster                              |
+| pop_back               | VectorPro    | ~1.5× faster                              |
+| insert (front/middle)  | VectorPro    | Slight edge; gap narrows at scale          |
+| erase (front/middle)   | VectorPro    | Slight edge; gap narrows at scale          |
+| remove_if              | VectorPro    | ~4× faster                                |
+| iteration              | std::vector  | ~18% faster                               |
+| copy construction      | Tie          | Effectively identical                      |
+| move construction      | std::vector  | Both near-zero; negligible difference      |
+
+---
+
+## Project Structure
+
+```
+VectorPro/
+├── include/
+│   ├── VectorPro.h
+│   ├── VectorPro.tpp
+│   └── Iterator.h
+│
+├── benchmarks/
+│   ├── benchmarks.cpp
+│   └── utils/
+│       ├── Table.h
+│       └── Table.tpp
+│
+├── tests/
+│   └── test.cpp
+│
+├── examples/
+│   └── examples.cpp
+│
+├── README.md
+└── LICENSE
+```
 
 ---
 
@@ -487,56 +561,50 @@ Benchmarks compare `VectorPro` against `std::vector` over representative workloa
 
 ### Requirements
 
-- C++23-compatible compiler: GCC 13+, Clang 17+, or MSVC 19.38+
-- No external dependencies — header-only core library
+- C++23 compatible compiler (GCC / Clang / MSVC)
+- CMake (optional, if you later switch to build system)
+- Git (for cloning repository)
 
-### Compile & Run Tests
+### Compile Tests
 
 ```bash
-g++ -std=c++23 tests/test.cpp -Iinclude -o build/tests
+g++ -std=c++23 tests/vectorpro_tests.cpp -Iinclude -o build/tests
 ./build/tests
 ```
 
-### Compile & Run Benchmarks
+### Compile Benchmarks
 
 ```bash
-g++ -std=c++23 -O2 benchmarks/benchmarks.cpp -Iinclude -Ibenchmarks/utils -o build/benchmarks
+g++ -std=c++23 benchmarks/benchmarks.cpp -Iinclude -Ibenchmarks/utils -O2 -o build/benchmarks
 ./build/benchmarks
 ```
 
-> Use `-O2` or `-O3` for meaningful benchmark results. Debug builds distort timing significantly.
-
-### Compile & Run Examples
+### Compile Examples
 
 ```bash
-g++ -std=c++23 examples/examples.cpp -Iinclude -o build/examples
+g++ -std=c++23 examples/main.cpp -Iinclude -o build/examples
 ./build/examples
 ```
+
+### Notes
+
+- Use `-O2` or `-O3` for benchmark accuracy
+- Debug builds (`-g`) may distort performance results
 
 ---
 
 ## Notes
 
-- **Not production-ready.** This is an educational project — use `std::vector` in real codebases.
-- Some `std::vector` optimizations are intentionally omitted: allocator traits, small-buffer optimization (SBO), SIMD-friendly layouts, etc.
-- Exception safety is handled for core operations but may not match full STL guarantees in all edge cases.
-- The observer system adds a small per-operation overhead — this is visible in the `emplace_back` and `pop_back` benchmarks.
-- Iterator invalidation rules mirror `std::vector`: any reallocation or structural modification (insert/erase) invalidates existing iterators.
-
----
-
-## Contributing
-
-Contributions, improvements, and learning-focused PRs are welcome! Some areas worth exploring:
-
-- Allocator support (`std::allocator_traits`)
-- `std::span` compatibility
-- Additional iterator categories (random-access conformance)
-- CMake build system integration
-- CI pipeline (GitHub Actions)
+- This project is purely educational and not intended as a production-ready STL replacement
+- Some optimizations used in `std::vector` are not fully replicated (allocator traits, small buffer optimizations, etc.)
+- Performance results may vary depending on compiler, platform, and optimization flags
+- The implementation prioritizes learning clarity over micro-optimizations
+- Exception safety is handled in core operations but may not match full STL guarantees in all edge cases
 
 ---
 
 ## License
 
-[MIT](LICENSE) — free to use, modify, and distribute for educational and personal purposes.
+MIT License
+
+You are free to use, modify, and distribute this project for educational and personal purposes.
