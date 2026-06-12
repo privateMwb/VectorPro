@@ -2,16 +2,10 @@
 
 #include <string>
 #include <cstddef>
-#include <vector>
-
-#include "VectorPro.h"
 
 namespace Table {
 
-// =========================
 // Text Formatting
-// =========================
-
 std::string center(
     const std::string& text,
     std::size_t width
@@ -34,10 +28,7 @@ Container<std::string> convert(
     const std::string& unit = ""
 );
 
-// =========================
 // Table Rendering
-// =========================
-
 template<typename LengthContainer>
 void border(
     const std::string& left,

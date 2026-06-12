@@ -1,12 +1,8 @@
-#pragma once
-
 #include "sstream"
 
 namespace Table {
 
-// =========================
 // Text Formatting
-// =========================
 inline std::string center(
     const std::string& text,
     std::size_t width)
@@ -63,9 +59,7 @@ Container<std::string> convert(
 	return converted;
 }
 
-// =========================
 // Table Rendering
-// =========================
 template<typename LengthContainer>
 inline void border(
     const std::string& left,

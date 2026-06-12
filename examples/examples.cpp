@@ -1,197 +1,222 @@
 // VectorPro Examples
-// Demonstrates the core features of VectorPro:
+// Demonstrates basic usage of the dynamic array container:
 //
-// - constructors
-// - push_back
-// - pop_back
-// - insert
-// - erase
-// - emplace_back
-// - remove_if
-// - shrink_to_fit
-// - reserve
-// - clear
-// - notify
-
-#include <iostream>
-#include <cstddef>
+// - basic usage (push_back, operator[], size, capacity)
+// - emplace_back (in-place construction)
+// - insert and erase (front, middle, back)
+// - remove_if (predicate-based filtering)
+// - iterators (forward and reverse traversal)
+// - copy and move semantics
+// - reserve and shrink_to_fit
+// - element access (at, front, back, data_ptr)
+// - observer (subscribe, event firing, unsubscribe)
+//
+// These examples illustrate the core features and intended usage of VectorPro.
 
 #include "VectorPro.h"
 
-// Constructors Example
-// demonstrates the different ways to construct a VectorPro
-void constructors() {
-    // Default construction
-    VectorPro<int> vp1;
-    VectorPro<std::string> vp2;
-    VectorPro<double> vp3;
-    VectorPro<bool> vp4;
+// Basic Usage
+// shows push_back, operator[], size, and capacity
+void basicUsage() {
+    VectorPro<int> v;
 
-    // Dynamic construction
-    VectorPro<int>* vp5 = new VectorPro<int>();
+    v.push_back(1);
+    v.push_back(2);
+    v.push_back(3);
 
-    // Initializer list construction
-    VectorPro<int> vp6{1, 2, 3, 4, 5};
-
-    // Copy construction
-    VectorPro<int> vp7(vp6);
-
-    // Move construction
-    VectorPro<int> vp8(std::move(vp7));
-
-    delete vp5;
+    (void)v.size();     // 3
+    (void)v.capacity(); // >= 3
+    (void)v[0];         // 1
+    (void)v[1];         // 2
+    (void)v[2];         // 3
 }
 
-// Push Back Example
-// appends elements to the end of the container
-void push_back() {
-    // Integer values
-    VectorPro<int> vp1;
-    vp1.push_back(10);
-    vp1.push_back(20);
-    vp1.push_back(30);
-
-    // String values
-    VectorPro<std::string> vp2;
-    vp2.push_back("apple");
-    vp2.push_back("banana");
-    vp2.push_back("orange");
-
-    // Boolean values
-    VectorPro<bool> vp3;
-    vp3.push_back(true);
-    vp3.push_back(false);
-
-    // Floating-point values
-    VectorPro<double> vp4;
-    vp4.push_back(3.14);
-    vp4.push_back(2.718);
-}
-
-// Pop Back Example
-// removes the last element from the container
-void pop_back() {
-    VectorPro<int> vp = {2, 4, 6, 8, 10};
-
-    vp.pop_back(); // {2, 4, 6, 8}
-}
-
-// Insert Example
-// inserts an element at the specified index
-void insert() {
-    VectorPro<int> vp = {1, 3, 4, 5};
-
-    vp.insert(1, 2); // insert value 2 at index 1 -> {1, 2, 3, 4, 5}
-}
-
-// Erase Example
-// removes the element at the specified index
-void erase() {
-    VectorPro<int> vp = {1, 2, 3, 4, 5};
-
-    vp.erase(3); // erase index 3 -> {1, 2, 3, 5}
-}
-
-// Emplace Back Example
-// constructs an element directly at the end of the container
-void emplace_back() {
-    struct Person {
-        std::string name;
-        int age;
-
-        Person(std::string n, int a)
-            : name(std::move(n)), age(a) {}
+// Emplace Back
+// shows in-place construction of a struct directly inside the vector
+void emplaceBack() {
+    struct Point {
+        int x, y;
+        Point(int x, int y) : x(x), y(y) {}
     };
 
-    VectorPro<Person> vp;
+    VectorPro<Point> v;
 
-    vp.emplace_back("Alice", 20);
-    vp.emplace_back("Bob", 25);
+    v.emplace_back(1, 2);
+    v.emplace_back(3, 4);
+    v.emplace_back(5, 6);
+
+    (void)v[0].x; // 1
+    (void)v[1].y; // 4
+    (void)v[2].x; // 5
 }
 
-// Remove If Example
-// removes all elements that satisfy a predicate
-void remove_if() {
-    VectorPro<int> vp = {21, 103, 0, 89, 70};
+// Insert and Erase
+// shows insertion at front, middle, and back, and removal by index
+void insertErase() {
+    VectorPro<int> v{1, 2, 3, 4, 5};
 
-    vp.remove_if([](int i) {
-        return i % 2 == 0;
-    }); // remove even numbers -> {21, 103, 89}
+    // Insert at front
+    v.insert(0, 0);
+    (void)v[0]; // 0
+
+    // Insert at middle
+    v.insert(v.size() / 2, 99);
+
+    // Insert at back
+    v.insert(v.size(), 100);
+    (void)v.back(); // 100
+
+    // Erase front
+    v.erase(0);
+    (void)v[0]; // 1
+
+    // Erase middle
+    v.erase(v.size() / 2);
+
+    // Erase back
+    v.erase(v.size() - 1);
 }
 
-// Shrink To Fit Example
-// reduces capacity to match the current size
-void shrink_to_fit() {
-    VectorPro<int> vp;
+// Remove If
+// shows predicate-based filtering with remove_if
+void removeIf() {
+    VectorPro<int> v{1, 2, 3, 4, 5, 6, 7, 8};
 
-    vp.reserve(100);
+    // Remove all even numbers
+    v.remove_if([](int x) { return x % 2 == 0; });
 
-    vp.push_back(40);
-    vp.push_back(0);
-    vp.push_back(592);
-    vp.push_back(100);
-    vp.push_back(33);
-
-    vp.shrink_to_fit(); // capacity becomes equal to size
+    (void)v.size(); // 4
+    (void)v[0];     // 1
+    (void)v[1];     // 3
 }
 
-// Reserve Example
-// reserves storage for future elements
-void reserve() {
-    VectorPro<int> vp;
+// Iterators
+// shows forward and reverse traversal
+void iterators() {
+    VectorPro<int> v{1, 2, 3, 4, 5};
 
-    vp.reserve(100); // reserve capacity for at least 100 elements
+    // Forward
+    for (auto it = v.begin(); it != v.end(); ++it)
+        (void)*it;
+
+    // Const forward
+    for (auto it = v.cbegin(); it != v.cend(); ++it)
+        (void)*it;
+
+    // Range-based for
+    for (const auto& val : v)
+        (void)val;
+
+    // Reverse
+    for (auto it = v.rbegin(); it != v.rend(); ++it)
+        (void)*it;
+
+    // Const reverse
+    for (auto it = v.crbegin(); it != v.crend(); ++it)
+        (void)*it;
 }
 
-// Clear Example
-// removes all elements from the container
-void clear() {
-    VectorPro<int> vp = {10, 20, 30, 40, 50};
+// Copy and Move
+// shows copy construction, copy assignment, move construction, move assignment
+void copyMove() {
+    VectorPro<int> a{1, 2, 3};
 
-    vp.clear(); 
+    // Copy construction — b is an independent copy
+    VectorPro<int> b(a);
+    b[0] = 99;
+    (void)a[0]; // 1 — unaffected
+
+    // Copy assignment
+    VectorPro<int> c;
+    c = a;
+    (void)c[0]; // 1
+
+    // Move construction — a is emptied
+    VectorPro<int> d(std::move(a));
+    (void)d.size(); // 3
+    (void)a.empty(); // true
+
+    // Move assignment
+    VectorPro<int> e;
+    e = std::move(b);
+    (void)e[0];      // 99
+    (void)b.empty(); // true
 }
 
-// Notify Example
-// shows event-driven updates from VectorPro
-void notify() {
-    VectorPro<int> vp;
+// Reserve and Shrink
+// shows reserve upfront and shrink_to_fit after removals
+void reserveShrink() {
+    VectorPro<int> v;
 
-    vp.subscribe([](const VectorPro<int>& v, EventType event) {
-        switch (event) {
-            case EventType::PushBack:
-                std::cout << "PushBack triggered\n";
-                break;
-            case EventType::PopBack:
-                std::cout << "PopBack triggered\n";
-                break;
-            case EventType::Clear:
-                std::cout << "Clear triggered\n";
-                break;
-            default:
-                std::cout << "Other event triggered\n";
+    // Reserve avoids repeated reallocation during bulk insert
+    v.reserve(100);
+    (void)v.capacity(); // >= 100
+    (void)v.size();     // 0
+
+    for (int i = 0; i < 10; ++i)
+        v.push_back(i);
+
+    // Shrink capacity down to match size
+    v.shrink_to_fit();
+    (void)v.capacity(); // 10
+    (void)v.size();     // 10
+}
+
+// Element Access
+// shows at(), front(), back(), operator[], and data_ptr()
+void elementAccess() {
+    VectorPro<int> v{10, 20, 30, 40, 50};
+
+    (void)v.front();   // 10
+    (void)v.back();    // 50
+    (void)v[2];        // 30
+    (void)v.at(2);     // 30
+
+    // Raw pointer access
+    int* raw = v.data_ptr();
+    (void)raw[0]; // 10
+    (void)raw[4]; // 50
+
+    // Const overload
+    const VectorPro<int>& cv  = v;
+    const int*            craw = cv.data_ptr();
+    (void)craw[0]; // 10
+}
+
+// Observer
+// shows subscribe, event firing on mutations, and unsubscribe
+void observer() {
+    struct Logger {
+        static void fn(const VectorPro<int>&, VectorPro<int>::EventType) {
+            // fires on every mutation event
         }
+    };
 
-        std::cout << "Current size: " << v.size() << '\n';
-    });
+    VectorPro<int> v;
+    v.subscribe(Logger::fn);
 
-    vp.push_back(1);
-    vp.push_back(2);
-    vp.pop_back();
-    vp.clear();
+    v.push_back(1); // fires PushBack
+    v.push_back(2); // fires PushBack
+    v.pop_back();   // fires PopBack
+    v.clear();      // fires Clear
+
+    // unsubscribe by index — no further events fired
+    v.unsubscribe(0);
+
+    v.push_back(99); // silent — no listeners
 }
 
+// Entry Point
 int main() {
-    constructors();
-    push_back();
-    pop_back();
-    insert();
-    erase();
-    emplace_back();
-    remove_if();
-    shrink_to_fit();
-    reserve();
-    clear();
-    notify();
-    
+    basicUsage();
+    emplaceBack();
+    insertErase();
+    removeIf();
+    iterators();
+    copyMove();
+    reserveShrink();
+    elementAccess();
+    observer();
+
     return 0;
 }

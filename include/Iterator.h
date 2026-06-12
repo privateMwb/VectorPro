@@ -7,119 +7,120 @@
 template<typename T>
 class Iterator {
 private:
-	T* ptr;
+    T* ptr;
 
 public:
-	// Types
-	using value_type = std::remove_const_t<T>;
-	using pointer = T*;
-	using reference = T&;
-	using difference_type = std::ptrdiff_t;
-	using iterator_category = std::random_access_iterator_tag;
-	using iterator_concept = std::random_access_iterator_tag;
+    // Types
+    using value_type        = std::remove_const_t<T>;
+    using pointer           = T*;
+    using reference         = T&;
+    using difference_type   = std::ptrdiff_t;
+    using iterator_category = std::random_access_iterator_tag;
+    using iterator_concept  = std::contiguous_iterator_tag;
 
-	// Constructor
-	constexpr explicit Iterator(T* p = nullptr) noexcept : ptr(p) {}
+    // Constructor
+    constexpr explicit Iterator(T* p = nullptr) noexcept : ptr(p) {}
 
-	// Conversion
-	template<typename U>
-	requires std::is_convertible_v<U*, T*>
-	constexpr Iterator(const Iterator<U>& other) noexcept : ptr(other.base()) {}
+    // Conversion — allows Iterator<T> -> Iterator<const T>
+    template<typename U>
+    requires std::convertible_to<U*, T*>
+    constexpr Iterator(const Iterator<U>& other) noexcept : ptr(other.base()) {}
 
-	// Base
-	[[nodiscard]]
-	constexpr T* base() const noexcept {
-		return ptr;
-	}
+    // Base
+    [[nodiscard]]
+    constexpr T* base() const noexcept {
+        return ptr;
+    }
 
-	// Dereference
-	[[nodiscard]]
-	constexpr reference operator*() const noexcept {
-		return *ptr;
-	}
+    // Dereference
+    [[nodiscard]]
+    constexpr reference operator*() const noexcept {
+        return *ptr;
+    }
 
-	[[nodiscard]]
-	constexpr pointer operator->() const noexcept {
-		return ptr;
-	}
+    [[nodiscard]]
+    constexpr pointer operator->() const noexcept {
+        return ptr;
+    }
 
-	// Increment / Decrement
-	constexpr Iterator& operator++() noexcept {
-		++ptr;
+    // Increment / Decrement
+    constexpr Iterator& operator++() noexcept {
+        ++ptr;
+        return *this;
+    }
 
-		return *this;
-	}
+    constexpr Iterator& operator--() noexcept {
+        --ptr;
+        return *this;
+    }
 
-	constexpr Iterator& operator--() noexcept {
-		--ptr;
+    constexpr Iterator operator++(int) noexcept {
+        Iterator tmp(*this);
+        ++ptr;
+        return tmp;
+    }
 
-		return *this;
-	}
+    constexpr Iterator operator--(int) noexcept {
+        Iterator tmp(*this);
+        --ptr;
+        return tmp;
+    }
 
-	constexpr Iterator operator++(int) noexcept {
-		Iterator tmp(*this);
-		++ptr;
+    // Arithmetic
+    constexpr Iterator& operator+=(difference_type n) noexcept {
+        ptr += n;
+        return *this;
+    }
 
-		return tmp;
-	}
+    constexpr Iterator& operator-=(difference_type n) noexcept {
+        ptr -= n;
+        return *this;
+    }
 
-	constexpr Iterator operator--(int) noexcept {
-		Iterator tmp(*this);
-		--ptr;
+    [[nodiscard]]
+    constexpr Iterator operator+(difference_type n) const noexcept {
+        return Iterator(ptr + n);
+    }
 
-		return tmp;
-	}
+    [[nodiscard]]
+    constexpr Iterator operator-(difference_type n) const noexcept {
+        return Iterator(ptr - n);
+    }
 
-	// Arithmetic
-	constexpr Iterator& operator+=(difference_type n) noexcept {
-		ptr += n;
+    // Iterator Difference
+    template<typename U>
+    [[nodiscard]]
+    constexpr difference_type operator-(const Iterator<U>& other) const noexcept {
+        return ptr - other.base();
+    }
 
-		return *this;
-	}
+    // Indexing
+    [[nodiscard]]
+    constexpr reference operator[](difference_type n) const noexcept {
+        return *(ptr + n);
+    }
 
-	constexpr Iterator& operator-=(difference_type n) noexcept {
-		ptr -= n;
+    // Comparison
+    template<typename U>
+    [[nodiscard]]
+    constexpr auto operator<=>(const Iterator<U>& other) const noexcept {
+        return ptr <=> other.base();
+    }
 
-		return *this;
-	}
+    template<typename U>
+    [[nodiscard]]
+    constexpr bool operator==(const Iterator<U>& other) const noexcept {
+        return ptr == other.base();
+    }
 
-	[[nodiscard]]
-	constexpr Iterator operator+(difference_type n) const noexcept {
-		return Iterator(ptr + n);
-	}
-
-	[[nodiscard]]
-	constexpr Iterator operator-(difference_type n) const noexcept {
-		return Iterator(ptr - n);
-	}
-
-	// Iterator Difference
-	template<typename U>
-	constexpr difference_type operator-(const Iterator<U>& other) const noexcept {
-		return ptr - other.base();
-	}
-
-	// Indexing
-	[[nodiscard]]
-	constexpr reference operator[](difference_type n) const noexcept {
-		return *(ptr + n);
-	}
-
-	// Comparison
-	template<typename U>
-	[[nodiscard]]
-	constexpr auto operator<=>(const Iterator<U>& other) const noexcept {
-		return ptr <=> other.base();
-	}
-
-	template<typename U>
-	[[nodiscard]]
-	constexpr bool operator==(const Iterator<U>& other) const noexcept {
-		return ptr == other.base();
-	}
+    template<typename U>
+    [[nodiscard]]
+    constexpr bool operator!=(const Iterator<U>& other) const noexcept {
+        return ptr != other.base();
+    }
 };
 
-// Arithmetic (free function)
+// Arithmetic (free function) — supports n + iterator
 template<typename T>
 [[nodiscard]]
 constexpr Iterator<T> operator+(std::ptrdiff_t n, const Iterator<T>& it) noexcept {
