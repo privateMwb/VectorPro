@@ -33,7 +33,7 @@ constexpr const char* RED     = "\033[91m";
 constexpr const char* RESET   = "\033[0m";
 
 constexpr auto MS_1   = std::chrono::milliseconds(1);
-constexpr auto MS_10  = std::chrono::milliseconds(10);
+constexpr auto S_1  = std::chrono::seconds(1);
 
 static inline std::string format_duration(std::chrono::nanoseconds ns) {
     using namespace std::chrono;
@@ -66,7 +66,7 @@ static inline std::string timeColor(auto ns, auto raw) {
     std::string colored;
     
     if (ns < MS_1) colored = GREEN + raw + RESET;
-    else if (ns < MS_10) colored = YELLOW + raw + RESET;
+    else if (ns < S_1) colored = YELLOW + raw + RESET;
     else colored = RED + raw + RESET;
     
     return colored;
@@ -82,14 +82,30 @@ static inline std::string iterColor(int iteration) {
     return colored;
 }
 
+template<typename T>
+inline void doNotOptimize(const T& value) {
+#if defined(__GNUC__) || defined(__clang__)
+    asm volatile("" : : "g"(value) : "memory");
+#else
+    volatile const T* p = &value;
+    (void)p;
+#endif
+}
+
+inline void doNotOptimize() {
+#if defined(__GNUC__) || defined(__clang__)
+    asm volatile("" ::: "memory");
+#endif
+}
+
 #define BENCH(name, iterations, expr)                                               \
 do {                                                                                \
     std::ostringstream stream;                                                      \
     auto start = std::chrono::high_resolution_clock::now();                         \
-    for (int i = 0; i < iterations; ++i) { (void)(expr); }                          \
+    for (int i = 0; i < iterations; ++i) { (void)(expr); doNotOptimize(); }         \
     auto end = std::chrono::high_resolution_clock::now();                           \
     auto ns  = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);   \
-    auto raw = format_duration(ns);                                                 \
+    auto raw = format_duration(ns);                                             \
     std::string time  = timeColor(ns, raw);                                         \
     std::string num   = iterColor(iterations);                                      \
     std::cout << std::left                                                          \

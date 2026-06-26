@@ -13,9 +13,9 @@ inline int pass   = 0;
 inline int fail   = 0;
 
 inline void stats() {
-    std::cout << "Total: " << total << "\n";
-    std::cout << "Pass: " << pass << "\n";
-    std::cout << "Fail: " << fail << "\n";
+    std::cout << "T: " << total << "\n";
+    std::cout << "P: " << pass << "\n";
+    std::cout << "F: " << fail << "\n";
 }
 
 inline void setTitle(std::string_view title){
