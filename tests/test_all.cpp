@@ -1,24 +1,27 @@
+#include "test_helper.h"
+
 #include <iostream>
 
-#include "test_helper.h"
-#include "Vector.h"
-
 void run_constructor_tests();
-void run_modifier_tests();
+void run_modifiers_tests();
 void run_observer_tests();
-void run_element_access_tests();
-void run_operator_tests();
+void run_comparison_tests();
+void run_access_tests();
+void run_search_tests();
 void run_capacity_tests();
-void run_iterator_tests();
+void run_iterators_tests();
+void run_swap_tests();
 
 int main() {
     run_constructor_tests();
-    run_modifier_tests();
+    run_modifiers_tests();
     run_observer_tests();
-    run_element_access_tests();
-    run_operator_tests();
+    run_comparison_tests();
+    run_access_tests();
+    run_search_tests();
     run_capacity_tests();
-    run_iterator_tests();
+    run_iterators_tests();
+    run_swap_tests();
     
     stats();
     return 0;

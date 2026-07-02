@@ -3,6 +3,8 @@
 #include <iterator>
 #include <cstddef>
 #include <compare>
+#include <cassert>
+#include <type_traits>
 
 namespace VectorPro {
 template<typename T>
@@ -43,6 +45,7 @@ public:
 		return ptr_;
 	}
 	[[nodiscard]] constexpr reference operator[](difference_type n) const noexcept {
+	  assert(ptr_ != nullptr);
 		return ptr_[n];
 	}
 

@@ -1,6 +1,32 @@
+// ============================================================
+// Vector.tpp
+// Template implementation for VectorPro::Vector.
+// ============================================================
+//
+// Sections:
+//   1. Constructors & Destructor
+//   2. Copy & Move Semantics
+//   3. Modifiers
+//   4. Observer
+//   5. Comparison
+//   6. Span Access
+//   7. Element Access
+//   8. Lookup
+//   9. Swap
+//  10. Capacity
+//  11. Iterator Access
+//  12. Private Helpers
+//  13. Non-member Functions
+//
+// ============================================================
+
 namespace VectorPro {
 
-// Constructors & Destructor
+
+// ============================================================
+// Section 1 — Constructors & Destructor
+// ============================================================
+
 template<typename T,
          typename Allocator,
          std::size_t GrowthNum,
@@ -70,6 +96,11 @@ Vector<T, Allocator, GrowthNum, GrowthDen>::~Vector() noexcept {
 	}
 }
 
+
+// ============================================================
+// Section 2 — Copy & Move Semantics
+// ============================================================
+
 template<typename T,
          typename Allocator,
          std::size_t GrowthNum,
@@ -83,8 +114,25 @@ Vector<T, Allocator, GrowthNum, GrowthDen>::Vector(const Vector& other)
 	data_ = std::allocator_traits<Allocator>::allocate(alloc_, other.vcap_);
 	vcap_ = other.vcap_;
 
-	for (std::size_t i = 0; i < other.vsize_; ++i) {
-		std::allocator_traits<Allocator>::construct(alloc_, data_ + i, other.data_[i]);
+	if constexpr (std::is_trivially_copyable_v<T> &&
+	              std::is_same_v<Allocator, std::allocator<T>>) {
+		if (other.vsize_ > 0) {
+			std::memcpy(std::to_address(data_), std::to_address(other.data_), other.vsize_ * sizeof(T));
+		}
+	} else {
+		std::size_t constructed = 0;
+		try {
+			for (; constructed < other.vsize_; ++constructed) {
+				std::allocator_traits<Allocator>::construct(alloc_, data_ + constructed, other.data_[constructed]);
+			}
+		} catch (...) {
+			for (std::size_t i = 0; i < constructed; ++i)
+				std::allocator_traits<Allocator>::destroy(alloc_, data_ + i);
+			std::allocator_traits<Allocator>::deallocate(alloc_, data_, vcap_);
+			data_ = nullptr;
+			vcap_ = 0;
+			throw;
+		}
 	}
 
 	vsize_ = other.vsize_;
@@ -96,10 +144,63 @@ template<typename T,
          std::size_t GrowthDen>
 requires std::destructible<T>
 Vector<T, Allocator, GrowthNum, GrowthDen>& Vector<T, Allocator, GrowthNum, GrowthDen>::operator=(const Vector& other) {
-	if (this != &other) {
+	if (this == &other) return *this;
+
+	constexpr bool kPropagate = std::allocator_traits<Allocator>::propagate_on_container_copy_assignment::value;
+
+	if constexpr (kPropagate) {
+		if (!(alloc_ == other.alloc_)) {
+			// Our current storage was obtained from the old allocator instance;
+			// it must be released before adopting the new one, since the new
+			// allocator may not be able to deallocate memory it didn't allocate.
+			release();
+			alloc_ = other.alloc_;
+		}
+	}
+
+	if (other.vsize_ <= vcap_) {
+		// Fast path: existing capacity is sufficient, no allocation needed.
+		if constexpr (std::is_trivially_copyable_v<T> &&
+		              std::is_same_v<Allocator, std::allocator<T>>) {
+			if (other.vsize_ > 0) {
+				std::memcpy(std::to_address(data_), std::to_address(other.data_), other.vsize_ * sizeof(T));
+			}
+			for (std::size_t i = other.vsize_; i < vsize_; ++i) {
+				std::allocator_traits<Allocator>::destroy(alloc_, data_ + i);
+			}
+		} else {
+			std::size_t common = std::min(vsize_, other.vsize_);
+
+			for (std::size_t i = 0; i < common; ++i) {
+				data_[i] = other.data_[i];
+			}
+
+			if (other.vsize_ > vsize_) {
+				std::size_t constructed = vsize_;
+				try {
+					for (; constructed < other.vsize_; ++constructed) {
+						std::allocator_traits<Allocator>::construct(alloc_, data_ + constructed, other.data_[constructed]);
+					}
+				} catch (...) {
+					for (std::size_t i = vsize_; i < constructed; ++i) {
+						std::allocator_traits<Allocator>::destroy(alloc_, data_ + i);
+					}
+					throw;   // basic guarantee: vsize_ left at its pre-call value
+				}
+			} else {
+				for (std::size_t i = other.vsize_; i < vsize_; ++i) {
+					std::allocator_traits<Allocator>::destroy(alloc_, data_ + i);
+				}
+			}
+		}
+
+		vsize_ = other.vsize_;
+	} else {
+		// Not enough capacity — fall back to copy-and-swap for the strong guarantee.
 		Vector tmp(other);
 		swap(tmp);
 	}
+
 	return *this;
 }
 
@@ -132,42 +233,73 @@ template<typename T,
 requires std::destructible<T>
 Vector<T, Allocator, GrowthNum, GrowthDen>& Vector<T, Allocator, GrowthNum, GrowthDen>::operator=(Vector&& other) noexcept {
 	if (this != &other) {
-		release();
+		constexpr bool kPropagate   = std::allocator_traits<Allocator>::propagate_on_container_move_assignment::value;
+		constexpr bool kAlwaysEqual = std::allocator_traits<Allocator>::is_always_equal::value;
 
+		const bool canSteal = kPropagate || kAlwaysEqual || (alloc_ == other.alloc_);
+
+		release();
 		if (listeners_) {
 			delete[] listeners_;
 			listeners_ = nullptr;
 		}
 
-		alloc_      = std::move(other.alloc_);
-		data_       = other.data_;
-		vsize_      = other.vsize_;
-		vcap_       = other.vcap_;
-		listeners_  = other.listeners_;
-		lsize_      = other.lsize_;
-		lcap_       = other.lcap_;
+		if (canSteal) {
+			if constexpr (kPropagate) {
+				alloc_ = std::move(other.alloc_);
+			}
 
-		other.data_       = nullptr;
-		other.vsize_      = 0;
-		other.vcap_       = 0;
-		other.listeners_  = nullptr;
-		other.lsize_      = 0;
-		other.lcap_       = 0;
+			data_       = other.data_;
+			vsize_      = other.vsize_;
+			vcap_       = other.vcap_;
+			listeners_  = other.listeners_;
+			lsize_      = other.lsize_;
+			lcap_       = other.lcap_;
+
+			other.data_       = nullptr;
+			other.vsize_      = 0;
+			other.vcap_       = 0;
+			other.listeners_  = nullptr;
+			other.lsize_      = 0;
+			other.lcap_       = 0;
+		} else {
+			// Unequal, non-propagating allocators: move elements individually
+			// using our own allocator; leave `other` cleared via its own release().
+			if (other.vsize_ > 0) {
+				data_ = std::allocator_traits<Allocator>::allocate(alloc_, other.vsize_);
+				vcap_ = other.vsize_;
+				for (std::size_t i = 0; i < other.vsize_; ++i) {
+					std::allocator_traits<Allocator>::construct(alloc_, data_ + i, std::move(other.data_[i]));
+				}
+				vsize_ = other.vsize_;
+			}
+			other.release();
+		}
 	}
 
 	return *this;
 }
 
-// Modifiers
+
+// ============================================================
+// Section 3 — Modifiers
+// ============================================================
+
 template<typename T,
          typename Allocator,
          std::size_t GrowthNum,
          std::size_t GrowthDen>
 requires std::destructible<T>
 void Vector<T, Allocator, GrowthNum, GrowthDen>::push_back(const T& value) {
+	std::ptrdiff_t offset = -1;
+	if (data_ && std::addressof(value) >= data_ && std::addressof(value) < data_ + vsize_) {
+		offset = std::addressof(value) - data_;
+	}
+
 	if (vsize_ == vcap_) reallocate(growCapacity());
 
-	std::allocator_traits<Allocator>::construct(alloc_, data_ + vsize_, value);
+	const T& src = (offset >= 0) ? data_[offset] : value;
+	std::allocator_traits<Allocator>::construct(alloc_, data_ + vsize_, src);
 
 	std::size_t old = vsize_;
 	++vsize_;
@@ -180,9 +312,18 @@ template<typename T,
          std::size_t GrowthDen>
 requires std::destructible<T>
 void Vector<T, Allocator, GrowthNum, GrowthDen>::push_back(T&& value) {
+	std::ptrdiff_t offset = -1;
+	if (data_ && std::addressof(value) >= data_ && std::addressof(value) < data_ + vsize_) {
+		offset = std::addressof(value) - data_;
+	}
+
 	if (vsize_ == vcap_) reallocate(growCapacity());
 
-	std::allocator_traits<Allocator>::construct(alloc_, data_ + vsize_, std::move(value));
+	if (offset >= 0) {
+		std::allocator_traits<Allocator>::construct(alloc_, data_ + vsize_, std::move(data_[offset]));
+	} else {
+		std::allocator_traits<Allocator>::construct(alloc_, data_ + vsize_, std::move(value));
+	}
 
 	std::size_t old = vsize_;
 	++vsize_;
@@ -213,20 +354,32 @@ typename Vector<T, Allocator, GrowthNum, GrowthDen>::iterator
 Vector<T, Allocator, GrowthNum, GrowthDen>::insert(const_iterator pos, const T& value) {
 	std::size_t index = pos - cbegin();
 
-	if (vsize_ == vcap_) reallocate(growCapacity());
+    std::ptrdiff_t offset = -1;
+    if (data_ && std::addressof(value) >= data_ && std::addressof(value) < data_ + vsize_) {
+        offset = std::addressof(value) - data_;
+    }
 
-	if (vsize_ > index)
-		std::allocator_traits<Allocator>::construct(alloc_, data_ + vsize_, std::move(data_[vsize_ - 1]));
+    if (vsize_ == vcap_) reallocate(growCapacity());
 
-	for (std::size_t i = vsize_ - 1; i > index; --i)
-		data_[i] = std::move(data_[i - 1]);
+    // Snapshot before shifting — the shift loop can overwrite `offset`
+    // before we'd otherwise read it.
+    std::optional<T> snapshot;
+    if (offset >= 0) snapshot.emplace(data_[offset]);
+    const T& src = snapshot ? *snapshot : value;
 
-	std::allocator_traits<Allocator>::construct(alloc_, data_ + index, value);
+    if (index == vsize_) {
+        std::allocator_traits<Allocator>::construct(alloc_, data_ + index, src);
+    } else {
+        std::allocator_traits<Allocator>::construct(alloc_, data_ + vsize_, std::move(data_[vsize_ - 1]));
+        for (std::size_t i = vsize_ - 1; i > index; --i)
+            data_[i] = std::move(data_[i - 1]);
+        data_[index] = src;
+    }
 
-	std::size_t old = vsize_;
-	++vsize_;
-	notify({EventType::INSERT, index, old, vsize_});
-	return iterator(data_ + index);
+    std::size_t old = vsize_;
+    ++vsize_;
+    notify({EventType::INSERT, index, old, vsize_});
+    return iterator(data_ + index);
 }
 
 template<typename T,
@@ -238,20 +391,32 @@ typename Vector<T, Allocator, GrowthNum, GrowthDen>::iterator
 Vector<T, Allocator, GrowthNum, GrowthDen>::insert(const_iterator pos, T&& value) {
 	std::size_t index = pos - cbegin();
 
-	if (vsize_ == vcap_) reallocate(growCapacity());
+    std::ptrdiff_t offset = -1;
+    if (data_ && std::addressof(value) >= data_ && std::addressof(value) < data_ + vsize_) {
+        offset = std::addressof(value) - data_;
+    }
 
-	if (vsize_ > index)
-		std::allocator_traits<Allocator>::construct(alloc_, data_ + vsize_, std::move(data_[vsize_ - 1]));
+    if (vsize_ == vcap_) reallocate(growCapacity());
 
-	for (std::size_t i = vsize_ - 1; i > index; --i)
-		data_[i] = std::move(data_[i - 1]);
+    std::optional<T> snapshot;
+    if (offset >= 0) snapshot.emplace(std::move(data_[offset]));
 
-	std::allocator_traits<Allocator>::construct(alloc_, data_ + index, std::move(value));
+    if (index == vsize_) {
+        if (snapshot) std::allocator_traits<Allocator>::construct(alloc_, data_ + index, std::move(*snapshot));
+        else          std::allocator_traits<Allocator>::construct(alloc_, data_ + index, std::move(value));
+    } else {
+        std::allocator_traits<Allocator>::construct(alloc_, data_ + vsize_, std::move(data_[vsize_ - 1]));
+        for (std::size_t i = vsize_ - 1; i > index; --i)
+            data_[i] = std::move(data_[i - 1]);
 
-	std::size_t old = vsize_;
-	++vsize_;
-	notify({EventType::INSERT, index, old, vsize_});
-	return iterator(data_ + index);
+        if (snapshot) data_[index] = std::move(*snapshot);
+        else          data_[index] = std::move(value);
+    }
+
+    std::size_t old = vsize_;
+    ++vsize_;
+    notify({EventType::INSERT, index, old, vsize_});
+    return iterator(data_ + index);
 }
 
 template<typename T,
@@ -285,13 +450,17 @@ Vector<T, Allocator, GrowthNum, GrowthDen>::emplace(const_iterator pos, Args&&..
 
 	if (vsize_ == vcap_) reallocate(growCapacity());
 
-	if (vsize_ > index)
+	if (index == vsize_) {
+		std::allocator_traits<Allocator>::construct(alloc_, data_ + index, std::forward<Args>(args)...);
+	} else {
+		T tmp(std::forward<Args>(args)...);
+
 		std::allocator_traits<Allocator>::construct(alloc_, data_ + vsize_, std::move(data_[vsize_ - 1]));
+		for (std::size_t i = vsize_ - 1; i > index; --i)
+			data_[i] = std::move(data_[i - 1]);
 
-	for (std::size_t i = vsize_ - 1; i > index; --i)
-		data_[i] = std::move(data_[i - 1]);
-
-	std::allocator_traits<Allocator>::construct(alloc_, data_ + index, std::forward<Args>(args)...);
+		data_[index] = std::move(tmp);
+	}
 
 	std::size_t old = vsize_;
 	++vsize_;
@@ -312,10 +481,15 @@ std::size_t Vector<T, Allocator, GrowthNum, GrowthDen>::remove_if(Predicate pred
 
 	for (std::size_t i = 0; i < vsize_; ++i) {
 		if (!pred(data_[i])) {
-			data_[dest++] = std::move(data_[i]);
+			if (dest != i) data_[dest] = std::move(data_[i]);
+			++dest;
 		} else {
 			std::allocator_traits<Allocator>::destroy(alloc_, data_ + i);
 		}
+	}
+
+	for (std::size_t i = dest; i < vsize_; ++i) {
+		std::allocator_traits<Allocator>::destroy(alloc_, data_ + i);
 	}
 
 	vsize_ = dest;
@@ -347,11 +521,11 @@ typename Vector<T, Allocator, GrowthNum, GrowthDen>::iterator
 Vector<T, Allocator, GrowthNum, GrowthDen>::erase(const_iterator pos) {
 	std::size_t index = pos - cbegin();
 
-	std::allocator_traits<Allocator>::destroy(alloc_, data_ + index);
-
-	for (std::size_t i = index; i < vsize_ - 1; ++i) {
+	for (std::size_t i = index; i + 1 < vsize_; ++i) {
 		data_[i] = std::move(data_[i + 1]);
 	}
+
+	std::allocator_traits<Allocator>::destroy(alloc_, data_ + vsize_ - 1);
 
 	std::size_t old = vsize_;
 	--vsize_;
@@ -371,12 +545,14 @@ Vector<T, Allocator, GrowthNum, GrowthDen>::erase(const_iterator first, const_it
 	std::size_t indexLast   = last - cbegin();
 	std::size_t count       = indexLast - indexFirst;
 
-	for (std::size_t i = indexFirst; i < indexLast; ++i) {
-		std::allocator_traits<Allocator>::destroy(alloc_, data_ + i);
+	if (count == 0) return iterator(data_ + indexFirst);
+
+	for (std::size_t i = indexFirst; i + count < vsize_; ++i) {
+		data_[i] = std::move(data_[i + count]);
 	}
 
-	for (std::size_t i = indexFirst; i < vsize_ - count; ++i) {
-		data_[i] = std::move(data_[i + count]);
+	for (std::size_t i = vsize_ - count; i < vsize_; ++i) {
+		std::allocator_traits<Allocator>::destroy(alloc_, data_ + i);
 	}
 
 	std::size_t old = vsize_;
@@ -432,7 +608,11 @@ void Vector<T, Allocator, GrowthNum, GrowthDen>::shrink_to_fit() {
 	notify({EventType::SHRINK, 0, old, vcap_});
 }
 
-// Observer
+
+// ============================================================
+// Section 4 — Observer
+// ============================================================
+
 template<typename T,
          typename Allocator,
          std::size_t GrowthNum,
@@ -475,13 +655,18 @@ void Vector<T, Allocator, GrowthNum, GrowthDen>::unsubscribe(ListenerHandle hand
 	--lsize_;
 }
 
-// Comparison Operators
+
+// ============================================================
+// Section 5 — Comparison
+// ============================================================// ============================================================
+
 template<typename T,
          typename Allocator,
          std::size_t GrowthNum,
          std::size_t GrowthDen>
 requires std::destructible<T>
-bool Vector<T, Allocator, GrowthNum, GrowthDen>::operator==(const Vector& other) const noexcept {
+bool Vector<T, Allocator, GrowthNum, GrowthDen>::operator==(const Vector& other) const
+noexcept(noexcept(std::declval<const T&>() == std::declval<const T&>())) {
 	return vsize_ == other.vsize_ && std::equal(begin(), end(), other.begin());
 }
 
@@ -490,11 +675,16 @@ template<typename T,
          std::size_t GrowthNum,
          std::size_t GrowthDen>
 requires std::destructible<T>
-auto Vector<T, Allocator, GrowthNum, GrowthDen>::operator<=>(const Vector& other) const noexcept {
+auto Vector<T, Allocator, GrowthNum, GrowthDen>::operator<=>(const Vector& other) const
+noexcept(noexcept(std::declval<const T&>() <=> std::declval<const T&>())) {
 	return std::lexicographical_compare_three_way(begin(), end(), other.begin(), other.end());
 }
 
-// Span Accessors
+
+// ============================================================
+// Section 6 — Span Access
+// ============================================================
+
 template<typename T,
          typename Allocator,
          std::size_t GrowthNum,
@@ -513,7 +703,11 @@ std::span<const T> Vector<T, Allocator, GrowthNum, GrowthDen>::as_span() const n
 	return std::span<const T>(data_, vsize_);
 }
 
-// Element Access
+
+// ============================================================
+// Section 7 — Element Access
+// ============================================================
+
 template<typename T,
          typename Allocator,
          std::size_t GrowthNum,
@@ -618,13 +812,18 @@ Vector<T, Allocator, GrowthNum, GrowthDen>::operator[](std::size_t index) const 
 	return data_[index];
 }
 
-// Search
+
+// ============================================================
+// Section 8 — Lookup
+// ============================================================
+
 template<typename T,
          typename Allocator,
          std::size_t GrowthNum,
          std::size_t GrowthDen>
 requires std::destructible<T>
-bool Vector<T, Allocator, GrowthNum, GrowthDen>::contains(const T& value) const noexcept {
+bool Vector<T, Allocator, GrowthNum, GrowthDen>::contains(const T& value) const
+noexcept(noexcept(std::declval<const T&>() == std::declval<const T&>())) {
 	for (std::size_t i = 0; i < vsize_; ++i) {
 		if (data_[i] == value) return true;
 	}
@@ -638,7 +837,8 @@ template<typename T,
          std::size_t GrowthDen>
 requires std::destructible<T>
 typename Vector<T, Allocator, GrowthNum, GrowthDen>::iterator
-Vector<T, Allocator, GrowthNum, GrowthDen>::find(const T& value) noexcept {
+Vector<T, Allocator, GrowthNum, GrowthDen>::find(const T& value)
+noexcept(noexcept(std::declval<const T&>() == std::declval<const T&>())) {
 	for (std::size_t i = 0; i < vsize_; ++i) {
 		if (data_[i] == value) return iterator(data_ + i);
 	}
@@ -651,14 +851,19 @@ template<typename T,
          std::size_t GrowthDen>
 requires std::destructible<T>
 typename Vector<T, Allocator, GrowthNum, GrowthDen>::const_iterator
-Vector<T, Allocator, GrowthNum, GrowthDen>::find(const T& value) const noexcept {
+Vector<T, Allocator, GrowthNum, GrowthDen>::find(const T& value) const
+noexcept(noexcept(std::declval<const T&>() == std::declval<const T&>())) {
 	for (std::size_t i = 0; i < vsize_; ++i) {
 		if (data_[i] == value) return const_iterator(data_ + i);
 	}
 	return end();
 }
 
-// Swap
+
+// ============================================================
+// Section 9 — Swap
+// ============================================================
+
 template<typename T,
          typename Allocator,
          std::size_t GrowthNum,
@@ -675,18 +880,11 @@ void Vector<T, Allocator, GrowthNum, GrowthDen>::swap(Vector& other) noexcept {
 	swap(lcap_,       other.lcap_);
 }
 
-template<typename T,
-         typename Allocator,
-         std::size_t GrowthNum,
-         std::size_t GrowthDen>
-void swap(
-    Vector<T, Allocator, GrowthNum, GrowthDen>& a,
-    Vector<T, Allocator, GrowthNum, GrowthDen>& b
-) noexcept {
-	a.swap(b);
-}
 
-// Capacity
+// ============================================================
+// Section 10 — Capacity
+// ============================================================
+
 template<typename T,
          typename Allocator,
          std::size_t GrowthNum,
@@ -714,7 +912,11 @@ std::size_t Vector<T, Allocator, GrowthNum, GrowthDen>::capacity() const noexcep
 	return vcap_;
 }
 
-// Iterators
+
+// ============================================================
+// Section 11 — Iterator Access
+// ============================================================
+
 template<typename T,
          typename Allocator,
          std::size_t GrowthNum,
@@ -835,7 +1037,11 @@ Vector<T, Allocator, GrowthNum, GrowthDen>::crend() const noexcept {
 	return const_reverse_iterator(begin());
 }
 
-// Private Helpers
+
+// ============================================================
+// Section 12 — Private Helpers
+// ============================================================
+
 template<typename T,
          typename Allocator,
          std::size_t GrowthNum,
@@ -846,13 +1052,14 @@ void Vector<T, Allocator, GrowthNum, GrowthDen>::release() noexcept {
 		std::allocator_traits<Allocator>::destroy(alloc_, data_ + i);
 	}
 
-	std::allocator_traits<Allocator>::deallocate(alloc_, data_, vcap_);
+	if (data_) {
+		std::allocator_traits<Allocator>::deallocate(alloc_, data_, vcap_);
+	}
 
 	data_   = nullptr;
 	vsize_  = 0;
 	vcap_   = 0;
 }
-
 
 template<typename T,
          typename Allocator,
@@ -861,6 +1068,10 @@ template<typename T,
 requires std::destructible<T>
 std::size_t Vector<T, Allocator, GrowthNum, GrowthDen>::growCapacity() const noexcept {
 	if (vcap_ == 0) return INITIAL_CAP;
+
+	constexpr std::size_t kMax = std::numeric_limits<std::size_t>::max();
+	if (vcap_ > kMax / GrowthNum) return kMax;
+
 	return vcap_ * GrowthNum / GrowthDen;
 }
 
@@ -872,9 +1083,32 @@ requires std::destructible<T>
 void Vector<T, Allocator, GrowthNum, GrowthDen>::reallocate(std::size_t newCap) {
 	pointer newData = std::allocator_traits<Allocator>::allocate(alloc_, newCap);
 
-	for (std::size_t i = 0; i < vsize_; ++i) {
-		std::allocator_traits<Allocator>::construct(alloc_, newData + i, std::move(data_[i]));
-		std::allocator_traits<Allocator>::destroy(alloc_, data_ + i);
+	if constexpr (std::is_trivially_copyable_v<T> &&
+	              std::is_same_v<Allocator, std::allocator<T>>) {
+		if (vsize_ > 0) {
+			std::memcpy(std::to_address(newData), std::to_address(data_), vsize_ * sizeof(T));
+		}
+	} else {
+		std::size_t constructed = 0;
+		try {
+			for (; constructed < vsize_; ++constructed) {
+				std::allocator_traits<Allocator>::construct(
+				    alloc_, newData + constructed, std::move_if_noexcept(data_[constructed]));
+			}
+		} catch (...) {
+			for (std::size_t i = 0; i < constructed; ++i)
+				std::allocator_traits<Allocator>::destroy(alloc_, newData + i);
+			std::allocator_traits<Allocator>::deallocate(alloc_, newData, newCap);
+			throw;
+		}
+
+		for (std::size_t i = 0; i < vsize_; ++i) {
+			std::allocator_traits<Allocator>::destroy(alloc_, data_ + i);
+		}
+	}
+
+	if (data_) {
+		std::allocator_traits<Allocator>::deallocate(alloc_, data_, vcap_);
 	}
 
 	data_ = newData;
@@ -892,4 +1126,21 @@ void Vector<T, Allocator, GrowthNum, GrowthDen>::notify(EventData data) {
 	}
 }
 
+
+// ============================================================
+// Section 13 — Non-member Functions
+// ============================================================
+
+template<typename T,
+         typename Allocator,
+         std::size_t GrowthNum,
+         std::size_t GrowthDen>
+void swap(
+    Vector<T, Allocator, GrowthNum, GrowthDen>& a,
+    Vector<T, Allocator, GrowthNum, GrowthDen>& b
+) noexcept {
+	a.swap(b);
+}
+
 } // namespace VectorPro
+

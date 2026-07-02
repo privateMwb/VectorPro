@@ -1,17 +1,28 @@
 #pragma once
 
+#include <VectorPro/Vector.h>
+
 #include <iostream>
 #include <string>
 #include <iomanip>
 
-inline void setTitle(std::string_view title) {
-    std::cout << "\033[96m" << title << "\033[0m\n";
+// ANSI terminal color codes.
+constexpr const char* RESET  = "\033[0m";
+constexpr const char* CYAN   = "\033[96m";
+constexpr const char* GRAY   = "\033[37m";
+constexpr const char* BLUE   = "\033[94m";
+
+// Prints a horizontal separator line.
+inline void borderLine() {
+    std::cout << GRAY << std::string(70, '-') << RESET << "\n";
 }
 
-template<typename T>
-inline void dataFormat(std::string_view left, T value) {
-    std::cout << std::left
-              << std::setw(30) << left << ":"
-              << std::setw(15) << value
-              << "\n";
+// Prints the main title.
+inline void mainTitle(std::string_view title) {
+    std::cout << BLUE << title << RESET << "\n";
+}
+
+// Prints a section title.
+inline void setTitle(std::string_view title) {
+    std::cout << CYAN << title << RESET << "\n";
 }

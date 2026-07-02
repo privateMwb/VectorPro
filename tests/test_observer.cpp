@@ -1,175 +1,237 @@
 // Vector Observer Test Suite
-// Validates the subscription, notification, and unsubscription
-// behavior of the observer system.
+// Verifies event subscription, unsubscription, and event payload delivery.
 //
 // Covers:
-// - subscribe returns a valid handle
-// - listener fires on push_back
-// - listener fires on pop_back
-// - listener fires on insert
-// - listener fires on erase
-// - listener fires on clear
-// - listener fires on reserve
-// - listener fires on shrink_to_fit
-// - listener fires on remove_if
-// - unsubscribe stops notifications
-// - multiple listeners fire independently
-// - EventData carries correct values
+// - subscription notifications for all modifying operations
+// - event payload contents
+// - multiple subscribers
+// - unsubscribe
+// - unsubscribing an invalid handle
+// - unsubscribing one of multiple subscribers
+// - operations with no subscribers
 
 #include "test_helper.h"
-#include "Vector.h"
 
 using namespace VectorPro;
 
-// Subscribe Returns Handle
-// Verifies subscribe returns a valid listener handle.
-static void subscribe_returns_handle() {
+// Verifies subscribing receives a PUSHBACK event.
+static void subscribe_fires_on_push_back() {
     Vector<int> v;
-    resetEventCount();
-    auto handle = v.subscribe(countListener);
-    CHK(handle == 0);
-}
+    int callCount = 0;
 
-// Notify On Push Back
-// Verifies listener fires once when push_back is called.
-static void notify_on_push_back() {
-    Vector<int> v;
-    resetEventCount();
-    (void)v.subscribe(countListener);
-    v.push_back(1);
-    CHK(g_eventCount == 1);
-}
-
-// Notify On Pop Back
-// Verifies listener fires once when pop_back is called.
-static void notify_on_pop_back() {
-    Vector<int> v = { 1, 2, 3 };
-    resetEventCount();
-    (void)v.subscribe(countListener);
-    v.pop_back();
-    CHK(g_eventCount == 1);
-}
-
-// Notify On Insert
-// Verifies listener fires once when insert is called.
-static void notify_on_insert() {
-    Vector<int> v = { 1, 2, 3 };
-    resetEventCount();
-    (void)v.subscribe(countListener);
-    (void)v.insert(v.cbegin(), 0);
-    CHK(g_eventCount == 1);
-}
-
-// Notify On Erase
-// Verifies listener fires once when erase is called.
-static void notify_on_erase() {
-    Vector<int> v = { 1, 2, 3 };
-    resetEventCount();
-    (void)v.subscribe(countListener);
-    (void)v.erase(v.cbegin());
-    CHK(g_eventCount == 1);
-}
-
-// Notify On Clear
-// Verifies listener fires once when clear is called.
-static void notify_on_clear() {
-    Vector<int> v = { 1, 2, 3 };
-    resetEventCount();
-    (void)v.subscribe(countListener);
-    v.clear();
-    CHK(g_eventCount == 1);
-}
-
-// Notify On Reserve
-// Verifies listener fires once when reserve is called.
-static void notify_on_reserve() {
-    Vector<int> v;
-    resetEventCount();
-    (void)v.subscribe(countListener);
-    v.reserve(20);
-    CHK(g_eventCount == 1);
-}
-
-// Notify On Shrink To Fit
-// Verifies listener fires once when shrink_to_fit is called.
-static void notify_on_shrink_to_fit() {
-    Vector<int> v = { 1, 2, 3 };
-    resetEventCount();
-    v.reserve(20);
-    (void)v.subscribe(countListener);
-    v.shrink_to_fit();
-    CHK(g_eventCount == 1);
-}
-
-// Notify On Remove If
-// Verifies listener fires once when remove_if is called.
-static void notify_on_remove_if() {
-    Vector<int> v = { 1, 2, 3, 4, 5 };
-    resetEventCount();
-    (void)v.subscribe(countListener);
-    (void)v.remove_if([](const int& x) { return x % 2 == 0; });
-    CHK(g_eventCount == 1);
-}
-
-// Unsubscribe Stops Notifications
-// Verifies listener no longer fires after unsubscribe.
-static void unsubscribe_stops_notifications() {
-    Vector<int> v;
-    resetEventCount();
-    auto handle = v.subscribe(countListener);
-    v.push_back(1);
-    CHK(g_eventCount == 1);
-
-    v.unsubscribe(handle);
-    v.push_back(2);
-    CHK(g_eventCount == 1);
-}
-
-// Multiple Listeners
-// Verifies all subscribed listeners fire independently.
-static void multiple_listeners() {
-    Vector<int> v;
-    resetEventCount();
-    (void)v.subscribe(countListener);
-    (void)v.subscribe(countListener);
-    v.push_back(1);
-    CHK(g_eventCount == 2);
-}
-
-// Event Data Correct
-// Verifies EventData carries correct type, index, oldSize, newSize.
-static void event_data_correct() {
-    Vector<int> v = { 1, 2, 3 };
-
-    Vector<int>::EventData captured{};
-    (void)v.subscribe([&captured](const Vector<int>&, Vector<int>::EventData data) {
-        captured = data;
+    (void)v.subscribe([&](const Vector<int>&, Vector<int>::EventData e) {
+        ++callCount;
+        CHK(e.type == Vector<int>::EventType::PUSHBACK);
     });
 
-    v.push_back(4);
-    CHK(captured.type    == Vector<int>::EventType::PUSHBACK);
-    CHK(captured.index   == 3);
-    CHK(captured.oldSize == 3);
-    CHK(captured.newSize == 4);
+    v.push_back(1);
+    CHK(callCount == 1);
 }
 
-// Test Runner
+// Verifies event payload fields reflect the previous and current vector size.
+static void subscribe_payload_values() {
+    Vector<int> v;
+    Vector<int>::EventData captured{};
+
+    (void)v.subscribe([&](const Vector<int>&, Vector<int>::EventData e) {
+        captured = e;
+    });
+
+    v.push_back(1);
+    v.push_back(2);
+
+    CHK(captured.oldSize == 1);
+    CHK(captured.newSize == 2);
+}
+
+// Verifies subscribing receives an EMPLACEBACK event.
+static void subscribe_fires_on_emplace_back() {
+    Vector<int> v;
+    Vector<int>::EventType lastType{};
+
+    (void)v.subscribe([&](const Vector<int>&, Vector<int>::EventData e) {
+        lastType = e.type;
+    });
+
+    v.emplace_back(5);
+    CHK(lastType == Vector<int>::EventType::EMPLACEBACK);
+}
+
+// Verifies subscribing receives a POPBACK event.
+static void subscribe_fires_on_pop_back() {
+    Vector<int> v{1, 2, 3};
+    Vector<int>::EventType lastType{};
+
+    (void)v.subscribe([&](const Vector<int>&, Vector<int>::EventData e) {
+        lastType = e.type;
+    });
+
+    v.pop_back();
+    CHK(lastType == Vector<int>::EventType::POPBACK);
+}
+
+// Verifies subscribing receives an INSERT event.
+static void subscribe_fires_on_insert() {
+    Vector<int> v{1, 2, 3};
+    Vector<int>::EventType lastType{};
+
+    (void)v.subscribe([&](const Vector<int>&, Vector<int>::EventData e) {
+        lastType = e.type;
+    });
+
+    (void)v.insert(v.cbegin() + 1, 99);
+    CHK(lastType == Vector<int>::EventType::INSERT);
+}
+
+// Verifies subscribing receives an ERASE event.
+static void subscribe_fires_on_erase() {
+    Vector<int> v{1, 2, 3};
+    Vector<int>::EventType lastType{};
+
+    (void)v.subscribe([&](const Vector<int>&, Vector<int>::EventData e) {
+        lastType = e.type;
+    });
+
+    (void)v.erase(v.cbegin());
+    CHK(lastType == Vector<int>::EventType::ERASE);
+}
+
+// Verifies subscribing receives a REMOVE event.
+static void subscribe_fires_on_remove_if() {
+    Vector<int> v{1, 2, 3, 4};
+    Vector<int>::EventType lastType{};
+
+    (void)v.subscribe([&](const Vector<int>&, Vector<int>::EventData e) {
+        lastType = e.type;
+    });
+
+    (void)v.remove_if([](const int& x) { return x % 2 == 0; });
+    CHK(lastType == Vector<int>::EventType::REMOVE);
+}
+
+// Verifies subscribing receives a CLEAR event.
+static void subscribe_fires_on_clear() {
+    Vector<int> v{1, 2, 3};
+    Vector<int>::EventType lastType{};
+
+    (void)v.subscribe([&](const Vector<int>&, Vector<int>::EventData e) {
+        lastType = e.type;
+    });
+
+    v.clear();
+    CHK(lastType == Vector<int>::EventType::CLEAR);
+}
+
+// Verifies subscribing receives a RESERVE event.
+static void subscribe_fires_on_reserve() {
+    Vector<int> v;
+    Vector<int>::EventType lastType{};
+
+    (void)v.subscribe([&](const Vector<int>&, Vector<int>::EventData e) {
+        lastType = e.type;
+    });
+
+    v.reserve(50);
+    CHK(lastType == Vector<int>::EventType::RESERVE);
+}
+
+// Verifies subscribing receives a SHRINK event.
+static void subscribe_fires_on_shrink() {
+    Vector<int> v;
+    v.reserve(50);
+    v.push_back(1);
+
+    Vector<int>::EventType lastType{};
+    (void)v.subscribe([&](const Vector<int>&, Vector<int>::EventData e) {
+        lastType = e.type;
+    });
+
+    v.shrink_to_fit();
+    CHK(lastType == Vector<int>::EventType::SHRINK);
+}
+
+// Verifies all subscribed listeners are notified.
+static void multiple_listeners_all_fire() {
+    Vector<int> v;
+    int count1 = 0, count2 = 0;
+
+    (void)v.subscribe([&](const Vector<int>&, Vector<int>::EventData) { ++count1; });
+    (void)v.subscribe([&](const Vector<int>&, Vector<int>::EventData) { ++count2; });
+
+    v.push_back(1);
+
+    CHK(count1 == 1);
+    CHK(count2 == 1);
+}
+
+// Verifies unsubscribing prevents further notifications.
+static void unsubscribe_stops_notifications() {
+    Vector<int> v;
+    int count = 0;
+
+    auto handle = v.subscribe([&](const Vector<int>&, Vector<int>::EventData) { ++count; });
+    v.push_back(1);
+    v.unsubscribe(handle);
+    v.push_back(2);
+
+    CHK(count == 1);
+}
+
+// Verifies unsubscribing an invalid handle is a no-op.
+static void unsubscribe_invalid_handle_is_noop() {
+    Vector<int> v;
+    int count = 0;
+
+    (void)v.subscribe([&](const Vector<int>&, Vector<int>::EventData) { ++count; });
+    v.unsubscribe(999);
+    v.push_back(1);
+
+    CHK(count == 1);
+}
+
+// Verifies unsubscribing one listener does not affect the others.
+static void unsubscribe_one_of_many_preserves_others() {
+    Vector<int> v;
+    int count1 = 0, count2 = 0;
+
+    auto h1 = v.subscribe([&](const Vector<int>&, Vector<int>::EventData) { ++count1; });
+    (void)v.subscribe([&](const Vector<int>&, Vector<int>::EventData) { ++count2; });
+
+    v.unsubscribe(h1);
+    v.push_back(1);
+
+    CHK(count1 == 0);
+    CHK(count2 == 1);
+}
+
+// Verifies modifying operations succeed with no subscribed listeners.
+static void no_listeners_does_not_throw() {
+    Vector<int> v;
+    v.push_back(1);
+    v.pop_back();
+
+    CHK(v.size() == 0);
+}
+
 // Executes all observer test cases.
 void run_observer_tests() {
-    setTitle("Observer Tests");
+    setTitle("Observer");
 
-    RUN(subscribe_returns_handle);
-    RUN(notify_on_push_back);
-    RUN(notify_on_pop_back);
-    RUN(notify_on_insert);
-    RUN(notify_on_erase);
-    RUN(notify_on_clear);
-    RUN(notify_on_reserve);
-    RUN(notify_on_shrink_to_fit);
-    RUN(notify_on_remove_if);
+    RUN(subscribe_fires_on_push_back);
+    RUN(subscribe_payload_values);
+    RUN(subscribe_fires_on_emplace_back);
+    RUN(subscribe_fires_on_pop_back);
+    RUN(subscribe_fires_on_insert);
+    RUN(subscribe_fires_on_erase);
+    RUN(subscribe_fires_on_remove_if);
+    RUN(subscribe_fires_on_clear);
+    RUN(subscribe_fires_on_reserve);
+    RUN(subscribe_fires_on_shrink);
+    RUN(multiple_listeners_all_fire);
     RUN(unsubscribe_stops_notifications);
-    RUN(multiple_listeners);
-    RUN(event_data_correct);
+    RUN(unsubscribe_invalid_handle_is_noop);
+    RUN(unsubscribe_one_of_many_preserves_others);
+    RUN(no_listeners_does_not_throw);
 
     std::cout << "\n";
 }
