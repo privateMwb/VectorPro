@@ -1,10 +1,12 @@
 # VectorPro
 
-[![C++26](https://img.shields.io/badge/C%2B%2B-26-blue)](https://en.cppreference.com/w/cpp/26)
+[![C++23](https://img.shields.io/badge/C%2B%2B-23-blue)](https://en.cppreference.com/w/cpp/23)
 [![Status](https://img.shields.io/badge/status-learning%20project-green)](https://github.com/privateMwb/VectorPro)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-A custom C++ dynamic array implementation built for learning low-level memory management, STL-like container design, iterators, allocator support, and performance benchmarking.
+A custom C++ dynamic array implementation built for learning contiguous storage
+design, allocator-aware memory management, growth policies, and an observer
+event system layered on top of `std::vector`-compatible semantics.
 
 ---
 
@@ -21,23 +23,26 @@ A custom C++ dynamic array implementation built for learning low-level memory ma
 - [Project Structure](#project-structure)
 - [Build Instructions](#build-instructions)
 - [Notes](#notes)
-- [Contributing](#contributing)
 - [License](#license)
 
 ---
 
 ## Overview
 
-VectorPro is a `std::vector`-like container implemented from scratch in modern C++ (C++26).
-It focuses on understanding how dynamic arrays work internally, including memory allocation, growth strategies, allocator support, and iterator design.
+VectorPro (`Vector`) is a contiguous, `std::vector`-compatible dynamic array
+implemented from scratch in modern C++ (C++23). It focuses on understanding
+how growable contiguous containers work internally, including allocator-aware
+allocation, trivial-type fast paths, exception-safe reallocation, and
+iterator invalidation rules.
 
 It also includes:
 
-- Custom contiguous iterator & reverse iterator
-- Observer/event system with `EventData`
-- Allocator support via `std::allocator_traits`
-- Configurable growth factor via template parameters
-- Benchmark suite comparing against `std::vector`
+- Configurable growth policy via non-type template parameters
+- Allocator awareness respecting `propagate_on_container_*` traits
+- Trivially-copyable fast paths (`memcpy`) for the default allocator
+- A built-in observer/event system via `subscribe()` / `unsubscribe()`
+- Full `contiguous_iterator`-conforming iterator support
+- Benchmark suite comparing against `std::vector` across every public operation
 - Unit tests for correctness validation
 
 ---
@@ -46,176 +51,131 @@ It also includes:
 
 This project was built to understand:
 
-- Dynamic memory management via `std::allocator_traits`
-- Rule of 5 (copy/move semantics)
-- Amortized complexity in dynamic arrays
-- STL container design principles
-- Iterator implementation (`std::contiguous_iterator`)
-- Event-driven container design (observer pattern)
-- Allocator-aware container design
-- Performance benchmarking vs `std::vector`
+- Growth strategies for amortized O(1) `push_back`
+- Allocator-aware construction, destruction, and propagation on copy/move
+- Trivial vs non-trivial type dispatch (`memcpy` vs construct/destroy loops)
+- Exception safety: strong guarantee via commit/rollback in `reallocate()`
+- Iterator invalidation and `std::contiguous_iterator` conformance
+- Self-referential argument hazards (`v.push_back(v[i])`) during reallocation
+- Observer pattern design and its runtime cost when layered onto a hot path
+- Performance benchmarking vs `std::vector` across construction, modification,
+  search, iteration, and comparison
 
 ---
 
 ## Features
 
-- Dynamic array with automatic resizing
-- `push_back`, `pop_back`
-- `insert`, `erase` (single and range)
-- `emplace_back`, `emplace`
-- `remove_if` — returns count of removed elements
-- `reserve`, `shrink_to_fit`
-- `clear`
-- Bounds checking via `at()`
-- Copy & move semantics
-- Custom contiguous iterators (forward & reverse)
-- Observer system (`subscribe`, `unsubscribe`, `notify`) with `EventData`
-- Initializer list support
-- Iterator range construction
-- `std::span` accessor via `as_span()`
-- `contains()` and `find()` search methods
-- Comparison operators (`==`, `<=>`)
-- Configurable growth factor (`GrowthNum / GrowthDen`)
-- Allocator support (`std::allocator<T>` by default, compatible with PMR allocators)
+- Configurable growth ratio via `GrowthNum` / `GrowthDen` template parameters
+- Allocator-aware copy/move construction and assignment
+  (`select_on_container_copy_construction`, `propagate_on_container_move_assignment`)
+- `memcpy` fast path for trivially-copyable types under the default allocator
+- Exception-safe reallocation with rollback on a throwing move/copy constructor
+- Self-reference safe `push_back` / `insert` (`v.push_back(v[i])` is well-defined)
+- Copy assignment reuses existing capacity instead of always reallocating
+- Observer system: `subscribe()` / `unsubscribe()` with typed `EventData` payloads
+- `std::contiguous_iterator`-conforming `Iterator<T>`
+- `std::span` interop via `as_span()`
+- Three-way comparison (`operator<=>`) and equality (`operator==`)
+- `[[no_unique_address]]` allocator storage — no size penalty for stateless allocators
 
 ---
 
 ## Design Overview
 
-VectorPro uses a raw heap-allocated array with manual memory control via `std::allocator_traits`.
+Vector uses a single contiguous heap-allocated buffer with size/capacity
+tracking, plus a secondary buffer for optional event listeners.
 
 ### Internal Structure
 
 ```
 data_ (pointer)
   ↓
-[T][T][T][T][T][...]
-        ↑
-     vsize_ / vcap_
+[elem 0][elem 1][elem 2][...][elem n-1][  unused capacity  ]
+                                        ↑
+                                     vsize_
+[                    vcap_                                 ]
 ```
 
-- `data_` → pointer to raw allocated memory
-- `vsize_` → number of constructed elements
-- `vcap_` → total allocated capacity
-- `alloc_` → allocator instance
+- `alloc_`      → `[[no_unique_address]]` allocator instance
+- `data_`       → pointer to the contiguous element buffer
+- `vsize_`      → number of live elements
+- `vcap_`       → total allocated capacity
+- `listeners_`  → separate buffer of `std::function` event listeners
+- `lsize_` / `lcap_` → listener count and listener buffer capacity
 
 ### Growth Strategy
 
-Growth is controlled by two template parameters:
+Capacity grows by a configurable ratio (`GrowthNum / GrowthDen`, default `2/1`):
 
 ```cpp
-template<typename T,
-         typename Allocator = std::allocator<T>,
-         std::size_t GrowthNum = 2,
-         std::size_t GrowthDen = 1>
+Vector<int>                          v1;  // default 2/1 growth
+Vector<int, std::allocator<int>, 3, 2> v2;  // conservative 3/2 growth
 ```
 
-Growth formula:
+An overflow-guarded `growCapacity()` clamps to `SIZE_MAX` rather than wrapping
+on very large capacities.
+
+### Trivial-Type Fast Path
+
+For trivially-copyable `T` with the default allocator, relocation during
+`reallocate()` and copy construction uses `memcpy` instead of an
+element-by-element construct/destroy loop:
 
 ```cpp
-newCapacity = (vcap_ == 0) ? INITIAL_CAP : vcap_ * GrowthNum / GrowthDen;
-```
-
-Default is 2x growth. Custom ratios are supported:
-
-```
-// 2x (default)   8 → 16 → 32 → 64 → ...
-// 1.5x (3/2)     8 → 12 → 18 → 27 → ...
-// 1.3x (4/3)     8 → 10 → 13 → 17 → ...
-```
-
-Static assertions guard against invalid growth parameters at compile time.
-
-### Memory Management
-
-All allocation and construction goes through `std::allocator_traits`:
-
-```cpp
-std::allocator_traits<Allocator>::allocate(alloc_, n);
-std::allocator_traits<Allocator>::construct(alloc_, ptr, args...);
-std::allocator_traits<Allocator>::destroy(alloc_, ptr);
-std::allocator_traits<Allocator>::deallocate(alloc_, ptr, n);
-```
-
-This enables compatibility with any conforming allocator including `std::pmr::polymorphic_allocator`.
-
-Reallocation involves:
-
-1. Allocate new raw memory
-2. Move-construct elements into new buffer
-3. Destroy old elements
-4. Deallocate old memory
-
-### Iterator Design
-
-Iterators are lightweight wrappers around raw pointers, satisfying `std::contiguous_iterator`:
-
-```cpp
-using iterator_concept  = std::contiguous_iterator_tag;
-using iterator_category = std::random_access_iterator_tag;
-```
-
-This unlocks the fastest paths in `std::ranges` and standard algorithms like `std::sort`, `std::copy`, and `std::find`.
-
-Reverse iterators are composed via `std::reverse_iterator`:
-
-```
-rbegin() → end()
-rend()   → begin()
-```
-
-### Observer System
-
-VectorPro supports an event-based listener system using `std::function`:
-
-```
-mutation (push_back / erase / clear / etc.)
-        ↓
-notify(EventData)
-        ↓
-all subscribed listeners executed
-```
-
-Each event carries:
-
-```cpp
-struct EventData {
-    EventType    type;
-    std::size_t  index;
-    std::size_t  oldSize;
-    std::size_t  newSize;
-};
-```
-
-Supported events: `PUSHBACK`, `EMPLACEBACK`, `POPBACK`, `INSERT`, `REMOVE`, `ERASE`, `CLEAR`, `SHRINK`, `RESERVE`.
-
-Subscribe returns a `ListenerHandle` for targeted unsubscription:
-
-```cpp
-auto handle = v.subscribe([](const Vector<int>&, Vector<int>::EventData d) {
-    // react to mutation
-});
-
-v.unsubscribe(handle);
+if constexpr (std::is_trivially_copyable_v<T> &&
+              std::is_same_v<Allocator, std::allocator<T>>) {
+    std::memcpy(std::to_address(newData), std::to_address(data_), vsize_ * sizeof(T));
+} else {
+    // move_if_noexcept construct/destroy loop, with rollback on exception
+}
 ```
 
 ### Exception Safety Model
 
-- Strong safety in copy operations via copy-and-swap
-- Move operations are `noexcept`
-- Bounds checking via `at()` throws `std::out_of_range`
-- `clear()` and destructor are `noexcept`
-- Element count (`vsize_`) only incremented after successful construction
+- `reallocate()` builds the new buffer fully before touching the old one —
+  if a move/copy constructor throws mid-relocation, already-constructed
+  elements in the new buffer are destroyed, the new buffer is freed, and the
+  exception propagates with the original buffer untouched (strong guarantee).
+- Copy assignment with sufficient existing capacity reuses storage in place
+  and offers the *basic* guarantee (matching `std::vector`'s actual contract)
+  — if an element's copy assignment throws mid-copy, `*this` remains valid
+  but its exact contents are unspecified.
+- Copy assignment that must grow falls back to copy-and-swap, preserving the
+  strong guarantee.
+- Move assignment and move construction are `noexcept`.
 
-### Design Philosophy
+### Allocator Propagation
 
-VectorPro prioritizes:
+Copy and move assignment respect `propagate_on_container_copy_assignment`,
+`propagate_on_container_move_assignment`, and `is_always_equal`. When
+propagation doesn't hold and the allocators compare unequal, ownership is
+never transferred across incompatible allocator instances — elements are
+moved/copied individually instead.
 
-- Learning STL internals from scratch
-- Explicit memory control via allocator traits
-- Performance awareness with configurable growth
-- Observer-driven container design
-- C++20/26 features: concepts, `<=>`, `std::span`, `std::contiguous_iterator`
+### Self-Reference Safety
+
+`push_back(v[i])` and `insert(pos, v[i])` are well-defined even when the call
+triggers a reallocation that frees the buffer `v[i]` refers to. The source
+index is captured before reallocation and re-resolved against the new buffer.
+
+### Observer System
+
+`subscribe()` registers a `std::function<void(const Vector&, EventData)>`
+listener. Every mutating operation (`push_back`, `insert`, `erase`, `clear`,
+`reserve`, etc.) fires a typed `EventData{ type, index, oldSize, newSize }`
+to all subscribed listeners:
+
+```cpp
+auto handle = v.subscribe([](const Vector<int>& vec, Vector<int>::EventData e) {
+    std::cout << "size " << e.oldSize << " -> " << e.newSize << "\n";
+});
+
+v.push_back(1);       // listener fires
+v.unsubscribe(handle); // stops future notifications
+```
+
+This is the one part of the design with a measured, non-trivial runtime cost
+— see [Benchmark Results](#benchmark-results).
 
 ---
 
@@ -223,99 +183,95 @@ VectorPro prioritizes:
 
 ### Time Complexity
 
-| Operation           | Complexity | Notes                            |
-| ------------------- | ---------- | -------------------------------- |
-| `push_back`         | O(1)*      | Amortized due to growth strategy |
-| `pop_back`          | O(1)       | Direct element destruction       |
-| `insert`            | O(n)       | Shifting elements after position |
-| `erase`             | O(n)       | Shifting elements after index    |
-| `emplace_back`      | O(1)*      | Amortized like push_back         |
-| `emplace`           | O(n)       | Shifting elements after position |
-| `remove_if`         | O(n)       | Single pass, stable partition    |
-| `operator[]`        | O(1)       | Direct pointer access            |
-| `at()`              | O(1)       | With bounds checking             |
-| `contains()`        | O(n)       | Linear search                    |
-| `find()`            | O(n)       | Linear search                    |
-| `reserve`           | O(n)       | Reallocation + move              |
-| `shrink_to_fit`     | O(n)       | Reallocation + move              |
-| `clear`             | O(n)       | Destroys all elements            |
-
-\* Amortized O(1) due to exponential growth strategy
+| Operation                | Complexity      | Notes                                          |
+| ------------------------ | --------------- | ----------------------------------------------- |
+| `push_back` / `emplace_back` | O(1) amortized | May trigger `reallocate()`                   |
+| `pop_back`                | O(1)            | Destructor call only                            |
+| `insert` / `emplace`      | O(n)            | Shifts all elements after the insertion point   |
+| `erase` (single)          | O(n)            | Shifts all elements after the erased index      |
+| `erase` (range)           | O(n)            | Shifts the tail down by `count`                 |
+| `remove_if`                | O(n)            | Single-pass compaction                          |
+| `clear`                    | O(n)            | O(1) per element for trivially-destructible `T` |
+| `reserve` / `shrink_to_fit`| O(n)            | One-time relocation, `memcpy` for trivial `T`   |
+| `operator[]` / `at` / `front` / `back` | O(1) | Direct pointer offset                    |
+| `contains` / `find`        | O(n)            | Linear scan                                     |
+| `subscribe`                | O(1) amortized  | May grow the listener buffer                    |
+| `unsubscribe`              | O(n)            | Shifts remaining listeners down                 |
+| `swap`                     | O(1)            | Pointer/size swap only                          |
 
 ### Space Complexity
 
 - O(n) for stored elements
-- Additional capacity overhead based on growth factor
-- Separate listener array (`listeners_`, `lsize_`, `lcap_`) for observer storage
-
-### Notes
-
-- Worst-case `push_back` is O(n) during reallocation
-- Iterator invalidation occurs on reallocation, `insert`, `erase`, `reserve`, `shrink_to_fit`
+- O(1) amortized wasted capacity relative to the configured growth ratio
+- O(m) for `m` subscribed listeners (separate buffer from element storage)
 
 ---
 
 ## Quick Example
 
-### Basic Operations
+### Basic Usage
 
 ```cpp
 #include "Vector.h"
-#include <iostream>
+
+using namespace VectorPro;
+
+int main() {
+    Vector<int> v{1, 2, 3};
+    v.push_back(4);
+    v.insert(v.cbegin(), 0);
+
+    for (int x : v) { /* 0 1 2 3 4 */ }
+}
+```
+
+### Observer Pattern
+
+```cpp
+#include "Vector.h"
 
 using namespace VectorPro;
 
 int main() {
     Vector<int> v;
 
-    v.push_back(10);
-    v.push_back(20);
-    v.push_back(30);
+    v.subscribe([](const Vector<int>&, Vector<int>::EventData e) {
+        std::cout << "mutated: " << e.oldSize << " -> " << e.newSize << "\n";
+    });
 
-    std::cout << v[0] << "\n"; // 10
-    std::cout << v.front() << "\n"; // 10
-    std::cout << v.back()  << "\n"; // 30
-
-    v.insert(v.cbegin() + 1, 15); // { 10, 15, 20, 30 }
-    v.erase(v.cbegin() + 2);      // { 10, 15, 30 }
-
-    for (const auto& x : v)
-        std::cout << x << " ";
-
-    return 0;
+    v.push_back(1);   // fires listener
+    v.pop_back();      // fires listener
 }
 ```
 
-### Observer & Custom Growth
+### Custom Growth Policy
 
 ```cpp
 #include "Vector.h"
-#include <iostream>
 
 using namespace VectorPro;
 
 int main() {
-    // custom 1.5x growth factor
-    Vector<int, std::allocator<int>, 3, 2> v;
+    Vector<int, std::allocator<int>, 3, 2> v;   // grows by 1.5x instead of 2x
+    for (int i = 0; i < 1000; ++i) v.push_back(i);
+}
+```
 
-    // subscribe to mutations
-    auto handle = v.subscribe([](const Vector<int, std::allocator<int>, 3, 2>&,
-                                  Vector<int, std::allocator<int>, 3, 2>::EventData d) {
-        std::cout << "Event fired — newSize: " << d.newSize << "\n";
-    });
+### Custom Allocator
 
+```cpp
+#include "Vector.h"
+#include <memory_resource>
+
+using namespace VectorPro;
+
+int main() {
+    std::byte buffer[4096];
+    std::pmr::monotonic_buffer_resource resource(buffer, sizeof(buffer));
+    std::pmr::polymorphic_allocator<int> alloc(&resource);
+
+    Vector<int, std::pmr::polymorphic_allocator<int>> v(alloc);
     v.push_back(1);
-    v.push_back(2);
-    v.push_back(3);
-
-    v.unsubscribe(handle);
-
-    // remove_if
-    v.remove_if([](const int& x) { return x % 2 != 0; });
-
-    std::cout << "Size after remove_if: " << v.size() << "\n";
-
-    return 0;
 }
 ```
 
@@ -326,18 +282,15 @@ int main() {
 ### Constructors
 
 ```cpp
-Vector<T> v;                              // default
-Vector<T> v(count, value);               // fill
-Vector<T> v = { 1, 2, 3 };              // initializer list
-Vector<T> v(first, last);               // iterator range
-Vector<T> v(other);                      // copy
-Vector<T> v(std::move(other));           // move
-
-// custom allocator
-Vector<T, Allocator> v(allocator);
-
-// custom growth factor (1.5x)
-Vector<T, std::allocator<T>, 3, 2> v;
+Vector<T> v;                              // default construction
+Vector<T> v(count, value);                // fill construction
+Vector<T> v{1, 2, 3};                     // initializer list
+Vector<T> v(first, last);                 // iterator range
+Vector<T> v(alloc);                       // allocator construction
+Vector<T> b(a);                           // copy construction
+Vector<T> b(std::move(a));                // move construction
+b = a;                                     // copy assignment
+b = std::move(a);                         // move assignment
 ```
 
 ### Modifiers
@@ -346,186 +299,222 @@ Vector<T, std::allocator<T>, 3, 2> v;
 void push_back(const T& value);
 void push_back(T&& value);
 
-template<typename... Args>
-void emplace_back(Args&&... args);
+template<typename... Args> void emplace_back(Args&&... args);
 
-iterator insert(const_iterator pos, const T& value);
-iterator insert(const_iterator pos, T&& value);
-
-template<std::input_iterator It>
-iterator insert(const_iterator pos, It first, It last);
+[[nodiscard]] iterator insert(const_iterator pos, const T& value);
+[[nodiscard]] iterator insert(const_iterator pos, T&& value);
+template<std::input_iterator It> iterator insert(const_iterator pos, It first, It last);
 
 template<typename... Args>
-iterator emplace(const_iterator pos, Args&&... args);
+[[nodiscard]] iterator emplace(const_iterator pos, Args&&... args);
 
 template<typename Predicate>
-std::size_t remove_if(Predicate pred);
+[[nodiscard]] std::size_t remove_if(Predicate pred);
 
 void pop_back();
-
-iterator erase(const_iterator pos);
-iterator erase(const_iterator first, const_iterator last);
+[[nodiscard]] iterator erase(const_iterator pos);
+[[nodiscard]] iterator erase(const_iterator first, const_iterator last);
 
 void clear() noexcept;
-```
-
-### Capacity
-
-```cpp
 void reserve(std::size_t newCap);
 void shrink_to_fit();
-void swap(Vector& other) noexcept;
+```
 
-bool        empty()    const noexcept;
-std::size_t size()     const noexcept;
-std::size_t capacity() const noexcept;
+### Observer
+
+```cpp
+template<typename F>
+[[nodiscard]] ListenerHandle subscribe(F&& listener);
+
+void unsubscribe(ListenerHandle handle);
 ```
 
 ### Element Access
 
 ```cpp
-pointer         data_ptr()       noexcept;
-const_pointer   data_ptr() const noexcept;
+[[nodiscard]] pointer data_ptr() noexcept;
+[[nodiscard]] reference at(std::size_t index);
+[[nodiscard]] reference front();
+[[nodiscard]] reference back();
+[[nodiscard]] reference operator[](std::size_t index) noexcept;
 
-reference       operator[](std::size_t index)       noexcept;
-const_reference operator[](std::size_t index) const noexcept;
-
-reference       at(std::size_t index);
-const_reference at(std::size_t index) const;
-
-reference       front();
-const_reference front() const;
-
-reference       back();
-const_reference back() const;
-
-std::span<T>       as_span()       noexcept;
-std::span<const T> as_span() const noexcept;
+[[nodiscard]] std::span<T> as_span() noexcept;
 ```
 
-### Search
+### Search & Comparison
 
 ```cpp
-bool     contains(const T& value) const noexcept;
-iterator find(const T& value)           noexcept;
-const_iterator find(const T& value) const noexcept;
+[[nodiscard]] bool contains(const T& value) const;
+[[nodiscard]] iterator find(const T& value);
+
+[[nodiscard]] bool operator==(const Vector& other) const;
+[[nodiscard]] auto operator<=>(const Vector& other) const;
 ```
 
-### Iterators
+### Capacity & Iterators
 
 ```cpp
-iterator               begin()   noexcept;
-iterator               end()     noexcept;
-const_iterator         cbegin()  const noexcept;
-const_iterator         cend()    const noexcept;
-reverse_iterator       rbegin()  noexcept;
-reverse_iterator       rend()    noexcept;
-const_reverse_iterator crbegin() const noexcept;
-const_reverse_iterator crend()   const noexcept;
-```
+[[nodiscard]] bool empty() const noexcept;
+[[nodiscard]] std::size_t size() const noexcept;
+[[nodiscard]] std::size_t capacity() const noexcept;
 
-### Observer System
+[[nodiscard]] iterator begin() noexcept;
+[[nodiscard]] iterator end() noexcept;
+[[nodiscard]] reverse_iterator rbegin() noexcept;
+[[nodiscard]] reverse_iterator rend() noexcept;
 
-```cpp
-template<typename F>
-    requires Listener<F, Vector>
-ListenerHandle subscribe(F&& listener);
-
-void unsubscribe(ListenerHandle handle);
-```
-
-### Comparison
-
-```cpp
-bool operator==(const Vector& other) const noexcept;
-auto operator<=>(const Vector& other) const noexcept;
+void swap(Vector& other) noexcept;
 ```
 
 ---
 
 ## Benchmark Results
 
-Benchmarks compare `VectorPro` against `std::vector` across core operations.
-All times measured in nanoseconds per iteration (100,000 iterations).
+Benchmarks compare `Vector` against `std::vector<int>` across every public
+operation. All times are total elapsed time for the listed iteration count.
 
-> Compiled with `-std=c++26`. Results may vary depending on hardware and compiler optimizations.
+> Compiled with `-std=c++23`, `-O3`. Results may vary depending on hardware
+> and compiler optimizations.
 
 ### Constructor
 
 ```
 ----------------------------------------------------------------------
-Constructor Benchmark                   Time           Iterations
+Constructor Benchmarks                  Time           Iteration
 ----------------------------------------------------------------------
-VectorPro default construct             56.31 us        100000
-std::vector default construct           52.69 us        100000
+VectorPro Default Construct             7.18 ms         1000000
+Std::vector Default Construct           5.68 ms         1000000
 
-VectorPro fill construct                105.46 us       100000
-std::vector fill construct              105.23 us       100000
+VectorPro Fill Construct                81.68 ms        500000
+Std::vector Fill Construct              75.51 ms        500000
 
-VectorPro init list construct           52.85 us        100000
-std::vector init list construct         52.62 us        100000
+VectorPro Init List Construct           65.68 ms        500000
+Std::vector Init List Construct         67.08 ms        500000
 
-VectorPro copy construct                68.25 ms        100000
-std::vector copy construct              52.62 us        100000
+VectorPro Copy Construct                321.73 ms       500000
+Std::vector Copy Construct              351.60 ms       500000
 
-VectorPro move construct                204.99 ms       100000
-std::vector move construct              291.74 ms       100000
+VectorPro Move Construct                156.79 ms       500000
+Std::vector Move Construct              122.89 ms       500000
 
-VectorPro copy assignment               68.98 ms        100000
-std::vector copy assignment             27.49 ms        100000
+VectorPro Copy Assignment               117.07 ms       500000
+Std::vector Copy Assignment             108.77 ms       500000
 
-VectorPro move assignment               203.99 ms       100000
-std::vector move assignment             177.81 ms       100000
-
-VectorPro 1.5x growth construct         300.41 ms       100000
-VectorPro PMR allocator construct       151.97 ms       100000
+VectorPro Move Assignment               87.52 ms        500000
+Std::vector Move Assignment             165.68 ms       500000
 ----------------------------------------------------------------------
 ```
 
-### Modifier
+### Modifiers
 
 ```
 ----------------------------------------------------------------------
-Modifier Benchmark                      Time           Iterations
+Modifiers Benchmarks                    Time           Iteration
 ----------------------------------------------------------------------
-VectorPro push_back copy                28.87 ms        100000
-std::vector push_back copy              52.62 us        100000
+VectorPro Push Back                     8.22 s          500000
+Std::vector Push Back                   2.05 s          500000
 
-VectorPro push_back move                19.63 ms        100000
-std::vector push_back move              105.23 us       100000
+VectorPro Push Back Reserved            6.23 s          500000
+Std::vector Push Back Reserved          898.74 ms       500000
 
-VectorPro emplace_back                  37.84 ms        100000
-std::vector emplace_back                23.19 ms        100000
+VectorPro Emplace Back                  8.43 s          500000
+Std::vector Emplace Back                1.58 s          500000
 
-VectorPro insert single                 212.65 ms       100000
-std::vector insert single               175.09 ms       100000
+VectorPro Insert Front                  1.04 s          500000
+Std::vector Insert Front                838.73 ms       500000
 
-VectorPro insert range                  244.93 ms       100000
-std::vector insert range                321.08 ms       100000
+VectorPro Insert Middle                 888.29 ms       500000
+Std::vector Insert Middle               816.43 ms       500000
 
-VectorPro emplace                       38.51 ms        100000
-std::vector emplace                     48.70 ms        100000
+VectorPro Insert End                    757.39 ms       500000
+Std::vector Insert End                  770.14 ms       500000
 
-VectorPro remove_if                     331.79 ms       100000
-std::vector erase_if                    640.19 ms       100000
+VectorPro Erase Front                   298.69 ms       500000
+Std::vector Erase Front                 292.77 ms       500000
 
-VectorPro pop_back                      385.06 ms       100000
-std::vector pop_back                    212.42 ms       100000
+VectorPro Erase Middle                  421.70 ms       500000
+Std::vector Erase Middle                421.66 ms       500000
 
-VectorPro erase single                  222.67 ms       100000
-std::vector erase single                219.03 ms       100000
+VectorPro Erase End                     296.77 ms       500000
+Std::vector Erase End                   291.36 ms       500000
 
-VectorPro erase range                   269.39 ms       100000
-std::vector erase range                 225.84 ms       100000
+VectorPro Pop Back                      442.73 ms       500000
+Std::vector Pop Back                    433.16 ms       500000
 
-VectorPro clear                         219.47 ms       100000
-std::vector clear                       132.71 ms       100000
+VectorPro Clear                         433.04 ms       500000
+Std::vector Clear                       433.01 ms       500000
 
-VectorPro reserve                       105.31 us       100000
-std::vector reserve                     52.85 us        100000
+VectorPro Remove If                     14.21 s         500000
+Std::vector Erase-remove If             3.28 s          500000
+----------------------------------------------------------------------
+```
 
-VectorPro shrink_to_fit                 117.70 ms       100000
-std::vector shrink_to_fit               81.31 ms        100000
+### Capacity
+
+```
+----------------------------------------------------------------------
+Capacity Benchmarks                     Time           Iteration
+----------------------------------------------------------------------
+VectorPro Reserve                       286.82 ms       500000
+Std::vector Reserve                     282.58 ms       500000
+
+VectorPro Reserve Growth                470.25 ms       100000
+Std::vector Reserve Growth              463.32 ms       100000
+
+VectorPro Shrink To Fit                 1.74 s          500000
+Std::vector Shrink To Fit               647.18 ms       500000
+
+VectorPro Growth Reallocation           1.39 s          500000
+Std::vector Growth Reallocation         607.19 ms       500000
+
+VectorPro Reserve No-op                 2.53 ms         1000000
+Std::vector Reserve No-op               3.76 ms         1000000
+----------------------------------------------------------------------
+```
+
+### Search
+
+```
+----------------------------------------------------------------------
+Search Benchmarks                       Time           Iteration
+----------------------------------------------------------------------
+VectorPro Contains Hit (1k)             1.58 s          1000000
+Std::vector Contains Hit (1k)           1.27 s          1000000
+
+VectorPro Contains Miss (1k)            3.14 s          1000000
+Std::vector Contains Miss (1k)          2.50 s          1000000
+
+VectorPro Contains Hit (100k)           77.50 s         500000
+Std::vector Contains Hit (100k)         75.51 s         500000
+
+VectorPro Find Hit (1k)                 1.35 s          1000000
+Std::vector Find Hit (1k)               1.36 s          1000000
+
+VectorPro Find Miss (1k)                2.63 s          1000000
+Std::vector Find Miss (1k)              2.49 s          1000000
+----------------------------------------------------------------------
+```
+
+### Iteration
+
+```
+----------------------------------------------------------------------
+Iteration Benchmarks                    Time           Iteration
+----------------------------------------------------------------------
+VectorPro Range-for                     39.04 s         500000
+Std::vector Range-for                   39.14 s         500000
+
+VectorPro Iterator Loop                 39.15 s         500000
+Std::vector Iterator Loop               39.02 s         500000
+
+VectorPro Index Loop                    39.14 s         500000
+Std::vector Index Loop                  74.69 s         500000
+
+VectorPro Reverse Iteration             69.41 s         500000
+Std::vector Reverse Iteration           60.89 s         500000
+
+VectorPro Accumulate                    39.21 s         500000
+Std::vector Accumulate                  39.15 s         500000
 ----------------------------------------------------------------------
 ```
 
@@ -533,176 +522,102 @@ std::vector shrink_to_fit               81.31 ms        100000
 
 ```
 ----------------------------------------------------------------------
-Observer Benchmark                      Time           Iterations
+Observer Benchmarks                     Time           Iteration
 ----------------------------------------------------------------------
-push_back no listener                   3.19 ms         100000
-push_back one listener                  2.97 ms         100000
+Push Back, 0 Listeners                  12.52 s         500000
 
-push_back 1  listener                   2.48 ms         100000
-push_back 5  listeners                  10.42 ms        100000
-push_back 10 listeners                  18.29 ms        100000
+Push Back, 1 Listener                   17.81 s         500000
 
-push_back lightweight callback          2.35 ms         100000
-push_back heavyweight callback          15.89 ms        100000
+Push Back, 8 Listeners                  51.42 s         500000
 
-subscribe/unsubscribe under load        54.31 ms        100000
-----------------------------------------------------------------------
-```
+Push Back, Capturing Listener           29.77 s         500000
 
-### Element Access & Search
+Subscribe X100                          5.92 s          500000
 
-```
-----------------------------------------------------------------------
-Element Access & Search Benchmark       Time           Iterations
-----------------------------------------------------------------------
-VectorPro operator[]                    52.85 us        100000
-std::vector operator[]                  52.69 us        100000
-
-VectorPro at()                          105.54 us       100000
-std::vector at()                        52.85 us        100000
-
-VectorPro front()                       105.54 us       100000
-std::vector front()                     52.69 us        100000
-VectorPro back()                        52.62 us        100000
-std::vector back()                      52.85 us        100000
-
-VectorPro data_ptr()                    52.69 us        100000
-std::vector data()                      52.62 us        100000
-
-VectorPro as_span()                     122.38 us       100000
-
-VectorPro contains() best case          105.46 us       100000
-VectorPro contains() worst case         105.23 us       100000
-std::vector find() best case            365.54 us       100000
-std::vector find() worst case           11.75 s         100000
-
-VectorPro find() best case              52.85 us        100000
-VectorPro find() worst case             52.69 us        100000
-std::find() best case                   369.77 us       100000
-std::find() worst case                  11.07 s         100000
+Unsubscribe X100                        50.13 s         500000
 ----------------------------------------------------------------------
 ```
 
-### Operator
+### Comparison
 
 ```
 ----------------------------------------------------------------------
-Operator Benchmark                      Time           Iterations
+Comparison Benchmarks                   Time           Iteration
 ----------------------------------------------------------------------
-VectorPro operator== equal              108.08 us       100000
-std::vector operator== equal            54.38 us        100000
+VectorPro Operator== Equal              8.54 s          500000
+Std::vector Operator== Equal            8.08 s          500000
 
-VectorPro operator== unequal            54.23 us        100000
-std::vector operator== unequal          54.38 us        100000
+VectorPro Operator== Differs Early      7.78 ms         500000
+Std::vector Operator== Differs Early    6.85 ms         500000
 
-VectorPro operator<=> less              54.15 us        100000
-std::vector operator<=> less            54.38 us        100000
+VectorPro Operator== Differs Late       8.29 s          500000
+Std::vector Operator== Differs Late     7.94 s          500000
 
-VectorPro operator<=> greater           54.15 us        100000
-std::vector operator<=> greater         54.15 us        100000
+VectorPro Operator== Diff Sizes         654.69 us       1000000
+Std::vector Operator== Diff Sizes       1.23 ms         1000000
 
-VectorPro operator<=> equal             108.31 us       100000
-std::vector operator<=> equal           108.31 us       100000
-----------------------------------------------------------------------
-```
+VectorPro Operator<=> Equal             16.85 s         500000
+Std::vector Operator<=> Equal           28.02 s         500000
 
-### Capacity
-
-```
-----------------------------------------------------------------------
-Capacity Benchmark                      Time           Iterations
-----------------------------------------------------------------------
-VectorPro empty()                       54.15 us        100000
-std::vector empty()                     54.15 us        100000
-
-VectorPro size()                        54.15 us        100000
-std::vector size()                      54.15 us        100000
-
-VectorPro capacity()                    54.46 us        100000
-std::vector capacity()                  54.15 us        100000
-
-VectorPro reserve()                     54.15 us        100000
-std::vector reserve()                   54.15 us        100000
-
-VectorPro shrink_to_fit()               71.58 ms        100000
-std::vector shrink_to_fit()             32.89 ms        100000
-
-VectorPro default growth (2x)           229.84 ms       100000
-std::vector default growth              134.70 ms       100000
-
-VectorPro 1.5x growth (3/2)             364.11 ms       100000
-VectorPro 1.3x growth (4/3)             435.73 ms       100000
-----------------------------------------------------------------------
-```
-
-### Iterator
-
-```
-----------------------------------------------------------------------
-Iterator Benchmark                      Time           Iterations
-----------------------------------------------------------------------
-VectorPro forward traversal             54.15 us        100000
-std::vector forward traversal           108.31 us       100000
-
-VectorPro const forward traversal       108.31 us       100000
-std::vector const forward traversal     54.23 us        100000
-
-VectorPro reverse traversal             54.15 us        100000
-std::vector reverse traversal           54.15 us        100000
-
-VectorPro iterator +                    54.15 us        100000
-std::vector iterator +                  54.15 us        100000
-VectorPro iterator -                    54.15 us        100000
-std::vector iterator -                  108.31 us       100000
-
-VectorPro std::sort                     38.43 ms        100000
-std::vector std::sort                   38.60 ms        100000
-
-VectorPro std::find hit                 325.00 us       100000
-std::vector std::find hit               324.92 us       100000
-VectorPro std::find miss                11.28 s         100000
-std::vector std::find miss              11.12 s         100000
-
-VectorPro std::accumulate               54.15 us        100000
-std::vector std::accumulate             54.15 us        100000
-
-VectorPro range-based for               54.15 us        100000
-std::vector range-based for             54.15 us        100000
+VectorPro Operator<=> Less              5.04 ms         500000
+Std::vector Operator<=> Less            3.08 ms         500000
 ----------------------------------------------------------------------
 ```
 
 ### Summary
 
-| Operation           | Winner      | Notes                                        |
-| ------------------- | ----------- | -------------------------------------------- |
-| default construct   | Tie         | Near-identical                               |
-| fill construct      | Tie         | Near-identical                               |
-| init list construct | Tie         | Near-identical                               |
-| copy construct      | std::vector | std::vector significantly faster             |
-| move construct      | VectorPro   | Both fast; VectorPro slightly slower         |
-| copy assignment     | std::vector | std::vector significantly faster             |
-| move assignment     | std::vector | Slightly faster                              |
-| push_back (copy)    | std::vector | std::vector significantly faster             |
-| push_back (move)    | std::vector | std::vector significantly faster             |
-| emplace_back        | std::vector | std::vector slightly faster                  |
-| insert single       | std::vector | std::vector slightly faster                  |
-| insert range        | VectorPro   | VectorPro faster on range inserts            |
-| emplace             | VectorPro   | VectorPro slightly faster                    |
-| remove_if           | VectorPro   | ~2× faster                                  |
-| pop_back            | std::vector | std::vector significantly faster             |
-| erase single        | Tie         | Near-identical                               |
-| erase range         | std::vector | std::vector slightly faster                  |
-| clear               | std::vector | std::vector significantly faster             |
-| reserve             | Tie         | Near-identical                               |
-| shrink_to_fit       | std::vector | std::vector ~2× faster                       |
-| contains()          | VectorPro   | ~3× faster than std::find                    |
-| find()              | VectorPro   | ~7× faster than std::find                    |
-| operator==          | Tie         | Near-identical                               |
-| operator<=>         | Tie         | Near-identical                               |
-| forward traversal   | Tie         | Near-identical                               |
-| std::sort           | Tie         | Near-identical                               |
-| std::accumulate     | Tie         | Near-identical                               |
-| range-based for     | Tie         | Near-identical                               |
+**Where VectorPro wins:**
+
+- Copy construction (`321.73 ms` vs `351.60 ms`) benefits from the `memcpy`
+  fast path for trivially-copyable types.
+- Move assignment (`87.52 ms` vs `165.68 ms`) is nearly 2x faster — the
+  allocator-propagation-aware steal path avoids per-element work entirely.
+- `operator<=>` on equal-length equal-content vectors (`16.85 s` vs `28.02 s`)
+  outperforms `std::vector` by a wide margin.
+- Reserve no-op (`2.53 ms` vs `3.76 ms`) and index-loop iteration
+  (`39.14 s` vs `74.69 s`) both favor VectorPro.
+- `operator==` on different-sized vectors (`654.69 us` vs `1.23 ms`) — the
+  immediate size check avoids any scan.
+
+**Where VectorPro loses — known, unresolved:**
+
+- `push_back` (`8.22 s` vs `2.05 s`) and `push_back` with pre-reserved
+  capacity (`6.23 s` vs `898.74 ms`) are both significantly slower than
+  `std::vector`, even with no reallocation involved. The most likely cause is
+  the per-call self-reference aliasing check and the unconditional
+  `EventData` construction + `notify()` call on every mutation, even with
+  zero listeners subscribed.
+- `emplace_back` (`8.43 s` vs `1.58 s`) and `remove_if`
+  (`14.21 s` vs `3.28 s` for `std::vector`'s erase-remove idiom) show the
+  same pattern.
+- `shrink_to_fit` (`1.74 s` vs `647.18 ms`) and growth-triggered
+  reallocation (`1.39 s` vs `607.19 ms`) are roughly 2x slower than
+  `std::vector` despite the `memcpy` fast path — this needs further
+  profiling to isolate whether the cost is in `notify()` overhead or
+  elsewhere in `reallocate()`.
+- The observer benchmarks confirm the notify path is not free even at zero
+  listeners: `Push Back, 0 Listeners` (`12.52 s`) versus `Push Back, 1
+  Listener` (`17.81 s`) shows real added cost per listener, and it compounds
+  further at 8 listeners (`51.42 s`).
+
+| Category                  | Winner        | Notes                                              |
+| -------------------------- | ------------- | --------------------------------------------------- |
+| Copy construction           | VectorPro     | `memcpy` fast path for trivial types                |
+| Move assignment             | VectorPro     | Allocator-aware steal, no per-element work           |
+| `operator<=>` (equal)        | VectorPro     | ~40% faster on full-length equal comparisons        |
+| Index-loop iteration         | VectorPro     | ~2x faster than `std::vector` in this run            |
+| `push_back` / `emplace_back` | std::vector   | 3-6x faster — event/notify overhead suspected        |
+| `remove_if`                  | std::vector   | ~4x faster via erase-remove idiom                    |
+| `shrink_to_fit` / reallocation | std::vector | ~2x faster despite matching fast path — needs profiling |
+| Search, most iteration, erase | Tied         | Within noise of `std::vector`                        |
+
+**Use VectorPro when:** you need the observer/event system, allocator
+propagation correctness, or are working with trivially-copyable types where
+the `memcpy` and move-assignment paths pay off.
+
+**Use `std::vector` when:** `push_back`-heavy or `emplace_back`-heavy
+workloads dominate and the event system isn't needed — the notify overhead
+is currently a real, unresolved cost on the hottest path in the container.
 
 ---
 
@@ -711,37 +626,19 @@ std::vector range-based for             54.15 us        100000
 ```
 VectorPro/
 ├── include/
-│   ├── Vector.h
-│   ├── Vector.tpp
-│   └── Iterator.h
+│   └── VectorPro/
+│       ├── Iterator.h
+│       ├── Vector.h
+│       └── Vector.tpp
 │
 ├── tests/
-│   ├── test_helper.h
-│   ├── test_all.cpp
-│   ├── test_constructor.cpp
-│   ├── test_modifiers.cpp
-│   ├── test_observer.cpp
-│   ├── test_element_access.cpp
-│   ├── test_operators.cpp
-│   ├── test_capacity.cpp
-│   └── test_iterators.cpp
-│
 ├── benchmarks/
-│   ├── benchmark_helper.h
-│   ├── bench_all.cpp
-│   ├── bench_constructor.cpp
-│   ├── bench_modifiers.cpp
-│   ├── bench_observer.cpp
-│   ├── bench_element_access.cpp
-│   ├── bench_operators.cpp
-│   ├── bench_capacity.cpp
-│   └── bench_iterators.cpp
-│
 ├── examples/
-│   ├── example_helper.h
-│   ├── example1.cpp
-│   └── example2.cpp
 │
+├── cmake/
+│   └── VectorProConfig.cmake.in
+│
+├── .gitignore
 ├── CMakeLists.txt
 ├── README.md
 └── LICENSE
@@ -753,79 +650,67 @@ VectorPro/
 
 ### Requirements
 
-- C++26-compatible compiler: GCC 15+, Clang 19+, or MSVC 19.43+
+- GCC 16+ or Clang with C++23 support
 - CMake 3.20+
-- No external dependencies — header-only core library
 
-### Using CMake
+### Build
 
 ```bash
 mkdir build && cd build
-cmake ..
+cmake .. -DCMAKE_BUILD_TYPE=Release
 cmake --build .
 ```
 
 ### Run Tests
 
 ```bash
-./build/tests
+./tests
 ```
 
 ### Run Benchmarks
 
 ```bash
-./build/benchmarks
+./benchmarks
 ```
-
-> Use `-O2` or `-O3` for meaningful benchmark results. Debug builds distort timing significantly.
 
 ### Run Examples
 
 ```bash
-./build/example1
-./build/example2
-```
-
-### Manual Compilation
-
-```bash
-# tests
-g++ -std=c++26 tests/test_all.cpp tests/test_constructor.cpp ... -Iinclude -o build/tests
-
-# benchmarks
-g++ -std=c++26 -O2 benchmarks/bench_all.cpp benchmarks/bench_constructor.cpp ... -Iinclude -o build/benchmarks
-
-# examples
-g++ -std=c++26 examples/example1.cpp -Iinclude -o build/example1
-g++ -std=c++26 examples/example2.cpp -Iinclude -o build/example2
+./example_basic
+./example_modifiers
+./example_observer
+./example_allocator
+./example_growth
+./example_algorithms
 ```
 
 ---
 
 ## Notes
 
-- **Not production-ready.** This is a learning project — use `std::vector` in real codebases.
-- The observer system adds per-operation overhead proportional to listener count — visible in the modifier benchmarks.
-- Exception safety is handled for core operations but may not match full STL guarantees in all edge cases.
-- Iterator invalidation rules mirror `std::vector`: any reallocation or structural modification (insert/erase) invalidates existing iterators.
-- `std::vector` outperforms VectorPro in most benchmarks — this is expected. The goal is learning, not beating the standard library.
-- The `find()` and `contains()` wins over `std::find` are due to the small dataset size used in the benchmark — `std::find` on a pre-filled 100k-element vector hits worst-case linear scan.
-
----
-
-## Contributing
-
-Contributions, improvements, and learning-focused PRs are welcome. Some areas worth exploring:
-
-- Integration with custom allocators (`ArenaAllocator`, `PoolAllocator`, `StackAllocator`, `FreeListAllocator`)
-- Small-buffer optimization (SBO) for small element counts
-- SIMD-friendly memory layouts
-- Additional concept constraints
-- Extended CI pipeline (GitHub Actions)
+- `remove_if()` and `erase()` were fixed for correctness during development:
+  the original implementation destroyed elements before shifting (undefined
+  behavior when non-trivial types are used) and leaked moved-from tail
+  elements. Both are now safe for arbitrary destructible `T`.
+- `reallocate()` previously leaked the old buffer on every capacity change —
+  this has been fixed; the old buffer is always deallocated after a
+  successful relocation.
+- Copy assignment now reuses existing capacity when possible instead of
+  always reallocating via copy-and-swap, trading the strong exception
+  guarantee for the basic guarantee on that fast path — matching
+  `std::vector`'s actual documented behavior.
+- `push_back` and `insert` explicitly guard against self-referential
+  arguments (`v.push_back(v[i])`) surviving a reallocation, at the cost of
+  an extra pointer-range check per call.
+- The observer system is not zero-cost even with no listeners subscribed —
+  see [Benchmark Results](#benchmark-results) for measured overhead. A
+  compile-time `EnableEvents` template flag (matching the `EnableStats`
+  pattern used in the AllocatorPro family) is a planned follow-up.
+- `notify()` is called on every mutating operation regardless of whether
+  any listeners are subscribed.
 
 ---
 
 ## License
 
 [MIT](LICENSE) — free to use, modify, and distribute for educational and personal purposes.
-

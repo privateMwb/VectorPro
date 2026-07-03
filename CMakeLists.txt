@@ -43,19 +43,15 @@ target_compile_features(
 # Tests
 # ============================================================================
 
+# Collect all test source files.
+file(GLOB TEST_SOURCES CONFIGURE_DEPENDS
+    "${CMAKE_CURRENT_SOURCE_DIR}/tests/*.cpp"
+)
+
 # Build the test executable.
 add_executable(
     tests
-    tests/test_all.cpp
-    tests/test_constructor.cpp
-    tests/test_modifiers.cpp 
-    tests/test_observer.cpp
-    tests/test_comparison.cpp
-    tests/test_access.cpp
-    tests/test_search.cpp
-    tests/test_capacity.cpp
-    tests/test_iterators.cpp
-    tests/test_swap.cpp
+    ${TEST_SOURCES}
 )
 
 # Link StackPro to the test executable.
@@ -69,17 +65,15 @@ target_link_libraries(
 # Benchmarks
 # ============================================================================
 
-# Build the benchmark executable.
+# Collect all bench source files.
+file(GLOB BENCH_SOURCES CONFIGURE_DEPENDS
+    "${CMAKE_CURRENT_SOURCE_DIR}/benchmarks/*.cpp"
+)
+
+# Build the bench executable
 add_executable(
-    benchmarks 
-    benchmarks/bench_all.cpp
-    benchmarks/bench_constructor.cpp
-    benchmarks/bench_modifiers.cpp
-    benchmarks/bench_capacity.cpp
-    benchmarks/bench_search.cpp
-    benchmarks/bench_iterators.cpp
-    benchmarks/bench_observer.cpp
-    benchmarks/bench_comparison.cpp
+    benchmarks
+    ${BENCH_SOURCES}
 )
 
 # Link StackPro to the benchmark executable.
