@@ -4,9 +4,10 @@
 [![Status](https://img.shields.io/badge/status-learning%20project-green)](https://github.com/privateMwb/VectorPro)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-A custom C++ dynamic array implementation built for learning contiguous storage
-design, allocator-aware memory management, growth policies, and an observer
-event system layered on top of `std::vector`-compatible semantics.
+A from-scratch, `std::vector`-compatible dynamic array written in modern C++,
+built to explore contiguous storage design, allocator-aware memory management,
+configurable growth policies, and an observer/event system layered on top of
+standard container semantics.
 
 ---
 
@@ -373,196 +374,90 @@ void swap(Vector& other) noexcept;
 Benchmarks compare `Vector` against `std::vector<int>` across every public
 operation. All times are total elapsed time for the listed iteration count.
 
-> Compiled with `-std=c++23`, `-O3`. Results may vary depending on hardware
-> and compiler optimizations.
+> Compiled with `-std=c++23 -O3`. Absolute numbers are hardware- and
+> compiler-dependent — treat the relative comparisons as the signal, not the
+> raw timings.
 
 ### Constructor
 
-```
-----------------------------------------------------------------------
-Constructor Benchmarks                  Time           Iteration
-----------------------------------------------------------------------
-VectorPro Default Construct             7.18 ms         1000000
-Std::vector Default Construct           5.68 ms         1000000
-
-VectorPro Fill Construct                81.68 ms        500000
-Std::vector Fill Construct              75.51 ms        500000
-
-VectorPro Init List Construct           65.68 ms        500000
-Std::vector Init List Construct         67.08 ms        500000
-
-VectorPro Copy Construct                321.73 ms       500000
-Std::vector Copy Construct              351.60 ms       500000
-
-VectorPro Move Construct                156.79 ms       500000
-Std::vector Move Construct              122.89 ms       500000
-
-VectorPro Copy Assignment               117.07 ms       500000
-Std::vector Copy Assignment             108.77 ms       500000
-
-VectorPro Move Assignment               87.52 ms        500000
-Std::vector Move Assignment             165.68 ms       500000
-----------------------------------------------------------------------
-```
+| Operation           | VectorPro  | `std::vector` | Iterations |
+| -------------------- | ---------- | -------------- | ---------- |
+| Default Construct    | 7.18 ms    | 5.68 ms        | 1,000,000  |
+| Fill Construct        | 81.68 ms   | 75.51 ms       | 500,000    |
+| Init List Construct   | 65.68 ms   | 67.08 ms       | 500,000    |
+| Copy Construct        | 321.73 ms  | 351.60 ms      | 500,000    |
+| Move Construct        | 156.79 ms  | 122.89 ms      | 500,000    |
+| Copy Assignment       | 117.07 ms  | 108.77 ms      | 500,000    |
+| Move Assignment       | 87.52 ms   | 165.68 ms      | 500,000    |
 
 ### Modifiers
 
-```
-----------------------------------------------------------------------
-Modifiers Benchmarks                    Time           Iteration
-----------------------------------------------------------------------
-VectorPro Push Back                     8.22 s          500000
-Std::vector Push Back                   2.05 s          500000
-
-VectorPro Push Back Reserved            6.23 s          500000
-Std::vector Push Back Reserved          898.74 ms       500000
-
-VectorPro Emplace Back                  8.43 s          500000
-Std::vector Emplace Back                1.58 s          500000
-
-VectorPro Insert Front                  1.04 s          500000
-Std::vector Insert Front                838.73 ms       500000
-
-VectorPro Insert Middle                 888.29 ms       500000
-Std::vector Insert Middle               816.43 ms       500000
-
-VectorPro Insert End                    757.39 ms       500000
-Std::vector Insert End                  770.14 ms       500000
-
-VectorPro Erase Front                   298.69 ms       500000
-Std::vector Erase Front                 292.77 ms       500000
-
-VectorPro Erase Middle                  421.70 ms       500000
-Std::vector Erase Middle                421.66 ms       500000
-
-VectorPro Erase End                     296.77 ms       500000
-Std::vector Erase End                   291.36 ms       500000
-
-VectorPro Pop Back                      442.73 ms       500000
-Std::vector Pop Back                    433.16 ms       500000
-
-VectorPro Clear                         433.04 ms       500000
-Std::vector Clear                       433.01 ms       500000
-
-VectorPro Remove If                     14.21 s         500000
-Std::vector Erase-remove If             3.28 s          500000
-----------------------------------------------------------------------
-```
+| Operation                | VectorPro  | `std::vector`        | Iterations |
+| ------------------------- | ---------- | --------------------- | ---------- |
+| Push Back                  | 8.22 s     | 2.05 s                 | 500,000    |
+| Push Back (reserved)       | 6.23 s     | 898.74 ms              | 500,000    |
+| Emplace Back                | 8.43 s     | 1.58 s                 | 500,000    |
+| Insert Front                | 1.04 s     | 838.73 ms              | 500,000    |
+| Insert Middle               | 888.29 ms  | 816.43 ms              | 500,000    |
+| Insert End                  | 757.39 ms  | 770.14 ms              | 500,000    |
+| Erase Front                 | 298.69 ms  | 292.77 ms              | 500,000    |
+| Erase Middle                | 421.70 ms  | 421.66 ms              | 500,000    |
+| Erase End                   | 296.77 ms  | 291.36 ms              | 500,000    |
+| Pop Back                    | 442.73 ms  | 433.16 ms              | 500,000    |
+| Clear                       | 433.04 ms  | 433.01 ms              | 500,000    |
+| Remove If                   | 14.21 s    | 3.28 s (erase-remove)  | 500,000    |
 
 ### Capacity
 
-```
-----------------------------------------------------------------------
-Capacity Benchmarks                     Time           Iteration
-----------------------------------------------------------------------
-VectorPro Reserve                       286.82 ms       500000
-Std::vector Reserve                     282.58 ms       500000
-
-VectorPro Reserve Growth                470.25 ms       100000
-Std::vector Reserve Growth              463.32 ms       100000
-
-VectorPro Shrink To Fit                 1.74 s          500000
-Std::vector Shrink To Fit               647.18 ms       500000
-
-VectorPro Growth Reallocation           1.39 s          500000
-Std::vector Growth Reallocation         607.19 ms       500000
-
-VectorPro Reserve No-op                 2.53 ms         1000000
-Std::vector Reserve No-op               3.76 ms         1000000
-----------------------------------------------------------------------
-```
+| Operation             | VectorPro  | `std::vector` | Iterations |
+| ---------------------- | ---------- | -------------- | ---------- |
+| Reserve                 | 286.82 ms  | 282.58 ms      | 500,000    |
+| Reserve Growth          | 470.25 ms  | 463.32 ms      | 100,000    |
+| Shrink To Fit           | 1.74 s     | 647.18 ms      | 500,000    |
+| Growth Reallocation     | 1.39 s     | 607.19 ms      | 500,000    |
+| Reserve No-op           | 2.53 ms    | 3.76 ms        | 1,000,000  |
 
 ### Search
 
-```
-----------------------------------------------------------------------
-Search Benchmarks                       Time           Iteration
-----------------------------------------------------------------------
-VectorPro Contains Hit (1k)             1.58 s          1000000
-Std::vector Contains Hit (1k)           1.27 s          1000000
-
-VectorPro Contains Miss (1k)            3.14 s          1000000
-Std::vector Contains Miss (1k)          2.50 s          1000000
-
-VectorPro Contains Hit (100k)           77.50 s         500000
-Std::vector Contains Hit (100k)         75.51 s         500000
-
-VectorPro Find Hit (1k)                 1.35 s          1000000
-Std::vector Find Hit (1k)               1.36 s          1000000
-
-VectorPro Find Miss (1k)                2.63 s          1000000
-Std::vector Find Miss (1k)              2.49 s          1000000
-----------------------------------------------------------------------
-```
+| Operation             | VectorPro | `std::vector` | Iterations |
+| ---------------------- | --------- | -------------- | ---------- |
+| Contains Hit (1k)       | 1.58 s    | 1.27 s         | 1,000,000  |
+| Contains Miss (1k)      | 3.14 s    | 2.50 s         | 1,000,000  |
+| Contains Hit (100k)     | 77.50 s   | 75.51 s        | 500,000    |
+| Find Hit (1k)           | 1.35 s    | 1.36 s         | 1,000,000  |
+| Find Miss (1k)          | 2.63 s    | 2.49 s         | 1,000,000  |
 
 ### Iteration
 
-```
-----------------------------------------------------------------------
-Iteration Benchmarks                    Time           Iteration
-----------------------------------------------------------------------
-VectorPro Range-for                     39.04 s         500000
-Std::vector Range-for                   39.14 s         500000
-
-VectorPro Iterator Loop                 39.15 s         500000
-Std::vector Iterator Loop               39.02 s         500000
-
-VectorPro Index Loop                    39.14 s         500000
-Std::vector Index Loop                  74.69 s         500000
-
-VectorPro Reverse Iteration             69.41 s         500000
-Std::vector Reverse Iteration           60.89 s         500000
-
-VectorPro Accumulate                    39.21 s         500000
-Std::vector Accumulate                  39.15 s         500000
-----------------------------------------------------------------------
-```
+| Operation             | VectorPro | `std::vector` | Iterations |
+| ---------------------- | --------- | -------------- | ---------- |
+| Range-for               | 39.04 s   | 39.14 s        | 500,000    |
+| Iterator Loop           | 39.15 s   | 39.02 s        | 500,000    |
+| Index Loop              | 39.14 s   | 74.69 s        | 500,000    |
+| Reverse Iteration       | 69.41 s   | 60.89 s        | 500,000    |
+| Accumulate              | 39.21 s   | 39.15 s        | 500,000    |
 
 ### Observer
 
-```
-----------------------------------------------------------------------
-Observer Benchmarks                     Time           Iteration
-----------------------------------------------------------------------
-Push Back, 0 Listeners                  12.52 s         500000
-
-Push Back, 1 Listener                   17.81 s         500000
-
-Push Back, 8 Listeners                  51.42 s         500000
-
-Push Back, Capturing Listener           29.77 s         500000
-
-Subscribe X100                          5.92 s          500000
-
-Unsubscribe X100                        50.13 s         500000
-----------------------------------------------------------------------
-```
+| Operation                     | Time     | Iterations |
+| ------------------------------ | -------- | ---------- |
+| Push Back, 0 Listeners          | 12.52 s  | 500,000    |
+| Push Back, 1 Listener           | 17.81 s  | 500,000    |
+| Push Back, 8 Listeners          | 51.42 s  | 500,000    |
+| Push Back, Capturing Listener   | 29.77 s  | 500,000    |
+| Subscribe x100                  | 5.92 s   | 500,000    |
+| Unsubscribe x100                | 50.13 s  | 500,000    |
 
 ### Comparison
 
-```
-----------------------------------------------------------------------
-Comparison Benchmarks                   Time           Iteration
-----------------------------------------------------------------------
-VectorPro Operator== Equal              8.54 s          500000
-Std::vector Operator== Equal            8.08 s          500000
-
-VectorPro Operator== Differs Early      7.78 ms         500000
-Std::vector Operator== Differs Early    6.85 ms         500000
-
-VectorPro Operator== Differs Late       8.29 s          500000
-Std::vector Operator== Differs Late     7.94 s          500000
-
-VectorPro Operator== Diff Sizes         654.69 us       1000000
-Std::vector Operator== Diff Sizes       1.23 ms         1000000
-
-VectorPro Operator<=> Equal             16.85 s         500000
-Std::vector Operator<=> Equal           28.02 s         500000
-
-VectorPro Operator<=> Less              5.04 ms         500000
-Std::vector Operator<=> Less            3.08 ms         500000
-----------------------------------------------------------------------
-```
+| Operation                    | VectorPro  | `std::vector` | Iterations |
+| ----------------------------- | ---------- | -------------- | ---------- |
+| `operator==` Equal             | 8.54 s     | 8.08 s         | 500,000    |
+| `operator==` Differs Early     | 7.78 ms    | 6.85 ms        | 500,000    |
+| `operator==` Differs Late      | 8.29 s     | 7.94 s         | 500,000    |
+| `operator==` Diff Sizes        | 654.69 µs  | 1.23 ms        | 1,000,000  |
+| `operator<=>` Equal            | 16.85 s    | 28.02 s        | 500,000    |
+| `operator<=>` Less             | 5.04 ms    | 3.08 ms        | 500,000    |
 
 ### Summary
 
