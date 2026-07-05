@@ -1,3 +1,19 @@
+# ============================================================
+# CMakeLists.txt
+# Build configuration for the VectorPro library.
+# ============================================================
+#
+# Sections:
+#   1. C++ Configuration
+#   2. VectorPro Library
+#   3. Tests
+#   4. Benchmarks
+#   5. Examples
+#   6. Installation
+#   7. Packaging
+#
+# ============================================================
+
 cmake_minimum_required(VERSION 3.20)
 
 project(
@@ -5,7 +21,6 @@ project(
     VERSION 1.0.0
     LANGUAGES CXX
 )
-
 
 # ============================================================================
 # C++ Configuration
@@ -16,12 +31,11 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-
 # ============================================================================
 # VectorPro (Header-only Library)
 # ============================================================================
 
-# Define the header-only StackPro library.
+# Define the header-only VectorPro library.
 add_library(VectorPro INTERFACE)
 
 # Expose the public include directory to consumers.
@@ -32,7 +46,7 @@ target_include_directories(
     $<INSTALL_INTERFACE:include>
 )
 
-# Require C++23 for all targets that consume StackPro.
+# Require C++23 for all targets that consume VectorPro.
 target_compile_features(
     VectorPro
     INTERFACE
@@ -44,7 +58,7 @@ target_compile_features(
 # ============================================================================
 
 # Collect all test source files.
-file(GLOB TEST_SOURCES CONFIGURE_DEPENDS
+file(GLOB_RECURSE TEST_SOURCES CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/tests/*.cpp"
 )
 
@@ -54,7 +68,14 @@ add_executable(
     ${TEST_SOURCES}
 )
 
-# Link StackPro to the test executable.
+# Allow simple test includes.
+target_include_directories(
+    tests
+    PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/tests
+)
+
+# Link VectorPro to the test executable.
 target_link_libraries(
     tests
     PRIVATE
@@ -65,46 +86,59 @@ target_link_libraries(
 # Benchmarks
 # ============================================================================
 
-# Collect all bench source files.
-file(GLOB BENCH_SOURCES CONFIGURE_DEPENDS
+# Collect all benchmark source files.
+file(GLOB_RECURSE BENCH_SOURCES CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/benchmarks/*.cpp"
 )
 
-# Build the bench executable
+# Build the benchmark executable.
 add_executable(
     benchmarks
     ${BENCH_SOURCES}
 )
 
-# Link StackPro to the benchmark executable.
+# Allow simple benchmark includes.
+target_include_directories(
+    benchmarks
+    PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/benchmarks
+)
+
+# Link VectorPro to the benchmark executable.
 target_link_libraries(
-    benchmarks 
+    benchmarks
     PRIVATE
     VectorPro
 )
-
 
 # ============================================================================
 # Examples
 # ============================================================================
 
-# Build every example in the examples/ directory.
-file(GLOB EXAMPLE_SOURCES CONFIGURE_DEPENDS
+# Collect all example source files.
+file(GLOB_RECURSE EXAMPLE_SOURCES CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/examples/*.cpp"
 )
 
-foreach(example ${EXAMPLE_SOURCES})
-    get_filename_component(target "${example}" NAME_WE)
+# Build the example executable.
+add_executable(
+    examples
+    ${EXAMPLE_SOURCES}
+)
 
-    add_executable(${target} "${example}")
+# Allow simple example includes.
+target_include_directories(
+    examples
+    PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/examples
+)
 
-    target_link_libraries(
-        ${target}
-        PRIVATE
-        VectorPro
-    )
-endforeach()
-
+# Link VectorPro to the example executable.
+target_link_libraries(
+    examples
+    PRIVATE
+    VectorPro
+)
 
 # ============================================================================
 # Installation
@@ -129,7 +163,6 @@ install(
     DIRECTORY include/
     DESTINATION include
 )
-
 
 # ============================================================================
 # Packaging
