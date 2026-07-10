@@ -153,7 +153,7 @@ public:
 	// Event subscription management.
 	template<typename F>
 	requires Listener<F, Vector<T, Allocator, GrowthNum, GrowthDen>>
-	[[nodiscard]] ListenerHandle subscribe(F&& listener);
+	[[nodiscard]] ListenerHandle subscribe(F&& listeners);
 
 	void unsubscribe(ListenerHandle handle);
 
