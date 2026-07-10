@@ -35,17 +35,33 @@ int main(int argc, char* argv[]) {
         return 0;
     }
 
-    // Allow lookup by either name or numeric id.
+    const std::string requestedLower = toLower(prettify(requested));
+    bool foundCategory = false;
+    
     for (const auto& suite : example_registry()) {
-        if (toLower(suite.name) == toLower(requested) ||
-            toLower(suite.id) == toLower(requested)) {
+        const std::string nameLower     = toLower(suite.name);
+        const std::string idLower       = toLower(suite.id);
+        const std::string categoryLower = toLower(suite.category);
+    
+        if (nameLower == requestedLower ||
+            idLower == requestedLower) {
             std::cout << "\n";
             mainTitle(suite.name);
             suite.run();
             std::cout << "\n";
             return 0;
         }
+    
+        if (categoryLower == requestedLower) {
+            foundCategory = true;
+            std::cout << "\n";
+            mainTitle(suite.name);
+            suite.run();
+            std::cout << "\n";
+        }
     }
+    
+    if (foundCategory) return 0;
 
     std::cerr << "\nUnknown example suite: " << requested << "\n\n";
     return 1;
