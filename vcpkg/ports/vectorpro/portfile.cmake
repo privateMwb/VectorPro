@@ -2,7 +2,7 @@ vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO privateMwb/VectorPro
     REF v1.0.0
-    SHA512 0
+    SHA512 302d4912e103a96627264a5a6218172c6e662b6d1e4738ac56b76dbae6e2550c5b071b1897fa2e0bb5b2eb3e25426a325a2262545249caa5fef4a142fdca51d4
 )
 
 # VectorPro is header-only; consumers only need the library itself,
