@@ -6,6 +6,7 @@ on:
 
 jobs:
   build:
+    name: ${{ matrix.compiler }} $ {{ matrix.build_type }}
     runs-on: ubuntu-latest
 
     strategy:
@@ -13,14 +14,23 @@ jobs:
 
       matrix:
         include:
-          - name: GCC
+          - compiler: GCC
             cxx: g++
+            build_type: Debug
 
-          - name: Clang
+          - compiler: GCC
+            cxx: g++
+            build_types: Release
+
+          - compiler: Clang
             cxx: clang++
+            build_type: Debug
+
+          - compiler: Clang
+            cxx: clang++
+            build_type: Release
 
     steps:
-      - name: Checkout Repository
         uses: actions/checkout@v4
 
       - name: Install dependencies
@@ -33,7 +43,7 @@ jobs:
           CXX: ${{ matrix.cxx }}
         run: |
           cmake -S . -B build \
-            -DCMAKE_BUILD_TYPE=Debug
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
 
       - name: Build
         run: |
