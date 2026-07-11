@@ -22,7 +22,7 @@ jobs:
         run: cmake --build build --target benchmarks
 
       - name: Run Benchmarks
-        run: ./build/benchmarks > benchmark_results.json
+        run: ./build/benchmarks
 
       - name: Build Compare
         run: cmake --build build --target compare
