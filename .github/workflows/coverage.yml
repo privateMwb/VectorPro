@@ -34,9 +34,15 @@ jobs:
             --directory build \
             --output-file coverage.info
 
+          lcov --remove coverage.info \
+            '/usr/*' \
+            '*/bits/*' \
+            '*/ext/*' \
+            --output-file coverage.filtered.info
+
       - name: Generate HTML report
         run: |
-          genhtml coverage.info \
+          genhtml coverage.filtered.info \
             --output-directory coverage-html
 
       - name: Upload HTML report
