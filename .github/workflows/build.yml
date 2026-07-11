@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    name: ${{ matrix.compiler }} $ {{ matrix.build_type }}
+    name: ${{ matrix.compiler }} ${{ matrix.build_type }}
     runs-on: ubuntu-latest
 
     strategy:
@@ -20,7 +20,7 @@ jobs:
 
           - compiler: GCC
             cxx: g++
-            build_types: Release
+            build_type: Release
 
           - compiler: Clang
             cxx: clang++
@@ -31,7 +31,7 @@ jobs:
             build_type: Release
 
     steps:
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Install dependencies
         run: |
@@ -42,13 +42,12 @@ jobs:
         env:
           CXX: ${{ matrix.cxx }}
         run: |
-          cmake -S . -B build \
+          cmake -S . -B build-${{ matrix.compiler }}-${{ matrix.build_type }} \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
 
       - name: Build
-        run: |
-          cmake --build build --parallel
+        run: cmake --build build-${{ matrix.compiler }}-${{ matrix.build_type }}
 
       - name: Run Tests
         run: |
-          ctest --test-dir build --output-on-failure
+          ctest --test-dir build-${{ matrix.compiler }}-${{ matrix.build_type }} --output-on-failure
