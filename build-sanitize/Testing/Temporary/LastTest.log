@@ -1,0 +1,160 @@
+Start testing: Jul 11 12:04 PST
+----------------------------------------------------------
+1/1 Testing: VectorProTests
+1/1 Test: VectorProTests
+Command: "/data/data/com.termux/files/home/projects/C++/VectorPro/build-sanitize/tests"
+Directory: /data/data/com.termux/files/home/projects/C++/VectorPro/build-sanitize
+"VectorProTests" start time: Jul 11 12:04 PST
+Output:
+----------------------------------------------------------
+
+[96mObserver[0m
+[92m[PASS] [0mSubscribe Fires On Push Back
+[92m[PASS] [0mSubscribe Payload Values
+[92m[PASS] [0mSubscribe Fires On Emplace Back
+[92m[PASS] [0mSubscribe Fires On Pop Back
+[92m[PASS] [0mSubscribe Fires On Insert
+[92m[PASS] [0mSubscribe Fires On Erase
+[92m[PASS] [0mSubscribe Fires On Remove If
+[92m[PASS] [0mSubscribe Fires On Clear
+[92m[PASS] [0mSubscribe Fires On Reserve
+[92m[PASS] [0mSubscribe Fires On Shrink
+[92m[PASS] [0mMultiple Listeners All Fire
+[92m[PASS] [0mUnsubscribe Stops Notifications
+[92m[PASS] [0mUnsubscribe Invalid Handle Is Noop
+[92m[PASS] [0mUnsubscribe One Of Many Preserves Others
+[92m[PASS] [0mNo Listeners Does Not Throw
+
+[96mConstructor[0m
+[92m[PASS] [0mDefault Construction
+[92m[PASS] [0mCount Value Construction
+[92m[PASS] [0mCount Default Value Construction
+[92m[PASS] [0mZero Count Construction
+[92m[PASS] [0mInitializer List Construction
+[92m[PASS] [0mEmpty Initializer List Construction
+[92m[PASS] [0mIterator Range Construction
+[92m[PASS] [0mAllocator Construction
+[92m[PASS] [0mCopy Construction
+[92m[PASS] [0mCopy Assignment
+[92m[PASS] [0mCopy Assignment Grows
+[92m[PASS] [0mSelf Copy Assignment
+[92m[PASS] [0mMove Construction
+[92m[PASS] [0mMove Assignment
+[92m[PASS] [0mSelf Move Assignment
+
+[96mSwap[0m
+[92m[PASS] [0mMember Swap Exchanges Contents
+[92m[PASS] [0mMember Swap Exchanges Capacity
+[92m[PASS] [0mMember Swap With Empty
+[92m[PASS] [0mMember Swap Self
+[92m[PASS] [0mFree Swap Exchanges Contents
+[92m[PASS] [0mFree Swap Matches Member Swap
+[92m[PASS] [0mSwap Preserves Listeners
+
+[96mAccess[0m
+[92m[PASS] [0mAs Span Basic
+[92m[PASS] [0mAs Span Reflects Mutation
+[92m[PASS] [0mAs Span Const
+[92m[PASS] [0mData Ptr Basic
+[92m[PASS] [0mData Ptr Null When Empty
+[92m[PASS] [0mAt Valid Index
+[92m[PASS] [0mAt Out Of Range Throws
+[92m[PASS] [0mFront Basic
+[92m[PASS] [0mBack Basic
+[92m[PASS] [0mFront Back Single Element
+[92m[PASS] [0mOperator Index Read
+[92m[PASS] [0mOperator Index Write
+[92m[PASS] [0mConst Access
+
+[96mCapacity[0m
+[92m[PASS] [0mEmpty On Default Construction
+[92m[PASS] [0mNot Empty After Push Back
+[92m[PASS] [0mEmpty After Clear
+[92m[PASS] [0mSize Tracks Elements
+[92m[PASS] [0mSize Decreases On Pop Back
+[92m[PASS] [0mCapacity Zero On Default Construction
+[92m[PASS] [0mCapacity At Least Size
+[92m[PASS] [0mCapacity Grows On Overflow
+[92m[PASS] [0mCapacity Unchanged By Pop Back
+[92m[PASS] [0mCapacity Growth Ratio Respected
+
+[96mComparison[0m
+[92m[PASS] [0mEqual Same Contents
+[92m[PASS] [0mNot Equal Different Contents
+[92m[PASS] [0mNot Equal Different Sizes
+[92m[PASS] [0mEqual Empty Vectors
+[92m[PASS] [0mLess Than Lexicographic
+[92m[PASS] [0mGreater Than Lexicographic
+[92m[PASS] [0mEqual Spaceship
+[92m[PASS] [0mShorter Prefix Is Less
+
+[96mIterators[0m
+[92m[PASS] [0mBegin End Basic
+[92m[PASS] [0mBegin Equals End When Empty
+[92m[PASS] [0mRange For Iterates All Elements
+[92m[PASS] [0mIterator Mutates Elements
+[92m[PASS] [0mConst Begin End
+[92m[PASS] [0mCbegin Cend Basic
+[92m[PASS] [0mRbegin Rend Order
+[92m[PASS] [0mRbegin Rend Full Traversal
+[92m[PASS] [0mCrbegin Crend Basic
+[92m[PASS] [0mIterator To Const Iterator Conversion
+[92m[PASS] [0mIterator Arithmetic
+[92m[PASS] [0mIterator Random Access Offset
+[92m[PASS] [0mIterator Comparison
+[92m[PASS] [0mSatisfies Contiguous Iterator Concept
+
+[96mModifiers[0m
+[92m[PASS] [0mPush Back Lvalue
+[92m[PASS] [0mPush Back Rvalue
+[92m[PASS] [0mPush Back Growth
+[92m[PASS] [0mPush Back Self Reference
+[92m[PASS] [0mEmplace Back Basic
+[92m[PASS] [0mInsert At End
+[92m[PASS] [0mInsert At Beginning
+[92m[PASS] [0mInsert At Middle
+[92m[PASS] [0mInsert Rvalue
+[92m[PASS] [0mInsert Self Reference
+[92m[PASS] [0mInsert Range
+[92m[PASS] [0mEmplace At Middle
+[92m[PASS] [0mEmplace At End
+[92m[PASS] [0mRemove If Basic
+[92m[PASS] [0mRemove If No Match
+[92m[PASS] [0mRemove If All Match
+[92m[PASS] [0mPop Back Basic
+[92m[PASS] [0mPop Back Empty
+[92m[PASS] [0mErase Single
+[92m[PASS] [0mErase Last Element
+[92m[PASS] [0mErase Range
+[92m[PASS] [0mErase Empty Range
+[92m[PASS] [0mClear Basic
+[92m[PASS] [0mClear Empty
+[92m[PASS] [0mReserve Grows Capacity
+[92m[PASS] [0mReserve Smaller Is Noop
+[92m[PASS] [0mShrink To Fit Basic
+[92m[PASS] [0mShrink To Fit Already Tight
+
+[96mSearch[0m
+[92m[PASS] [0mContains Found
+[92m[PASS] [0mContains Not Found
+[92m[PASS] [0mContains Empty Vector
+[92m[PASS] [0mFind Returns Correct Iterator
+[92m[PASS] [0mFind Not Found Returns End
+[92m[PASS] [0mFind Mutates Through Iterator
+[92m[PASS] [0mFind Const Returns Correct Iterator
+[92m[PASS] [0mFind Const Not Found Returns End
+[92m[PASS] [0mFind First Match On Duplicates
+
+T: 367
+P: 367
+F: 0
+
+<end of output>
+Test time =   0.08 sec
+----------------------------------------------------------
+Test Passed.
+"VectorProTests" end time: Jul 11 12:04 PST
+"VectorProTests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Jul 11 12:04 PST

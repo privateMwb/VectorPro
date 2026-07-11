@@ -1,0 +1,10 @@
+/data/data/com.termux/files/home/projects/C++/VectorPro/build-tidy/CMakeFiles/tests.dir
+/data/data/com.termux/files/home/projects/C++/VectorPro/build-tidy/CMakeFiles/benchmarks.dir
+/data/data/com.termux/files/home/projects/C++/VectorPro/build-tidy/CMakeFiles/examples.dir
+/data/data/com.termux/files/home/projects/C++/VectorPro/build-tidy/CMakeFiles/test.dir
+/data/data/com.termux/files/home/projects/C++/VectorPro/build-tidy/CMakeFiles/edit_cache.dir
+/data/data/com.termux/files/home/projects/C++/VectorPro/build-tidy/CMakeFiles/rebuild_cache.dir
+/data/data/com.termux/files/home/projects/C++/VectorPro/build-tidy/CMakeFiles/list_install_components.dir
+/data/data/com.termux/files/home/projects/C++/VectorPro/build-tidy/CMakeFiles/install.dir
+/data/data/com.termux/files/home/projects/C++/VectorPro/build-tidy/CMakeFiles/install/local.dir
+/data/data/com.termux/files/home/projects/C++/VectorPro/build-tidy/CMakeFiles/install/strip.dir
