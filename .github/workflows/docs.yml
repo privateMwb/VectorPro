@@ -1,0 +1,27 @@
+name: Documentation
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Doxygen
+        run: |
+          sudo apt update
+          sudo apt install -y doxygen graphviz
+
+      - name: Generate ocumentation
+        run: doxygen docs/Doxyfile
+
+      - name: Upload documentation
+        uses: actions/upload-artifact@v4
+        with:
+          name: VectorPro-docs
+          path: docs/build/html
+
