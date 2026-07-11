@@ -9,8 +9,15 @@ jobs:
     runs-on: ubuntu-latest
 
     strategy:
+      fail-fast: false
+
       matrix:
-        compiler: [gcc, clang]
+        include:
+          - name: GCC
+            cxx: g++
+
+          - name: Clang
+            cxx: clang++
 
     steps:
       - name: Checkout Repository
@@ -21,22 +28,12 @@ jobs:
           sudo apt update
           sudo apt install -y cmake ninja-build g++ clang
 
-      - name: Select Compiler
-        run: |
-          if [ "s{{ matrix.compiler }}" = "gcc" ];
-          then
-            echo "CC=gcc" >> $GITHUB_ENV
-            echo "CXX=g++" >> $GITHUB_ENV
-          else
-            echo "CC=clang" >> $GITHUB_ENV
-            echo "CXX=clang++" >> $GITHUB_ENV
-          fi
-
-      - name: Configure CMake
+      - name: Configure
+        env:
+          CXX: ${{ matrix.cxx }}
         run: |
           cmake -S . -B build \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DCMAKE_CXX_COMPILER=$CXX
+            -DCMAKE_BUILD_TYPE=Debug
 
       - name: Build
         run: |
