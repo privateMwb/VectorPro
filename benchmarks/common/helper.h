@@ -1,10 +1,10 @@
 #pragma once
 
-#include <iostream>
-#include <string>
 #include <chrono>
 #include <iomanip>
+#include <iostream>
 #include <sstream>
+#include <string>
 
 using namespace std::chrono;
 
@@ -31,27 +31,21 @@ inline auto formatDuration(nanoseconds ns) {
     std::ostringstream out;
 
     if (ns < microseconds(1))
-        out << ns.count()
-        << " ns";
+        out << ns.count() << " ns";
     else if (ns < milliseconds(1))
-        out << std::fixed << std::setprecision(2)
-        << duration<double, std::micro>(ns).count()
-        << " us";
+        out << std::fixed << std::setprecision(2) << duration<double, std::micro>(ns).count()
+            << " us";
     else if (ns < seconds(1))
-        out << std::fixed << std::setprecision(2)
-        << duration<double, std::milli>(ns).count()
-        << " ms";
+        out << std::fixed << std::setprecision(2) << duration<double, std::milli>(ns).count()
+            << " ms";
     else
-        out << std::fixed << std::setprecision(2)
-        << duration<double>(ns).count()
-        << " s";
+        out << std::fixed << std::setprecision(2) << duration<double>(ns).count() << " s";
 
     return out.str();
 }
 
 // Converts a snake_case function name to Title Case.
-inline std::string prettify(std::string_view text)
-{
+inline std::string prettify(std::string_view text) {
     std::string result{text};
     bool firstLetter = true;
 
@@ -99,8 +93,7 @@ inline std::string iterColor(std::size_t iteration) {
 }
 
 // Prevents the compiler from optimizing away benchmarked values.
-template<typename T>
-inline void doNotOptimize(const T& value) {
+template <typename T> inline void doNotOptimize(const T& value) {
 #if defined(__GNUC__) || defined(__clang__)
     // "g" constraint forces the value into a register/memory and the
     // "memory" clobber stops the compiler from reordering or eliding
@@ -126,14 +119,8 @@ inline void doNotOptimize() {
 inline std::string toLower(std::string_view str) {
     std::string result(str);
 
-    std::transform(
-        result.begin(),
-        result.end(),
-        result.begin(),
-        [](unsigned char c) {
-            return static_cast<char>(std::tolower(c));
-        }
-    );
+    std::transform(result.begin(), result.end(), result.begin(),
+                   [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
 
     return result;
 }
@@ -141,16 +128,11 @@ inline std::string toLower(std::string_view str) {
 // Prints the benchmark table header.
 inline void setHeader(std::string_view header) {
     borderLine();
-    std::cout << std::left << CYAN
-        << std::setw(40) << prettify(header)
-        << std::setw(15) << "Time"
-        << std::setw(15) << "Iteration"
-        << RESET << "\n";
+    std::cout << std::left << CYAN << std::setw(40) << prettify(header) << std::setw(15) << "Time"
+              << std::setw(15) << "Iteration" << RESET << "\n";
     borderLine();
 }
 
 inline void setSubHeader(std::string_view header) {
-    std::cout << std::left << CYAN
-        << std::setw(40) << prettify(header)
-        << RESET << "\n";        
+    std::cout << std::left << CYAN << std::setw(40) << prettify(header) << RESET << "\n";
 }

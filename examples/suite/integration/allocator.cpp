@@ -7,40 +7,42 @@
 
 #include <common/framework.h>
 
-#include <memory_resource>
 #include <memory>
+#include <memory_resource>
 
 using namespace VectorPro;
 
 // A minimal stateful allocator that counts allocate/deallocate calls.
 // Demonstrates that Vector works with allocators beyond std::allocator.
-template<typename T>
-struct CountingAllocator {
+template <typename T> struct CountingAllocator {
     using value_type = T;
 
-    std::size_t* allocCount   = nullptr;
+    std::size_t* allocCount = nullptr;
     std::size_t* deallocCount = nullptr;
 
     CountingAllocator() = default;
     CountingAllocator(std::size_t& allocs, std::size_t& deallocs)
         : allocCount(&allocs), deallocCount(&deallocs) {}
 
-    template<typename U>
+    template <typename U>
     CountingAllocator(const CountingAllocator<U>& other) noexcept
         : allocCount(other.allocCount), deallocCount(other.deallocCount) {}
 
     T* allocate(std::size_t n) {
-        if (allocCount) ++(*allocCount);
+        if (allocCount)
+            ++(*allocCount);
         return std::allocator<T>{}.allocate(n);
     }
 
     void deallocate(T* p, std::size_t n) noexcept {
-        if (deallocCount) ++(*deallocCount);
+        if (deallocCount)
+            ++(*deallocCount);
         std::allocator<T>{}.deallocate(p, n);
     }
 
-    template<typename U>
-    bool operator==(const CountingAllocator<U>&) const noexcept { return true; }
+    template <typename U> bool operator==(const CountingAllocator<U>&) const noexcept {
+        return true;
+    }
 };
 
 static void run_examples() {
@@ -56,9 +58,10 @@ static void run_examples() {
     pv.push_back(2);
     pv.push_back(3);
 
-    std::cout << "Size     : " << pv.size()     << "\n";
+    std::cout << "Size     : " << pv.size() << "\n";
     std::cout << "Elements : ";
-    for (int x : pv) std::cout << x << " ";
+    for (int x : pv)
+        std::cout << x << " ";
     std::cout << "\n\n";
 
     // Custom stateful allocator tracking allocation counts.
@@ -68,11 +71,12 @@ static void run_examples() {
     CountingAllocator<int> counting(allocs, deallocs);
 
     Vector<int, CountingAllocator<int>> cv(counting);
-    for (int i = 0; i < 20; ++i) cv.push_back(i);
+    for (int i = 0; i < 20; ++i)
+        cv.push_back(i);
 
-    std::cout << "Size             : " << cv.size()  << "\n";
-    std::cout << "Allocate calls   : " << allocs      << "\n";
-    std::cout << "Deallocate calls : " << deallocs    << "\n\n";
+    std::cout << "Size             : " << cv.size() << "\n";
+    std::cout << "Allocate calls   : " << allocs << "\n";
+    std::cout << "Deallocate calls : " << deallocs << "\n\n";
 
     // Demonstrates allocator behavior during copy construction.
     setTitle("Allocator Propagation");

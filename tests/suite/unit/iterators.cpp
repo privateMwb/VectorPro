@@ -36,7 +36,8 @@ static void begin_equals_end_when_empty() {
 static void range_for_iterates_all_elements() {
     Vector<int> v{1, 2, 3};
     int sum = 0;
-    for (int x : v) sum += x;
+    for (int x : v)
+        sum += x;
 
     CHK(sum == 6);
 }
@@ -44,7 +45,8 @@ static void range_for_iterates_all_elements() {
 // Verifies mutable iterators provide writable element access.
 static void iterator_mutates_elements() {
     Vector<int> v{1, 2, 3};
-    for (auto it = v.begin(); it != v.end(); ++it) *it *= 10;
+    for (auto it = v.begin(); it != v.end(); ++it)
+        *it *= 10;
 
     CHK(v[0] == 10);
     CHK(v[1] == 20);

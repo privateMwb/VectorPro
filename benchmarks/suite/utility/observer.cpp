@@ -22,7 +22,8 @@ static void bench_push_back_no_listeners() {
     auto vp = [&] {
         Vector<int> v;
         v.reserve(1000);
-        for (int i = 0; i < 1000; ++i) v.push_back(i);
+        for (int i = 0; i < 1000; ++i)
+            v.push_back(i);
         doNotOptimize(v);
     };
     BENCH("push_back, 0 listeners", MEDIUM, vp);
@@ -34,7 +35,8 @@ static void bench_push_back_one_listener() {
         Vector<int> v;
         v.reserve(1000);
         (void)v.subscribe([](const Vector<int>&, Vector<int>::EventData) {});
-        for (int i = 0; i < 1000; ++i) v.push_back(i);
+        for (int i = 0; i < 1000; ++i)
+            v.push_back(i);
         doNotOptimize(v);
     };
     BENCH("push_back, 1 listener", MEDIUM, vp);
@@ -47,7 +49,8 @@ static void bench_push_back_many_listeners() {
         v.reserve(1000);
         for (int i = 0; i < 8; ++i)
             (void)v.subscribe([](const Vector<int>&, Vector<int>::EventData) {});
-        for (int i = 0; i < 1000; ++i) v.push_back(i);
+        for (int i = 0; i < 1000; ++i)
+            v.push_back(i);
         doNotOptimize(v);
     };
     BENCH("push_back, 8 listeners", MEDIUM, vp);
@@ -60,11 +63,11 @@ static void bench_push_back_capturing_listener() {
         v.reserve(1000);
 
         long total = 0;
-        (void)v.subscribe([&total](const Vector<int>&, Vector<int>::EventData e) {
-            total += e.newSize;
-        });
+        (void)v.subscribe(
+            [&total](const Vector<int>&, Vector<int>::EventData e) { total += e.newSize; });
 
-        for (int i = 0; i < 1000; ++i) v.push_back(i);
+        for (int i = 0; i < 1000; ++i)
+            v.push_back(i);
         doNotOptimize(total);
     };
     BENCH("push_back, capturing listener", MEDIUM, vp);

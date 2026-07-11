@@ -5,7 +5,7 @@ ColumnLimit: 100
 PointerAlignment: Left
 ReferenceAlignment: Left
 
-BreakBeforeBrace: Attach
+BreakBeforeBraces: Attach
 AllowShortFunctionsOnASingleLine: Empty
 
 SortIncludes: true

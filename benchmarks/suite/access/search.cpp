@@ -19,11 +19,13 @@ using namespace VectorPro;
 static void bench_contains_hit_small() {
     Vector<int> v;
     v.reserve(1000);
-    for (int i = 0; i < 1000; ++i) v.push_back(i);
+    for (int i = 0; i < 1000; ++i)
+        v.push_back(i);
 
     std::vector<int> sv;
     sv.reserve(1000);
-    for (int i = 0; i < 1000; ++i) sv.push_back(i);
+    for (int i = 0; i < 1000; ++i)
+        sv.push_back(i);
 
     auto vp = [&] {
         bool r = v.contains(500);
@@ -42,11 +44,13 @@ static void bench_contains_hit_small() {
 static void bench_contains_miss_small() {
     Vector<int> v;
     v.reserve(1000);
-    for (int i = 0; i < 1000; ++i) v.push_back(i);
+    for (int i = 0; i < 1000; ++i)
+        v.push_back(i);
 
     std::vector<int> sv;
     sv.reserve(1000);
-    for (int i = 0; i < 1000; ++i) sv.push_back(i);
+    for (int i = 0; i < 1000; ++i)
+        sv.push_back(i);
 
     auto vp = [&] {
         bool r = v.contains(-1);
@@ -65,11 +69,13 @@ static void bench_contains_miss_small() {
 static void bench_contains_hit_large() {
     Vector<int> v;
     v.reserve(100'000);
-    for (int i = 0; i < 100'000; ++i) v.push_back(i);
+    for (int i = 0; i < 100'000; ++i)
+        v.push_back(i);
 
     std::vector<int> sv;
     sv.reserve(100'000);
-    for (int i = 0; i < 100'000; ++i) sv.push_back(i);
+    for (int i = 0; i < 100'000; ++i)
+        sv.push_back(i);
 
     auto vp = [&] {
         bool r = v.contains(50'000);
@@ -88,11 +94,13 @@ static void bench_contains_hit_large() {
 static void bench_find_hit_small() {
     Vector<int> v;
     v.reserve(1000);
-    for (int i = 0; i < 1000; ++i) v.push_back(i);
+    for (int i = 0; i < 1000; ++i)
+        v.push_back(i);
 
     std::vector<int> sv;
     sv.reserve(1000);
-    for (int i = 0; i < 1000; ++i) sv.push_back(i);
+    for (int i = 0; i < 1000; ++i)
+        sv.push_back(i);
 
     auto vp = [&] {
         auto it = v.find(500);
@@ -111,11 +119,13 @@ static void bench_find_hit_small() {
 static void bench_find_miss_small() {
     Vector<int> v;
     v.reserve(1000);
-    for (int i = 0; i < 1000; ++i) v.push_back(i);
+    for (int i = 0; i < 1000; ++i)
+        v.push_back(i);
 
     std::vector<int> sv;
     sv.reserve(1000);
-    for (int i = 0; i < 1000; ++i) sv.push_back(i);
+    for (int i = 0; i < 1000; ++i)
+        sv.push_back(i);
 
     auto vp = [&] {
         auto it = v.find(-1);

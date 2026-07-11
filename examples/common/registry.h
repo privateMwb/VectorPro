@@ -2,11 +2,11 @@
 
 #include "helper.h"
 
+#include <cctype>
 #include <filesystem>
 #include <string>
-#include <vector>
 #include <unordered_map>
-#include <cctype>
+#include <vector>
 
 struct ExampleSuite {
     std::string id;
@@ -31,17 +31,11 @@ struct ExampleRegistrar {
 
         std::string category = path.parent_path().filename().string();
 
-        char prefix = std::toupper(
-            static_cast<unsigned char>(category.front())
-        );
+        char prefix = std::toupper(static_cast<unsigned char>(category.front()));
 
         int number = ++category_counters()[category];
 
-        example_registry().push_back({
-            std::string(1, prefix) + std::to_string(number),
-            category,
-            prettify(path.stem().string()),
-            run
-        });
+        example_registry().push_back({std::string(1, prefix) + std::to_string(number), category,
+                                      prettify(path.stem().string()), run});
     }
 };

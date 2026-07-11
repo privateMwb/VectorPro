@@ -33,9 +33,7 @@ static void subscribe_payload_values() {
     Vector<int> v;
     Vector<int>::EventData captured{};
 
-    (void)v.subscribe([&](const Vector<int>&, Vector<int>::EventData e) {
-        captured = e;
-    });
+    (void)v.subscribe([&](const Vector<int>&, Vector<int>::EventData e) { captured = e; });
 
     v.push_back(1);
     v.push_back(2);
@@ -49,9 +47,7 @@ static void subscribe_fires_on_emplace_back() {
     Vector<int> v;
     Vector<int>::EventType lastType{};
 
-    (void)v.subscribe([&](const Vector<int>&, Vector<int>::EventData e) {
-        lastType = e.type;
-    });
+    (void)v.subscribe([&](const Vector<int>&, Vector<int>::EventData e) { lastType = e.type; });
 
     v.emplace_back(5);
     CHK(lastType == Vector<int>::EventType::EMPLACEBACK);
@@ -62,9 +58,7 @@ static void subscribe_fires_on_pop_back() {
     Vector<int> v{1, 2, 3};
     Vector<int>::EventType lastType{};
 
-    (void)v.subscribe([&](const Vector<int>&, Vector<int>::EventData e) {
-        lastType = e.type;
-    });
+    (void)v.subscribe([&](const Vector<int>&, Vector<int>::EventData e) { lastType = e.type; });
 
     v.pop_back();
     CHK(lastType == Vector<int>::EventType::POPBACK);
@@ -75,9 +69,7 @@ static void subscribe_fires_on_insert() {
     Vector<int> v{1, 2, 3};
     Vector<int>::EventType lastType{};
 
-    (void)v.subscribe([&](const Vector<int>&, Vector<int>::EventData e) {
-        lastType = e.type;
-    });
+    (void)v.subscribe([&](const Vector<int>&, Vector<int>::EventData e) { lastType = e.type; });
 
     (void)v.insert(v.cbegin() + 1, 99);
     CHK(lastType == Vector<int>::EventType::INSERT);
@@ -88,9 +80,7 @@ static void subscribe_fires_on_erase() {
     Vector<int> v{1, 2, 3};
     Vector<int>::EventType lastType{};
 
-    (void)v.subscribe([&](const Vector<int>&, Vector<int>::EventData e) {
-        lastType = e.type;
-    });
+    (void)v.subscribe([&](const Vector<int>&, Vector<int>::EventData e) { lastType = e.type; });
 
     (void)v.erase(v.cbegin());
     CHK(lastType == Vector<int>::EventType::ERASE);
@@ -101,9 +91,7 @@ static void subscribe_fires_on_remove_if() {
     Vector<int> v{1, 2, 3, 4};
     Vector<int>::EventType lastType{};
 
-    (void)v.subscribe([&](const Vector<int>&, Vector<int>::EventData e) {
-        lastType = e.type;
-    });
+    (void)v.subscribe([&](const Vector<int>&, Vector<int>::EventData e) { lastType = e.type; });
 
     (void)v.remove_if([](const int& x) { return x % 2 == 0; });
     CHK(lastType == Vector<int>::EventType::REMOVE);
@@ -114,9 +102,7 @@ static void subscribe_fires_on_clear() {
     Vector<int> v{1, 2, 3};
     Vector<int>::EventType lastType{};
 
-    (void)v.subscribe([&](const Vector<int>&, Vector<int>::EventData e) {
-        lastType = e.type;
-    });
+    (void)v.subscribe([&](const Vector<int>&, Vector<int>::EventData e) { lastType = e.type; });
 
     v.clear();
     CHK(lastType == Vector<int>::EventType::CLEAR);
@@ -127,9 +113,7 @@ static void subscribe_fires_on_reserve() {
     Vector<int> v;
     Vector<int>::EventType lastType{};
 
-    (void)v.subscribe([&](const Vector<int>&, Vector<int>::EventData e) {
-        lastType = e.type;
-    });
+    (void)v.subscribe([&](const Vector<int>&, Vector<int>::EventData e) { lastType = e.type; });
 
     v.reserve(50);
     CHK(lastType == Vector<int>::EventType::RESERVE);
@@ -142,9 +126,7 @@ static void subscribe_fires_on_shrink() {
     v.push_back(1);
 
     Vector<int>::EventType lastType{};
-    (void)v.subscribe([&](const Vector<int>&, Vector<int>::EventData e) {
-        lastType = e.type;
-    });
+    (void)v.subscribe([&](const Vector<int>&, Vector<int>::EventData e) { lastType = e.type; });
 
     v.shrink_to_fit();
     CHK(lastType == Vector<int>::EventType::SHRINK);

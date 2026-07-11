@@ -79,8 +79,7 @@ static void run_examples() {
     std::cout << "Before remove_if     : ";
     printVector(r);
 
-    std::size_t removed =
-        r.remove_if([](const int& x) { return x % 2 == 0; });
+    std::size_t removed = r.remove_if([](const int& x) { return x % 2 == 0; });
 
     std::cout << "After remove_if      : ";
     printVector(r);
@@ -99,11 +98,7 @@ static void run_examples() {
 
     r.clear();
 
-    std::cout << "After clear          : size = "
-              << r.size()
-              << ", empty = "
-              << r.empty()
-              << "\n";
+    std::cout << "After clear          : size = " << r.size() << ", empty = " << r.empty() << "\n";
 }
 
 REGISTER_EXAMPLE_SUITE();

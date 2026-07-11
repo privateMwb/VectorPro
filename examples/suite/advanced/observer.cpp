@@ -13,15 +13,24 @@ using namespace VectorPro;
 // Converts event type to a readable string.
 static const char* eventName(Vector<int>::EventType type) {
     switch (type) {
-        case Vector<int>::EventType::PUSHBACK:    return "PUSHBACK";
-        case Vector<int>::EventType::EMPLACEBACK: return "EMPLACEBACK";
-        case Vector<int>::EventType::POPBACK:     return "POPBACK";
-        case Vector<int>::EventType::INSERT:      return "INSERT";
-        case Vector<int>::EventType::ERASE:       return "ERASE";
-        case Vector<int>::EventType::REMOVE:      return "REMOVE";
-        case Vector<int>::EventType::CLEAR:       return "CLEAR";
-        case Vector<int>::EventType::RESERVE:     return "RESERVE";
-        case Vector<int>::EventType::SHRINK:      return "SHRINK";
+    case Vector<int>::EventType::PUSHBACK:
+        return "PUSHBACK";
+    case Vector<int>::EventType::EMPLACEBACK:
+        return "EMPLACEBACK";
+    case Vector<int>::EventType::POPBACK:
+        return "POPBACK";
+    case Vector<int>::EventType::INSERT:
+        return "INSERT";
+    case Vector<int>::EventType::ERASE:
+        return "ERASE";
+    case Vector<int>::EventType::REMOVE:
+        return "REMOVE";
+    case Vector<int>::EventType::CLEAR:
+        return "CLEAR";
+    case Vector<int>::EventType::RESERVE:
+        return "RESERVE";
+    case Vector<int>::EventType::SHRINK:
+        return "SHRINK";
     }
     return "UNKNOWN";
 }
@@ -33,8 +42,7 @@ static void run_examples() {
     Vector<int> v;
 
     (void)v.subscribe([](const Vector<int>&, Vector<int>::EventData e) {
-        std::cout << "Event: " << eventName(e.type)
-                  << " | old=" << e.oldSize
+        std::cout << "Event: " << eventName(e.type) << " | old=" << e.oldSize
                   << " new=" << e.newSize << "\n";
     });
 
@@ -72,9 +80,8 @@ static void run_examples() {
     // Unsubscribe behavior.
     setTitle("Unsubscribe");
 
-    auto handle = multi.subscribe([](const Vector<int>&, Vector<int>::EventData) {
-        std::cout << "Third listener fired\n";
-    });
+    auto handle = multi.subscribe(
+        [](const Vector<int>&, Vector<int>::EventData) { std::cout << "Third listener fired\n"; });
 
     multi.push_back(3);
     multi.unsubscribe(handle);

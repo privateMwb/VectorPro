@@ -21,14 +21,16 @@ using namespace VectorPro;
 static void bench_push_back() {
     auto vp = [&] {
         Vector<int> v;
-        for (int i = 0; i < 1000; ++i) v.push_back(i);
+        for (int i = 0; i < 1000; ++i)
+            v.push_back(i);
         doNotOptimize(v);
     };
     BENCH("VectorPro push_back", MEDIUM, vp);
 
     auto sv = [&] {
         std::vector<int> v;
-        for (int i = 0; i < 1000; ++i) v.push_back(i);
+        for (int i = 0; i < 1000; ++i)
+            v.push_back(i);
         doNotOptimize(v);
     };
     BENCH("std::vector push_back", MEDIUM, sv);
@@ -39,7 +41,8 @@ static void bench_push_back_reserved() {
     auto vp = [&] {
         Vector<int> v;
         v.reserve(1000);
-        for (int i = 0; i < 1000; ++i) v.push_back(i);
+        for (int i = 0; i < 1000; ++i)
+            v.push_back(i);
         doNotOptimize(v);
     };
     BENCH("VectorPro push_back reserved", MEDIUM, vp);
@@ -47,7 +50,8 @@ static void bench_push_back_reserved() {
     auto sv = [&] {
         std::vector<int> v;
         v.reserve(1000);
-        for (int i = 0; i < 1000; ++i) v.push_back(i);
+        for (int i = 0; i < 1000; ++i)
+            v.push_back(i);
         doNotOptimize(v);
     };
     BENCH("std::vector push_back reserved", MEDIUM, sv);
@@ -58,7 +62,8 @@ static void bench_emplace_back() {
     auto vp = [&] {
         Vector<int> v;
         v.reserve(1000);
-        for (int i = 0; i < 1000; ++i) v.emplace_back(i);
+        for (int i = 0; i < 1000; ++i)
+            v.emplace_back(i);
         doNotOptimize(v);
     };
     BENCH("VectorPro emplace_back", MEDIUM, vp);
@@ -66,7 +71,8 @@ static void bench_emplace_back() {
     auto sv = [&] {
         std::vector<int> v;
         v.reserve(1000);
-        for (int i = 0; i < 1000; ++i) v.emplace_back(i);
+        for (int i = 0; i < 1000; ++i)
+            v.emplace_back(i);
         doNotOptimize(v);
     };
     BENCH("std::vector emplace_back", MEDIUM, sv);
@@ -178,14 +184,16 @@ static void bench_erase_end() {
 static void bench_pop_back() {
     auto vp = [&] {
         Vector<int> v(1000, 0);
-        while (!v.empty()) v.pop_back();
+        while (!v.empty())
+            v.pop_back();
         doNotOptimize(v);
     };
     BENCH("VectorPro pop_back", MEDIUM, vp);
 
     auto sv = [&] {
         std::vector<int> v(1000, 0);
-        while (!v.empty()) v.pop_back();
+        while (!v.empty())
+            v.pop_back();
         doNotOptimize(v);
     };
     BENCH("std::vector pop_back", MEDIUM, sv);
@@ -213,7 +221,8 @@ static void bench_remove_if() {
     auto vp = [&] {
         Vector<int> v;
         v.reserve(1000);
-        for (int i = 0; i < 1000; ++i) v.push_back(i);
+        for (int i = 0; i < 1000; ++i)
+            v.push_back(i);
         (void)v.remove_if([](const int& x) { return x % 2 == 0; });
         doNotOptimize(v);
     };
@@ -222,18 +231,17 @@ static void bench_remove_if() {
     auto sv = [&] {
         std::vector<int> v;
         v.reserve(1000);
-        for (int i = 0; i < 1000; ++i) v.push_back(i);
-        v.erase(
-            std::remove_if(v.begin(), v.end(),
-                [](const int& x) { return x % 2 == 0; }),
-            v.end());
+        for (int i = 0; i < 1000; ++i)
+            v.push_back(i);
+        v.erase(std::remove_if(v.begin(), v.end(), [](const int& x) { return x % 2 == 0; }),
+                v.end());
         doNotOptimize(v);
     };
     BENCH("std::vector erase-remove_if", MEDIUM, sv);
 }
 
 // Executes all modifier benchmark cases.
-static void run_benchmarks() {          
+static void run_benchmarks() {
     bench_push_back();
     std::cout << "\n";
 

@@ -56,7 +56,8 @@ static void bench_shrink_to_fit() {
     auto vp = [&] {
         Vector<int> v;
         v.reserve(1000);
-        for (int i = 0; i < 100; ++i) v.push_back(i);
+        for (int i = 0; i < 100; ++i)
+            v.push_back(i);
         v.shrink_to_fit();
         doNotOptimize(v);
     };
@@ -65,7 +66,8 @@ static void bench_shrink_to_fit() {
     auto sv = [&] {
         std::vector<int> v;
         v.reserve(1000);
-        for (int i = 0; i < 100; ++i) v.push_back(i);
+        for (int i = 0; i < 100; ++i)
+            v.push_back(i);
         v.shrink_to_fit();
         doNotOptimize(v);
     };

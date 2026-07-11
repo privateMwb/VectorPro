@@ -90,7 +90,7 @@ static void back_basic() {
 static void front_back_single_element() {
     Vector<int> v{42};
     CHK(v.front() == 42);
-    CHK(v.back()  == 42);
+    CHK(v.back() == 42);
 }
 
 // Verifies operator[] provides read access to elements.
@@ -112,8 +112,8 @@ static void const_access() {
     const Vector<int> v{1, 2, 3};
     CHK(v[0] == 1);
     CHK(v.front() == 1);
-    CHK(v.back()  == 3);
-    CHK(v.at(1)   == 2);
+    CHK(v.back() == 3);
+    CHK(v.at(1) == 2);
 }
 
 // Executes all access test cases.

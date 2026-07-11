@@ -11,8 +11,8 @@
 
 #include <common/framework.h>
 
-#include <vector>
 #include <numeric>
+#include <vector>
 
 using namespace VectorPro;
 
@@ -20,22 +20,26 @@ using namespace VectorPro;
 static void bench_range_for() {
     Vector<int> v;
     v.reserve(100'000);
-    for (int i = 0; i < 100'000; ++i) v.push_back(i);
+    for (int i = 0; i < 100'000; ++i)
+        v.push_back(i);
 
     std::vector<int> sv;
     sv.reserve(100'000);
-    for (int i = 0; i < 100'000; ++i) sv.push_back(i);
+    for (int i = 0; i < 100'000; ++i)
+        sv.push_back(i);
 
     auto vp = [&] {
         long sum = 0;
-        for (int x : v) sum += x;
+        for (int x : v)
+            sum += x;
         doNotOptimize(sum);
     };
     BENCH("VectorPro range-for", MEDIUM, vp);
 
     auto svf = [&] {
         long sum = 0;
-        for (int x : sv) sum += x;
+        for (int x : sv)
+            sum += x;
         doNotOptimize(sum);
     };
     BENCH("std::vector range-for", MEDIUM, svf);
@@ -45,22 +49,26 @@ static void bench_range_for() {
 static void bench_iterator_loop() {
     Vector<int> v;
     v.reserve(100'000);
-    for (int i = 0; i < 100'000; ++i) v.push_back(i);
+    for (int i = 0; i < 100'000; ++i)
+        v.push_back(i);
 
     std::vector<int> sv;
     sv.reserve(100'000);
-    for (int i = 0; i < 100'000; ++i) sv.push_back(i);
+    for (int i = 0; i < 100'000; ++i)
+        sv.push_back(i);
 
     auto vp = [&] {
         long sum = 0;
-        for (auto it = v.begin(); it != v.end(); ++it) sum += *it;
+        for (auto it = v.begin(); it != v.end(); ++it)
+            sum += *it;
         doNotOptimize(sum);
     };
     BENCH("VectorPro iterator loop", MEDIUM, vp);
 
     auto svf = [&] {
         long sum = 0;
-        for (auto it = sv.begin(); it != sv.end(); ++it) sum += *it;
+        for (auto it = sv.begin(); it != sv.end(); ++it)
+            sum += *it;
         doNotOptimize(sum);
     };
     BENCH("std::vector iterator loop", MEDIUM, svf);
@@ -70,22 +78,26 @@ static void bench_iterator_loop() {
 static void bench_index_loop() {
     Vector<int> v;
     v.reserve(100'000);
-    for (int i = 0; i < 100'000; ++i) v.push_back(i);
+    for (int i = 0; i < 100'000; ++i)
+        v.push_back(i);
 
     std::vector<int> sv;
     sv.reserve(100'000);
-    for (int i = 0; i < 100'000; ++i) sv.push_back(i);
+    for (int i = 0; i < 100'000; ++i)
+        sv.push_back(i);
 
     auto vp = [&] {
         long sum = 0;
-        for (std::size_t i = 0; i < v.size(); ++i) sum += v[i];
+        for (std::size_t i = 0; i < v.size(); ++i)
+            sum += v[i];
         doNotOptimize(sum);
     };
     BENCH("VectorPro index loop", MEDIUM, vp);
 
     auto svf = [&] {
         long sum = 0;
-        for (std::size_t i = 0; i < sv.size(); ++i) sum += sv[i];
+        for (std::size_t i = 0; i < sv.size(); ++i)
+            sum += sv[i];
         doNotOptimize(sum);
     };
     BENCH("std::vector index loop", MEDIUM, svf);
@@ -95,22 +107,26 @@ static void bench_index_loop() {
 static void bench_reverse_iteration() {
     Vector<int> v;
     v.reserve(100'000);
-    for (int i = 0; i < 100'000; ++i) v.push_back(i);
+    for (int i = 0; i < 100'000; ++i)
+        v.push_back(i);
 
     std::vector<int> sv;
     sv.reserve(100'000);
-    for (int i = 0; i < 100'000; ++i) sv.push_back(i);
+    for (int i = 0; i < 100'000; ++i)
+        sv.push_back(i);
 
     auto vp = [&] {
         long sum = 0;
-        for (auto it = v.rbegin(); it != v.rend(); ++it) sum += *it;
+        for (auto it = v.rbegin(); it != v.rend(); ++it)
+            sum += *it;
         doNotOptimize(sum);
     };
     BENCH("VectorPro reverse iteration", MEDIUM, vp);
 
     auto svf = [&] {
         long sum = 0;
-        for (auto it = sv.rbegin(); it != sv.rend(); ++it) sum += *it;
+        for (auto it = sv.rbegin(); it != sv.rend(); ++it)
+            sum += *it;
         doNotOptimize(sum);
     };
     BENCH("std::vector reverse iteration", MEDIUM, svf);
@@ -120,11 +136,13 @@ static void bench_reverse_iteration() {
 static void bench_accumulate() {
     Vector<int> v;
     v.reserve(100'000);
-    for (int i = 0; i < 100'000; ++i) v.push_back(i);
+    for (int i = 0; i < 100'000; ++i)
+        v.push_back(i);
 
     std::vector<int> sv;
     sv.reserve(100'000);
-    for (int i = 0; i < 100'000; ++i) sv.push_back(i);
+    for (int i = 0; i < 100'000; ++i)
+        sv.push_back(i);
 
     auto vp = [&] {
         long sum = std::accumulate(v.begin(), v.end(), 0L);
@@ -140,7 +158,8 @@ static void bench_accumulate() {
 }
 
 // Executes all iteration benchmark cases.
-static void run_benchmarks() {                bench_range_for();
+static void run_benchmarks() {
+    bench_range_for();
     std::cout << "\n";
 
     bench_iterator_loop();

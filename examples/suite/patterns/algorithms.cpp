@@ -9,14 +9,15 @@
 #include <common/framework.h>
 
 #include <algorithm>
-#include <ranges>
 #include <numeric>
+#include <ranges>
 
 using namespace VectorPro;
 
 // Prints a Vector's contents on one line.
 static void printVector(const Vector<int>& v) {
-    for (int x : v) std::cout << x << " ";
+    for (int x : v)
+        std::cout << x << " ";
     std::cout << "\n";
 }
 
@@ -25,20 +26,22 @@ static void run_examples() {
     setTitle("std::sort");
 
     Vector<int> v{5, 3, 1, 4, 2};
-    std::cout << "Before sort : "; printVector(v);
+    std::cout << "Before sort : ";
+    printVector(v);
 
     std::sort(v.begin(), v.end());
-    std::cout << "After sort  : "; printVector(v);
+    std::cout << "After sort  : ";
+    printVector(v);
     std::cout << "\n";
 
     // std::transform.
     setTitle("std::transform");
 
     Vector<int> doubled(v.size(), 0);
-    std::transform(v.begin(), v.end(), doubled.begin(),
-                   [](int x) { return x * 2; });
+    std::transform(v.begin(), v.end(), doubled.begin(), [](int x) { return x * 2; });
 
-    std::cout << "Doubled : "; printVector(doubled);
+    std::cout << "Doubled : ";
+    printVector(doubled);
     std::cout << "\n";
 
     // std::accumulate.
@@ -69,7 +72,8 @@ static void run_examples() {
 
     auto sub = sp.subspan(1, 3);
     std::cout << "Subspan(1,3)  : ";
-    for (int x : sub) std::cout << x << " ";
+    for (int x : sub)
+        std::cout << x << " ";
     std::cout << "\n";
 }
 

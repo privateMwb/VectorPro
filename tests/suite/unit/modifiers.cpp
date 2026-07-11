@@ -67,7 +67,10 @@ static void push_back_growth() {
 // Verifies that push_back(v[i]) survives a reallocation triggered by the call.
 static void push_back_self_reference() {
     Vector<int> v(4, 0);
-    v[0] = 1; v[1] = 2; v[2] = 3; v[3] = 4;
+    v[0] = 1;
+    v[1] = 2;
+    v[2] = 3;
+    v[3] = 4;
     // size == capacity, so this call forces reallocate() while `value`
     // still references the old (about-to-be-freed) buffer.
     v.push_back(v[0]);
@@ -137,7 +140,10 @@ static void insert_rvalue() {
 // Verifies that insert(pos, v[i]) survives reallocation and shifting alike.
 static void insert_self_reference() {
     Vector<int> v(4, 0);
-    v[0] = 1; v[1] = 2; v[2] = 3; v[3] = 4;
+    v[0] = 1;
+    v[1] = 2;
+    v[2] = 3;
+    v[3] = 4;
     // size == capacity: forces reallocate(); value also aliases the source buffer.
     (void)v.insert(v.cbegin() + 1, v[3]);
 
@@ -275,9 +281,9 @@ static void clear_basic() {
     std::size_t capBefore = v.capacity();
     v.clear();
 
-    CHK(v.size()     == 0);
+    CHK(v.size() == 0);
     CHK(v.capacity() == capBefore);
-    CHK(v.empty()    == true);
+    CHK(v.empty() == true);
 }
 
 // Verifies that clear on an already-empty vector is a safe no-op.

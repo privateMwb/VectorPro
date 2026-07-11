@@ -21,15 +21,15 @@ using namespace VectorPro;
 // Verifies that a default-constructed vector starts empty with no capacity.
 static void default_construction() {
     Vector<int> v;
-    CHK(v.size()     == 0);
+    CHK(v.size() == 0);
     CHK(v.capacity() == 0);
-    CHK(v.empty()    == true);
+    CHK(v.empty() == true);
 }
 
 // Verifies that count + value construction fills the vector with copies.
 static void count_value_construction() {
     Vector<int> v(5, 7);
-    CHK(v.size()     == 5);
+    CHK(v.size() == 5);
     CHK(v.capacity() == 5);
     for (std::size_t i = 0; i < v.size(); ++i) {
         CHK(v[i] == 7);
@@ -48,7 +48,7 @@ static void count_default_value_construction() {
 // Verifies that zero count construction produces an empty vector.
 static void zero_count_construction() {
     Vector<int> v(0, 9);
-    CHK(v.size()     == 0);
+    CHK(v.size() == 0);
     CHK(v.capacity() == 0);
 }
 
@@ -65,7 +65,7 @@ static void initializer_list_construction() {
 // Verifies that an empty initializer list produces an empty vector.
 static void empty_initializer_list_construction() {
     Vector<int> v{};
-    CHK(v.size()     == 0);
+    CHK(v.size() == 0);
     CHK(v.capacity() == 0);
 }
 
@@ -83,7 +83,7 @@ static void iterator_range_construction() {
 static void allocator_construction() {
     std::allocator<int> alloc;
     Vector<int> v(alloc);
-    CHK(v.size()     == 0);
+    CHK(v.size() == 0);
     CHK(v.capacity() == 0);
 }
 
@@ -109,7 +109,7 @@ static void copy_assignment() {
 
     target = source;
 
-    CHK(target.size()     == source.size());
+    CHK(target.size() == source.size());
     CHK(target.capacity() == capBefore);
     for (std::size_t i = 0; i < target.size(); ++i) {
         CHK(target[i] == source[i]);
@@ -145,7 +145,7 @@ static void move_construction() {
 
     CHK(moved.size() == 3);
     CHK(moved[0] == 1);
-    CHK(source.size()     == 0);
+    CHK(source.size() == 0);
     CHK(source.capacity() == 0);
 }
 
@@ -158,7 +158,7 @@ static void move_assignment() {
 
     CHK(target.size() == 3);
     CHK(target[0] == 1);
-    CHK(source.size()     == 0);
+    CHK(source.size() == 0);
     CHK(source.capacity() == 0);
 }
 
