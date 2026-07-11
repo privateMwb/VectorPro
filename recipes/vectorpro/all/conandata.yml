@@ -1,0 +1,4 @@
+sources:
+  "1.0.0":
+    url: "https://github.com/privateMwb/VectorPro/archive/refs/tags/v1.0.0.tar.gz"
+    sha256: "0"  # placeholder — replace once v1.0.0 is tagged, see notes below

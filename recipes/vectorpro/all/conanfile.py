@@ -1,6 +1,7 @@
 from conan import ConanFile
+from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import cmake_layout
-from conan.tools.files import copy
+from conan.tools.files import copy, get
 import os
 
 class VectorProConan(ConanFile):
@@ -23,37 +24,47 @@ class VectorProConan(ConanFile):
 
     settings = "os", "compiler", "build_type", "arch"
 
-    exports_sources = (
-        "include/*",
-        "cmake/*",
-        "CMakeLists.txt"
-    )
-
     no_copy_source = True
 
     def layout(self):
         cmake_layout(self)
 
+    def validate(self):
+        check_min_cppstd(self, 23)
+
+    def source(self):
+        get(
+            self,
+            **self.conan_data["sources"][self.version],
+            strip_root=True,
+        )
+
     def package(self):
         copy(
             self,
-            "*.h", 
+            "*.h",
             src=os.path.join(self.source_folder, "include"),
             dst=os.path.join(self.package_folder, "include"),
         )
         copy(
             self,
-            "*.hpp", 
+            "*.hpp",
             src=os.path.join(self.source_folder, "include"),
             dst=os.path.join(self.package_folder, "include"),
         )
         copy(
             self,
-            "*.tpp", 
+            "*.tpp",
             src=os.path.join(self.source_folder, "include"),
             dst=os.path.join(self.package_folder, "include"),
         )
-        
+        copy(
+            self,
+            "LICENSE",
+            src=self.source_folder,
+            dst=os.path.join(self.package_folder, "licenses"),
+        )
+
     def package_info(self):
         self.cpp_info.bindirs = []
         self.cpp_info.libdirs = []
