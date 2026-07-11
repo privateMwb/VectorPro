@@ -6,43 +6,72 @@ on:
 
 jobs:
   build:
-    name: ${{ matrix.compiler }} ${{ matrix.build_type }}
-    runs-on: ubuntu-latest
+    name: ${{ matrix.os }} |
+          ${{ matrix.compiler }} |
+          ${{ matrix.build_type }}
+    runs-on: ${{ matrix.os }}
 
     strategy:
       fail-fast: false
 
       matrix:
         include:
-          - compiler: GCC
+          - os: ubuntu-latest
+            compiler: GCC
             cxx: g++
             build_type: Debug
 
-          - compiler: GCC
+          - os: ubuntu-latest
+            compiler: GCC
             cxx: g++
             build_type: Release
 
-          - compiler: Clang
+          - os: ubuntu-latest
+            compiler: Clang
             cxx: clang++
             build_type: Debug
 
-          - compiler: Clang
+          - os: ubuntu-latest
+            compiler: Clang
+            cxx: clang++
+            build_type: Release
+
+          - os: windows-latest
+            compiler: MSVC
+            build_type: Debug
+
+          - os: windows-latest
+            compiler: MSVC
+            build_type: Release
+
+          - os: macos-latest
+            compiler: AppleClang
+            cxx: clang++
+            build_type: Debug
+
+          - os: macos-latest
+            compiler: AppleClang
             cxx: clang++
             build_type: Release
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install dependencies
+      - name: Install dependencies(Ubuntu)
+        if: run.os == 'Linux'
         run: |
           sudo apt update
           sudo apt install -y cmake ninja-build g++ clang
 
       - name: Configure
-        env:
-          CXX: ${{ matrix.cxx }}
+        shell: bash
         run: |
-          cmake -S . -B build-${{ matrix.compiler }}-${{ matrix.build_type }} \
+          if [ "${{ runner.os }}" != "windows" ]; then
+            export CXX = ${{ matrix.cxx }}
+          fi
+
+          cmake -S . \
+            -B build-${{ matrix.compiler }}-${{ matrix.build_type }} \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
 
       - name: Build
@@ -50,4 +79,6 @@ jobs:
 
       - name: Run Tests
         run: |
-          ctest --test-dir build-${{ matrix.compiler }}-${{ matrix.build_type }} --output-on-failure
+          ctest \
+            --test-dir build-${{ matrix.compiler }}-${{ matrix.build_type }} \
+            --output-on-failure
