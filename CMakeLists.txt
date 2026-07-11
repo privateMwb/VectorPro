@@ -59,12 +59,31 @@ target_compile_features(
 # Subdirectories
 # ============================================================================
 
+# Consumers (e.g. vcpkg) should disable these — only the library itself
+# needs to be configured/installed for downstream projects. Defaults to
+# ON so local development and existing CI workflows are unaffected.
+option(VECTORPRO_BUILD_TESTS "Build the VectorPro test suite" ON)
+option(VECTORPRO_BUILD_BENCHMARKS "Build the VectorPro benchmark suite" ON)
+option(VECTORPRO_BUILD_TOOLS "Build the compare/regression benchmark tools" ON)
+option(VECTORPRO_BUILD_EXAMPLES "Build the VectorPro examples" ON)
+
 enable_testing()
 
-add_subdirectory(tests tests_build)
-add_subdirectory(benchmarks benchmarks_build)
-add_subdirectory(tools tools_build)
-add_subdirectory(examples examples_build)
+if(VECTORPRO_BUILD_TESTS)
+    add_subdirectory(tests tests_build)
+endif()
+
+if(VECTORPRO_BUILD_BENCHMARKS)
+    add_subdirectory(benchmarks benchmarks_build)
+endif()
+
+if(VECTORPRO_BUILD_TOOLS)
+    add_subdirectory(tools tools_build)
+endif()
+
+if(VECTORPRO_BUILD_EXAMPLES)
+    add_subdirectory(examples examples_build)
+endif()
 
 # ============================================================================
 # Installation

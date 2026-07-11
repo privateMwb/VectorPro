@@ -1,6 +1,7 @@
 # CMake build directories
 build*/
 cmake-build-*/
+install*/
 
 # Object files
 *.o
