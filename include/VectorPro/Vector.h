@@ -16,6 +16,7 @@
 #include <functional>
 #include <stdexcept>
 #include <optional>
+#include <limits>
 
 namespace VectorPro {
 
