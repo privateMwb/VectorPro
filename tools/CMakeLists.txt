@@ -5,13 +5,23 @@
 #   - regression: compares benchmark results across versions.
 # ============================================================
 
-find_package(nlohmann_json CONFIG REQUIRED)
+# Fetch nlohmann_json at configure time instead of relying on a
+# system package, so the build is reproducible across Termux,
+# MSYS2, and CI without any OS-specific install step.
+include(FetchContent)
+
+FetchContent_Declare(
+    nlohmann_json
+    GIT_REPOSITORY https://github.com/nlohmann/json.git
+    GIT_TAG v3.11.3
+)
+
+FetchContent_MakeAvailable(nlohmann_json)
 
 # ============================================================================
 # Compare Tool
 # ============================================================================
 
-# Build the compare executable.
 add_executable(
     compare
     compare/compare.cpp
@@ -35,7 +45,6 @@ target_link_libraries(
 # Regression Tool
 # ============================================================================
 
-# Build the regression executable.
 add_executable(
     regression
     regression/regression.cpp

@@ -61,7 +61,7 @@ int main(int argc, char* argv[]) {
         exportJson("benchmark_results.json");
         return 0;
     }
-    
+
     std::cerr << "\nUnknown bench suite: " << requested << "\n\n";
     return 1;
 }
