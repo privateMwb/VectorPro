@@ -62,21 +62,15 @@ jobs:
           sudo apt install -y cmake ninja-build g++ clang
 
       - name: Configure
-        shell: bash
+        env:
+          CXX: ${{ matrix.cxx || '' }}
         run: >
-          if [ "${{ runner.os }}" != "Windows" ]; then
-            export CXX=${{ matrix.cxx }}
-          fi
-
-          cmake -S . \
-            -B build-${{ matrix.compiler }}-${{ matrix.build_type }} \
-            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-
+          cmake -S .
+          -B build-${{ matrix.compiler }}-${{ matrix.build_type }}
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          
       - name: Build
         run: cmake --build build-${{ matrix.compiler }}-${{ matrix.build_type }}
 
       - name: Run Tests
-        run: >
-          ctest \
-            --test-dir build-${{ matrix.compiler }}-${{ matrix.build_type }} \
-            --output-on-failure
+        run: ctest --test-dir build-${{ matrix.compiler }}-${{ matrix.build_type }} --output-on-failure
