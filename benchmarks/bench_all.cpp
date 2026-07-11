@@ -11,6 +11,7 @@ int main(int argc, char* argv[]) {
             suite.run();
         }
         std::cout << "\n";
+        exportJson("benchmark_results.json");
         return 0;
     }
 
@@ -43,6 +44,7 @@ int main(int argc, char* argv[]) {
             setHeader(suite.name);
             suite.run();
             std::cout << "\n";
+            exportJson("benchmark_results.json");
             return 0;
         }
 
@@ -55,9 +57,11 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    if (foundCategory)
+    if (foundCategory) {
+        exportJson("benchmark_results.json");
         return 0;
-
+    }
+    
     std::cerr << "\nUnknown bench suite: " << requested << "\n\n";
     return 1;
 }

@@ -68,13 +68,13 @@ static void bench_contains_miss_small() {
 // Measures contains() on a hit near the middle of a large vector.
 static void bench_contains_hit_large() {
     Vector<int> v;
-    v.reserve(100'000);
-    for (int i = 0; i < 100'000; ++i)
+    v.reserve(1000);
+    for (int i = 0; i < 1000; ++i)
         v.push_back(i);
 
     std::vector<int> sv;
-    sv.reserve(100'000);
-    for (int i = 0; i < 100'000; ++i)
+    sv.reserve(1000);
+    for (int i = 0; i < 1000; ++i)
         sv.push_back(i);
 
     auto vp = [&] {

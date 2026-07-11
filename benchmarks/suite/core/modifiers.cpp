@@ -25,7 +25,7 @@ static void bench_push_back() {
             v.push_back(i);
         doNotOptimize(v);
     };
-    BENCH("VectorPro push_back", MEDIUM, vp);
+    BENCH("VectorPro push_back", SMALL, vp);
 
     auto sv = [&] {
         std::vector<int> v;
@@ -33,7 +33,7 @@ static void bench_push_back() {
             v.push_back(i);
         doNotOptimize(v);
     };
-    BENCH("std::vector push_back", MEDIUM, sv);
+    BENCH("std::vector push_back", SMALL, sv);
 }
 
 // Measures push_back performance with reserved capacity.
@@ -45,7 +45,7 @@ static void bench_push_back_reserved() {
             v.push_back(i);
         doNotOptimize(v);
     };
-    BENCH("VectorPro push_back reserved", MEDIUM, vp);
+    BENCH("VectorPro push_back reserved", SMALL, vp);
 
     auto sv = [&] {
         std::vector<int> v;
@@ -54,7 +54,7 @@ static void bench_push_back_reserved() {
             v.push_back(i);
         doNotOptimize(v);
     };
-    BENCH("std::vector push_back reserved", MEDIUM, sv);
+    BENCH("std::vector push_back reserved", SMALL, sv);
 }
 
 // Measures emplace_back performance.
@@ -66,7 +66,7 @@ static void bench_emplace_back() {
             v.emplace_back(i);
         doNotOptimize(v);
     };
-    BENCH("VectorPro emplace_back", MEDIUM, vp);
+    BENCH("VectorPro emplace_back", SMALL, vp);
 
     auto sv = [&] {
         std::vector<int> v;
@@ -75,7 +75,7 @@ static void bench_emplace_back() {
             v.emplace_back(i);
         doNotOptimize(v);
     };
-    BENCH("std::vector emplace_back", MEDIUM, sv);
+    BENCH("std::vector emplace_back", SMALL, sv);
 }
 
 // Measures insertion at the beginning.
@@ -85,14 +85,14 @@ static void bench_insert_front() {
         (void)v.insert(v.cbegin(), 99);
         doNotOptimize(v);
     };
-    BENCH("VectorPro insert front", MEDIUM, vp);
+    BENCH("VectorPro insert front", SMALL, vp);
 
     auto sv = [&] {
         std::vector<int> v(500, 0);
         v.insert(v.cbegin(), 99);
         doNotOptimize(v);
     };
-    BENCH("std::vector insert front", MEDIUM, sv);
+    BENCH("std::vector insert front", SMALL, sv);
 }
 
 // Measures insertion in the middle.
@@ -102,14 +102,14 @@ static void bench_insert_middle() {
         (void)v.insert(v.cbegin() + 250, 99);
         doNotOptimize(v);
     };
-    BENCH("VectorPro insert middle", MEDIUM, vp);
+    BENCH("VectorPro insert middle", SMALL, vp);
 
     auto sv = [&] {
         std::vector<int> v(500, 0);
         v.insert(v.cbegin() + 250, 99);
         doNotOptimize(v);
     };
-    BENCH("std::vector insert middle", MEDIUM, sv);
+    BENCH("std::vector insert middle", SMALL, sv);
 }
 
 // Measures insertion at the end.
@@ -119,14 +119,14 @@ static void bench_insert_end() {
         (void)v.insert(v.cend(), 99);
         doNotOptimize(v);
     };
-    BENCH("VectorPro insert end", MEDIUM, vp);
+    BENCH("VectorPro insert end", SMALL, vp);
 
     auto sv = [&] {
         std::vector<int> v(500, 0);
         v.insert(v.cend(), 99);
         doNotOptimize(v);
     };
-    BENCH("std::vector insert end", MEDIUM, sv);
+    BENCH("std::vector insert end", SMALL, sv);
 }
 
 // Measures erasure at the beginning.
@@ -136,14 +136,14 @@ static void bench_erase_front() {
         (void)v.erase(v.cbegin());
         doNotOptimize(v);
     };
-    BENCH("VectorPro erase front", MEDIUM, vp);
+    BENCH("VectorPro erase front", SMALL, vp);
 
     auto sv = [&] {
         std::vector<int> v(500, 0);
         v.erase(v.cbegin());
         doNotOptimize(v);
     };
-    BENCH("std::vector erase front", MEDIUM, sv);
+    BENCH("std::vector erase front", SMALL, sv);
 }
 
 // Measures erasure in the middle.
@@ -153,14 +153,14 @@ static void bench_erase_middle() {
         (void)v.erase(v.cbegin() + 250);
         doNotOptimize(v);
     };
-    BENCH("VectorPro erase middle", MEDIUM, vp);
+    BENCH("VectorPro erase middle", SMALL, vp);
 
     auto sv = [&] {
         std::vector<int> v(500, 0);
         v.erase(v.cbegin() + 250);
         doNotOptimize(v);
     };
-    BENCH("std::vector erase middle", MEDIUM, sv);
+    BENCH("std::vector erase middle", SMALL, sv);
 }
 
 // Measures erasure at the end.
@@ -170,14 +170,14 @@ static void bench_erase_end() {
         (void)v.erase(v.cend() - 1);
         doNotOptimize(v);
     };
-    BENCH("VectorPro erase end", MEDIUM, vp);
+    BENCH("VectorPro erase end", SMALL, vp);
 
     auto sv = [&] {
         std::vector<int> v(500, 0);
         v.erase(v.cend() - 1);
         doNotOptimize(v);
     };
-    BENCH("std::vector erase end", MEDIUM, sv);
+    BENCH("std::vector erase end", SMALL, sv);
 }
 
 // Measures pop_back performance.
@@ -188,7 +188,7 @@ static void bench_pop_back() {
             v.pop_back();
         doNotOptimize(v);
     };
-    BENCH("VectorPro pop_back", MEDIUM, vp);
+    BENCH("VectorPro pop_back", SMALL, vp);
 
     auto sv = [&] {
         std::vector<int> v(1000, 0);
@@ -196,7 +196,7 @@ static void bench_pop_back() {
             v.pop_back();
         doNotOptimize(v);
     };
-    BENCH("std::vector pop_back", MEDIUM, sv);
+    BENCH("std::vector pop_back", SMALL, sv);
 }
 
 // Measures clear performance.
@@ -206,14 +206,14 @@ static void bench_clear() {
         v.clear();
         doNotOptimize(v);
     };
-    BENCH("VectorPro clear", MEDIUM, vp);
+    BENCH("VectorPro clear", SMALL, vp);
 
     auto sv = [&] {
         std::vector<int> v(1000, 0);
         v.clear();
         doNotOptimize(v);
     };
-    BENCH("std::vector clear", MEDIUM, sv);
+    BENCH("std::vector clear", SMALL, sv);
 }
 
 // Measures removal of matching elements.
@@ -226,7 +226,7 @@ static void bench_remove_if() {
         (void)v.remove_if([](const int& x) { return x % 2 == 0; });
         doNotOptimize(v);
     };
-    BENCH("VectorPro remove_if", MEDIUM, vp);
+    BENCH("VectorPro remove_if", SMALL, vp);
 
     auto sv = [&] {
         std::vector<int> v;
@@ -237,7 +237,7 @@ static void bench_remove_if() {
                 v.end());
         doNotOptimize(v);
     };
-    BENCH("std::vector erase-remove_if", MEDIUM, sv);
+    BENCH("std::vector erase-remove_if", SMALL, sv);
 }
 
 // Executes all modifier benchmark cases.

@@ -1,0 +1,32 @@
+# ============================================================
+# benchmarks/CMakeLists.txt
+# Build configuration for the VectorPro benchmark suite.
+# ============================================================
+
+# Collect all benchmark suite source files.
+file(GLOB_RECURSE BENCH_SOURCES CONFIGURE_DEPENDS
+    "${CMAKE_CURRENT_SOURCE_DIR}/suite/*.cpp"
+)
+
+# Build the benchmark executable.
+add_executable(
+    benchmarks
+    ${BENCH_SOURCES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/bench_all.cpp
+)
+
+# Allow simple benchmark includes.
+target_include_directories(
+    benchmarks
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_SOURCE_DIR}
+        ${CMAKE_SOURCE_DIR}/include
+)
+
+# Link VectorPro to the benchmark executable.
+target_link_libraries(
+    benchmarks
+    PRIVATE
+        VectorPro
+)

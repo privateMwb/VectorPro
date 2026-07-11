@@ -1,0 +1,55 @@
+name: Benchmarks
+
+on:
+  workflow_dispatch:
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y cmake clang
+
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build Benchmarks
+        run: cmake --build build --target benchmarks
+
+      - name: Run Benchmarks
+        run: ./build/benchmarks > benchmark_results.json
+
+      - name: Build Compare
+        run: cmake --build build --target compare
+
+      - name: Run Compare
+        run: ./build/compare > compare_results.txt
+
+      - name: Build Regression
+        run: cmake --build build --target regression
+
+      - name: Run Regression
+        run: ./build/regression > regression_results.txt
+
+      - name: Upload Benchmark Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results
+          path: benchmark_results.json
+
+      - name: Upload Compare Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: compare-results
+          path: compare_results.txt
+
+      - name: Upload Regression Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: regression-results
+          path: regression_results.txt

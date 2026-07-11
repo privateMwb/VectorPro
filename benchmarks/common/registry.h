@@ -39,3 +39,18 @@ struct BenchRegistrar {
                                     prettify(path.stem().string()), run});
     }
 };
+
+struct BenchmarkResult {
+    std::string name;
+    std::string library;
+    std::string operation;
+
+    std::uint64_t total_ns;
+    std::size_t iterations;
+    double ns_per_op;
+};
+
+inline VectorPro::Vector<BenchmarkResult>& benchmark_results() {
+    static VectorPro::Vector<BenchmarkResult> results;
+    return results;
+}

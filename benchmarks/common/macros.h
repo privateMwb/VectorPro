@@ -1,6 +1,7 @@
 #include "helper.h"
 
 // Executes and times a benchmark expression.
+// Executes and times a benchmark expression.
 #define BENCH(name, iteration, expr)                                                               \
     do {                                                                                           \
         auto start = steady_clock::now();                                                          \
@@ -10,8 +11,23 @@
             doNotOptimize();                                                                       \
         }                                                                                          \
         auto end = steady_clock::now();                                                            \
+                                                                                                   \
         auto ns = duration_cast<nanoseconds>(end - start);                                         \
         auto raw = formatDuration(ns);                                                             \
+                                                                                                   \
+        const std::string fullName = name;                                                         \
+        const auto separator = fullName.find(' ');                                                 \
+                                                                                                   \
+        const std::string library =                                                                \
+            separator == std::string::npos ? fullName : fullName.substr(0, separator);             \
+                                                                                                   \
+        const std::string operation =                                                              \
+            separator == std::string::npos ? "" : fullName.substr(separator + 1);                  \
+                                                                                                   \
+        benchmark_results().push_back(                                                             \
+            {fullName, library, operation, static_cast<std::uint64_t>(ns.count()), iteration,      \
+             static_cast<double>(ns.count()) / static_cast<double>(iteration)});                   \
+                                                                                                   \
         std::cout << std::left << std::setw(40) << prettify(name) << std::setw(25)                 \
                   << timeColor(ns, raw) << std::setw(20) << iterColor(iteration) << "\n";          \
     } while (0)

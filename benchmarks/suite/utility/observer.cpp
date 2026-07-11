@@ -26,7 +26,7 @@ static void bench_push_back_no_listeners() {
             v.push_back(i);
         doNotOptimize(v);
     };
-    BENCH("push_back, 0 listeners", MEDIUM, vp);
+    BENCH("VectorPro push_back, 0 listeners", 10000, vp);
 }
 
 // Measures push_back with a single subscribed listener.
@@ -39,7 +39,7 @@ static void bench_push_back_one_listener() {
             v.push_back(i);
         doNotOptimize(v);
     };
-    BENCH("push_back, 1 listener", MEDIUM, vp);
+    BENCH("VectorPro push_back, 1 listener", 10000, vp);
 }
 
 // Measures push_back with multiple subscribed listeners.
@@ -53,7 +53,7 @@ static void bench_push_back_many_listeners() {
             v.push_back(i);
         doNotOptimize(v);
     };
-    BENCH("push_back, 8 listeners", MEDIUM, vp);
+    BENCH("VectorPro push_back, 8 listeners", 10000, vp);
 }
 
 // Measures push_back with a listener that captures external state.
@@ -70,7 +70,7 @@ static void bench_push_back_capturing_listener() {
             v.push_back(i);
         doNotOptimize(total);
     };
-    BENCH("push_back, capturing listener", MEDIUM, vp);
+    BENCH("VectorPro push_back, capturing listener", 10000, vp);
 }
 
 // Measures listener registration.
@@ -81,7 +81,7 @@ static void bench_subscribe() {
             (void)v.subscribe([](const Vector<int>&, Vector<int>::EventData) {});
         doNotOptimize(v);
     };
-    BENCH("subscribe x100", MEDIUM, vp);
+    BENCH("VectorPro subscribe x100", 10000, vp);
 }
 
 // Measures listener removal.
@@ -98,7 +98,7 @@ static void bench_unsubscribe() {
 
         doNotOptimize(v);
     };
-    BENCH("unsubscribe x100", MEDIUM, vp);
+    BENCH("VectorPro unsubscribe x100", 10000, vp);
 }
 
 // Executes all observer benchmark cases.

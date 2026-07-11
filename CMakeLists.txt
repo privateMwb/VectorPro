@@ -6,11 +6,9 @@
 # Sections:
 #   1. C++ Configuration
 #   2. VectorPro Library
-#   3. Tests
-#   4. Benchmarks
-#   5. Examples
-#   6. Installation
-#   7. Packaging
+#   3. Subdirectories
+#   4. Installation
+#   5. Packaging
 #
 # ============================================================
 
@@ -30,6 +28,10 @@ project(
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+
+# Place all executables directly in the build directory, regardless of
+# which subdirectory defines them (e.g. build/tests, build/compare).
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 # ============================================================================
 # VectorPro (Header-only Library)
@@ -54,105 +56,15 @@ target_compile_features(
 )
 
 # ============================================================================
-# Tests
+# Subdirectories
 # ============================================================================
-
-# Collect all test source files.
-file(GLOB_RECURSE TEST_SOURCES CONFIGURE_DEPENDS
-    "${CMAKE_CURRENT_SOURCE_DIR}/tests/*.cpp"
-)
 
 enable_testing()
 
-# Build the test executable.
-add_executable(
-    tests
-    ${TEST_SOURCES}
-)
-
-# Allow simple test includes.
-target_include_directories(
-    tests
-    PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/tests
-)
-
-# Link VectorPro to the test executable.
-target_link_libraries(
-    tests
-    PRIVATE
-    VectorPro
-)
-
-add_test(
-    NAME VectorProTests
-    COMMAND tests
-)
-
-# ============================================================================
-# Benchmarks
-# ============================================================================
-
-# Collect all benchmark source files.
-file(GLOB_RECURSE BENCH_SOURCES CONFIGURE_DEPENDS
-    "${CMAKE_CURRENT_SOURCE_DIR}/benchmarks/*.cpp"
-)
-
-# Build the benchmark executable.
-add_executable(
-    benchmarks
-    ${BENCH_SOURCES}
-)
-
-# Allow simple benchmark includes.
-target_include_directories(
-    benchmarks
-    PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/benchmarks
-)
-
-# Link VectorPro to the benchmark executable.
-target_link_libraries(
-    benchmarks
-    PRIVATE
-    VectorPro
-)
-
-target_include_directories(
-    benchmarks
-    PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-)
-
-# ============================================================================
-# Examples
-# ============================================================================
-
-# Collect all example source files.
-file(GLOB_RECURSE EXAMPLE_SOURCES CONFIGURE_DEPENDS
-    "${CMAKE_CURRENT_SOURCE_DIR}/examples/*.cpp"
-)
-
-# Build the example executable.
-add_executable(
-    examples
-    ${EXAMPLE_SOURCES}
-)
-
-# Allow simple example includes.
-target_include_directories(
-    examples
-    PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/examples
-)
-
-# Link VectorPro to the example executable.
-target_link_libraries(
-    examples
-    PRIVATE
-    VectorPro
-)
+add_subdirectory(tests tests_build)
+add_subdirectory(benchmarks benchmarks_build)
+add_subdirectory(tools tools_build)
+add_subdirectory(examples examples_build)
 
 # ============================================================================
 # Installation
