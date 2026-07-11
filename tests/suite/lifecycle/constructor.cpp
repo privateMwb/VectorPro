@@ -145,7 +145,7 @@ static void move_construction() {
 
     CHK(moved.size() == 3);
     CHK(moved[0] == 1);
-    
+
     // Intentional: verify moved-from state after move construction.
     // NOLINTNEXTLINE(clang-analyzer-cplusplus.Move)
     CHK(source.size() == 0);
@@ -161,7 +161,7 @@ static void move_assignment() {
 
     CHK(target.size() == 3);
     CHK(target[0] == 1);
-    
+
     // Intentional: verify moved-from state after move construction.
     // NOLINTNEXTLINE(clang-analyzer-cplusplus.Move)
     CHK(source.size() == 0);
