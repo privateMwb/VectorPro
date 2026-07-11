@@ -62,6 +62,8 @@ file(GLOB_RECURSE TEST_SOURCES CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/tests/*.cpp"
 )
 
+enable_testing()
+
 # Build the test executable.
 add_executable(
     tests
@@ -80,6 +82,11 @@ target_link_libraries(
     tests
     PRIVATE
     VectorPro
+)
+
+add_test(
+    NAME VectorProTests
+    COMMAND tests
 )
 
 # ============================================================================
