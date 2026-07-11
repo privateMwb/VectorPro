@@ -1,19 +1,39 @@
-# Build outputs
-build/
-
-# Windows
-*.exe
+# CMake build directories
+build*/
+cmake-build-*/
 
 # Object files
 *.o
 *.obj
 
+# Executables
+*.exe
+
 # Debug symbols
 *.pdb
 
-# VS Code
-.vscode/
+# Static / shared libraries
+*.a
+*.lib
+*.so
+*.dll
 
-# CLion
+# Coverage files
+*.gcda
+*.gcno
+*.gcov
+coverage.info
+coverage.filtered.info
+coverage-html/
+
+# Clang tools
+.clangd/
+.cache/
+
+# IDE files
+.vscode/
 .idea/
-cmake-build-*/
+
+# OS files
+.DS_Store
+Thumbs.db
