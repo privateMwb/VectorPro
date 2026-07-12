@@ -36,8 +36,7 @@ void reset_alloc_stats() {
 // equal only if their tags match. Propagation is disabled on both copy and
 // move assignment, and the allocator is not always-equal, so Vector must
 // take the "manual" path in each case unless tags happen to match.
-template <typename T>
-struct TaggedAllocator {
+template <typename T> struct TaggedAllocator {
     using value_type = T;
     using propagate_on_container_copy_assignment = std::false_type;
     using propagate_on_container_move_assignment = std::false_type;
