@@ -1,7 +1,18 @@
 name: Benchmarks
 
 on:
+  push:
+    tags:
+      - 'v*'
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version label for this run (e.g. v1.1.0). Required for manual runs — leave blank to skip committing a snapshot.'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
 
 jobs:
   benchmark:
@@ -35,6 +46,26 @@ jobs:
 
       - name: Run Regression
         run: ./build/regression > regression_results.txt
+
+      - name: Determine version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            echo "version=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=${{ github.event.inputs.version }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Save Benchmark Snapshot
+        if: steps.version.outputs.version != ''
+        run: |
+          mkdir -p benchmarks/results
+          cp benchmark_results.json "benchmarks/results/${{ steps.version.outputs.version }}.json"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add "benchmarks/results/${{ steps.version.outputs.version }}.json"
+          git diff --staged --quiet || git commit -m "benchmarks: add results for ${{ steps.version.outputs.version }}"
+          git push
 
       - name: Upload Benchmark Results
         uses: actions/upload-artifact@v4
