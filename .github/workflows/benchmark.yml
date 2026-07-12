@@ -59,8 +59,7 @@ jobs:
       - name: Save Benchmark Snapshot
         if: steps.version.outputs.version != ''
         run: |
-          mkdir -p benchmarks/results
-          cp benchmark_results.json "benchmarks/results/${{ steps.version.outputs.version }}.json"
+          cp benchmark_results.json "benchmarks/baselines/${{ steps.version.outputs.version }}.json"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add "benchmarks/results/${{ steps.version.outputs.version }}.json"
