@@ -89,36 +89,7 @@ template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t Gro
 Vector<T, Allocator, GrowthNum, GrowthDen>::Vector(const Vector& other)
     : alloc_(
           std::allocator_traits<Allocator>::select_on_container_copy_construction(other.alloc_)) {
-
-    if (other.vcap_ == 0)
-        return;
-
-    data_ = std::allocator_traits<Allocator>::allocate(alloc_, other.vcap_);
-    vcap_ = other.vcap_;
-
-    if constexpr (std::is_trivially_copyable_v<T> && std::is_same_v<Allocator, std::allocator<T>>) {
-        if (other.vsize_ > 0) {
-            std::memcpy(std::to_address(data_), std::to_address(other.data_),
-                        other.vsize_ * sizeof(T));
-        }
-    } else {
-        std::size_t constructed = 0;
-        try {
-            for (; constructed < other.vsize_; ++constructed) {
-                std::allocator_traits<Allocator>::construct(alloc_, data_ + constructed,
-                                                            other.data_[constructed]);
-            }
-        } catch (...) {
-            for (std::size_t i = 0; i < constructed; ++i)
-                std::allocator_traits<Allocator>::destroy(alloc_, data_ + i);
-            std::allocator_traits<Allocator>::deallocate(alloc_, data_, vcap_);
-            data_ = nullptr;
-            vcap_ = 0;
-            throw;
-        }
-    }
-
-    vsize_ = other.vsize_;
+    copyBufferFrom(other);
 }
 
 template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
@@ -182,7 +153,16 @@ Vector<T, Allocator, GrowthNum, GrowthDen>::operator=(const Vector& other) {
         vsize_ = other.vsize_;
     } else {
         // Not enough capacity — fall back to copy-and-swap for the strong guarantee.
-        Vector tmp(other);
+        // tmp's allocator must itself respect propagate_on_container_copy_assignment:
+        // only adopt other's allocator (via select_on_container_copy_construction)
+        // when propagation is permitted; otherwise keep using our own, so that
+        // after the swap, *this still owns the allocator it started with.
+        Vector tmp;
+        tmp.alloc_ = kPropagate
+                         ? std::allocator_traits<Allocator>::select_on_container_copy_construction(
+                               other.alloc_)
+                         : alloc_;
+        tmp.copyBufferFrom(other);
         swap(tmp);
     }
 
@@ -456,9 +436,12 @@ std::size_t Vector<T, Allocator, GrowthNum, GrowthDen>::remove_if(Predicate pred
             if (dest != i)
                 data_[dest] = std::move(data_[i]);
             ++dest;
-        } else {
-            std::allocator_traits<Allocator>::destroy(alloc_, data_ + i);
         }
+        // Removed elements are intentionally left untouched here — the
+        // cleanup loop below destroys every leftover slot in [dest, vsize_)
+        // exactly once, whether it holds an original removed element or a
+        // moved-from "kept" element. Destroying here too caused a
+        // double-destroy for any removed index >= the final `dest`.
     }
 
     for (std::size_t i = dest; i < vsize_; ++i) {
@@ -913,6 +896,40 @@ void Vector<T, Allocator, GrowthNum, GrowthDen>::release() noexcept {
 
 template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
     requires std::destructible<T>
+void Vector<T, Allocator, GrowthNum, GrowthDen>::copyBufferFrom(const Vector& other) {
+    if (other.vcap_ == 0)
+        return;
+
+    data_ = std::allocator_traits<Allocator>::allocate(alloc_, other.vcap_);
+    vcap_ = other.vcap_;
+
+    if constexpr (std::is_trivially_copyable_v<T> && std::is_same_v<Allocator, std::allocator<T>>) {
+        if (other.vsize_ > 0) {
+            std::memcpy(std::to_address(data_), std::to_address(other.data_),
+                        other.vsize_ * sizeof(T));
+        }
+    } else {
+        std::size_t constructed = 0;
+        try {
+            for (; constructed < other.vsize_; ++constructed) {
+                std::allocator_traits<Allocator>::construct(alloc_, data_ + constructed,
+                                                            other.data_[constructed]);
+            }
+        } catch (...) {
+            for (std::size_t i = 0; i < constructed; ++i)
+                std::allocator_traits<Allocator>::destroy(alloc_, data_ + i);
+            std::allocator_traits<Allocator>::deallocate(alloc_, data_, vcap_);
+            data_ = nullptr;
+            vcap_ = 0;
+            throw;
+        }
+    }
+
+    vsize_ = other.vsize_;
+}
+
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+    requires std::destructible<T>
 std::size_t Vector<T, Allocator, GrowthNum, GrowthDen>::growCapacity() const noexcept {
     if (vcap_ == 0)
         return INITIAL_CAP;
@@ -921,7 +938,16 @@ std::size_t Vector<T, Allocator, GrowthNum, GrowthDen>::growCapacity() const noe
     if (vcap_ > kMax / GrowthNum)
         return kMax;
 
-    return vcap_ * GrowthNum / GrowthDen;
+    std::size_t grown = vcap_ * GrowthNum / GrowthDen;
+
+    // Integer division can truncate back down to the current capacity for
+    // small vcap_ values combined with a fractional growth ratio (e.g.
+    // 1 * 3 / 2 == 1). Guarantee growth always strictly increases capacity
+    // by at least one element, saturating at SIZE_MAX instead of overflowing.
+    if (grown <= vcap_)
+        grown = (vcap_ < kMax) ? vcap_ + 1 : kMax;
+
+    return grown;
 }
 
 template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>

@@ -7,6 +7,15 @@
 
 using json = nlohmann::json;
 
+// ANSI terminal color codes.
+constexpr const char* RESET = "\033[0m";
+constexpr const char* GREEN = "\033[92m";
+constexpr const char* RED = "\033[91m";
+constexpr const char* YELLOW = "\033[93m";
+constexpr const char* CYAN = "\033[96m";
+constexpr const char* GRAY = "\033[37m";
+constexpr const char* BLUE = "\033[94m";
+
 struct Result {
     std::string library;
     std::string operation;
@@ -54,7 +63,7 @@ int main()
     }
 
 
-    std::cout << "\n=== VectorPro vs std::vector ===\n\n";
+    std::cout << BLUE << "\n VectorPro vs std::vector\n\n" << RESET;
 
 
     for (const auto& [operation, vpTime] : vectorPro)
@@ -71,7 +80,7 @@ int main()
             ((stdTime - vpTime) / stdTime) * 100.0;
 
 
-        std::cout << operation << "\n";
+        std::cout << CYAN << operation << "\n" << RESET;
 
         std::cout
             << "  VectorPro     : "
@@ -87,16 +96,26 @@ int main()
         if (percent > 0)
         {
             std::cout
-                << "  Advantage     : "
+                << GREEN
+                << "  Advantage     "
+                << RESET
+                << ": "
+                << GREEN
                 << percent
-                << "% faster\n";
+                << "% faster\n"
+                << RESET;
         }
         else
         {
             std::cout
-                << "  Difference    : "
+                << RED
+                << "  Difference    "
+                << RESET 
+                << ": "
+                << RED
                 << -percent
-                << "% slower\n";
+                << "% slower\n"
+                << RESET;
         }
 
         std::cout << "\n";

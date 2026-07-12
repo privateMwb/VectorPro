@@ -422,6 +422,17 @@ class Vector {
     void release() noexcept;
 
     /**
+     * @brief Allocates a buffer sized `other.vcap_` using this vector's
+     * current `alloc_`, and copy-constructs `other`'s elements into it.
+     * Shared by the copy constructor and by copy assignment's copy-and-swap
+     * fallback, so both paths honor whichever allocator was already chosen
+     * for `alloc_` instead of duplicating the allocate/construct/rollback
+     * logic.
+     * @param other Vector whose elements are copy-constructed into the new buffer.
+     */
+    void copyBufferFrom(const Vector& other);
+
+    /**
      * @brief Computes the next capacity according to the configured growth policy.
      * @return `INITIAL_CAP` if currently empty of capacity; otherwise
      * `capacity() * GrowthNum / GrowthDen`, saturating at `SIZE_MAX` on overflow.

@@ -31,13 +31,13 @@ static void bench_contains_hit_small() {
         bool r = v.contains(500);
         doNotOptimize(r);
     };
-    BENCH("VectorPro contains hit (1k)", LARGE, vp);
+    BENCH("VectorPro contains hit (1k)", SMALL, vp);
 
     auto svf = [&] {
         bool r = std::find(sv.begin(), sv.end(), 500) != sv.end();
         doNotOptimize(r);
     };
-    BENCH("std::vector contains hit (1k)", LARGE, svf);
+    BENCH("std::vector contains hit (1k)", SMALL, svf);
 }
 
 // Measures contains() on a miss, requiring a full linear scan.
@@ -56,38 +56,38 @@ static void bench_contains_miss_small() {
         bool r = v.contains(-1);
         doNotOptimize(r);
     };
-    BENCH("VectorPro contains miss (1k)", LARGE, vp);
+    BENCH("VectorPro contains miss (1k)", SMALL, vp);
 
     auto svf = [&] {
         bool r = std::find(sv.begin(), sv.end(), -1) != sv.end();
         doNotOptimize(r);
     };
-    BENCH("std::vector contains miss (1k)", LARGE, svf);
+    BENCH("std::vector contains miss (1k)", SMALL, svf);
 }
 
 // Measures contains() on a hit near the middle of a large vector.
 static void bench_contains_hit_large() {
     Vector<int> v;
-    v.reserve(1000);
-    for (int i = 0; i < 1000; ++i)
+    v.reserve(100'000);
+    for (int i = 0; i < 100'000; ++i)
         v.push_back(i);
 
     std::vector<int> sv;
-    sv.reserve(1000);
-    for (int i = 0; i < 1000; ++i)
+    sv.reserve(100'000);
+    for (int i = 0; i < 100'000; ++i)
         sv.push_back(i);
 
     auto vp = [&] {
         bool r = v.contains(50'000);
         doNotOptimize(r);
     };
-    BENCH("VectorPro contains hit (100k)", MEDIUM, vp);
+    BENCH("VectorPro contains hit (100k)", SMALL, vp);
 
     auto svf = [&] {
         bool r = std::find(sv.begin(), sv.end(), 50'000) != sv.end();
         doNotOptimize(r);
     };
-    BENCH("std::vector contains hit (100k)", MEDIUM, svf);
+    BENCH("std::vector contains hit (100k)", SMALL, svf);
 }
 
 // Measures find() on a hit near the middle of a small vector.
@@ -106,13 +106,13 @@ static void bench_find_hit_small() {
         auto it = v.find(500);
         doNotOptimize(it);
     };
-    BENCH("VectorPro find hit (1k)", LARGE, vp);
+    BENCH("VectorPro find hit (1k)", SMALL, vp);
 
     auto svf = [&] {
         auto it = std::find(sv.begin(), sv.end(), 500);
         doNotOptimize(it);
     };
-    BENCH("std::vector find hit (1k)", LARGE, svf);
+    BENCH("std::vector find hit (1k)", SMALL, svf);
 }
 
 // Measures find() on a miss, requiring a full linear scan.
@@ -131,13 +131,13 @@ static void bench_find_miss_small() {
         auto it = v.find(-1);
         doNotOptimize(it);
     };
-    BENCH("VectorPro find miss (1k)", LARGE, vp);
+    BENCH("VectorPro find miss (1k)", SMALL, vp);
 
     auto svf = [&] {
         auto it = std::find(sv.begin(), sv.end(), -1);
         doNotOptimize(it);
     };
-    BENCH("std::vector find miss (1k)", LARGE, svf);
+    BENCH("std::vector find miss (1k)", SMALL, svf);
 }
 
 // Executes all search benchmark cases.

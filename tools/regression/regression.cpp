@@ -9,6 +9,15 @@
 
 using json = nlohmann::json;
 
+// ANSI terminal color codes.
+constexpr const char* RESET = "\033[0m";
+constexpr const char* GREEN = "\033[92m";
+constexpr const char* RED = "\033[91m";
+constexpr const char* YELLOW = "\033[93m";
+constexpr const char* CYAN = "\033[96m";
+constexpr const char* GRAY = "\033[37m";
+constexpr const char* BLUE = "\033[94m";
+
 struct BenchmarkResult
 {
     std::string name;
@@ -72,7 +81,7 @@ static void printRegression(
     constexpr double failureThreshold = 10.0;
 
 
-    std::cout << "\n=== Regression Report ===\n\n";
+    std::cout << BLUE << "\nRegression Report\n\n" << RESET ;
 
 
     for (const auto& [name, currentTime] : current)
@@ -91,7 +100,7 @@ static void printRegression(
             ((currentTime - oldTime) / oldTime) * 100.0;
 
 
-        std::cout << name << "\n";
+        std::cout << CYAN << name << RESET << "\n";
 
         std::cout
             << "  Baseline : "
@@ -108,38 +117,58 @@ static void printRegression(
         if (change > failureThreshold)
         {
             std::cout
-                << "  FAILURE  : "
+                << RED 
+                << "  FAILURE  "
+                << RESET
+                << ": "
+                << RED
                 << std::fixed
                 << std::setprecision(2)
                 << change
-                << "% slower\n";
+                << "% slower\n"
+                << RESET;
         }
         else if (change > warningThreshold)
         {
             std::cout
-                << "  Warning  : "
+                << YELLOW
+                << "  Warning  "
+                << RESET
+                << ": "
+                << YELLOW
                 << std::fixed
                 << std::setprecision(2)
                 << change
-                << "% slower\n";
+                << "% slower\n"
+                << RESET;
         }
         else if (change < -warningThreshold)
         {
             std::cout
-                << "  Change   : "
+                << GREEN 
+                << "  Change   "
+                << RESET
+                << ": "
+                << GREEN
                 << std::fixed
                 << std::setprecision(2)
                 << -change
-                << "% faster\n";
+                << "% faster\n"
+                << RESET;
         }
         else
         {
             std::cout
-                << "  Stable   : "
+                << GRAY
+                << "  Stable   "
+                << RESET
+                << ": "
+                << GRAY
                 << std::fixed
                 << std::setprecision(2)
                 << change
-                << "%\n";
+                << "%\n"
+                << RESET;
         }
 
 
