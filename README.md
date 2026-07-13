@@ -47,16 +47,16 @@ modification-event system.
 ## 📑 Table of Contents
 
 - [Features](#-features)
-- [📋 Requirements](#-requirements)
-- [📦 Installation](#-installation)
-- [🚀 Quick Start](#-quick-start)
-- [🗂️ Project Structure](#️-project-structure)
-- [🛠️ Development](#️-development)
-- [📊 Benchmarks](#-benchmarks)
-- [📖 Documentation](#-documentation)
-- [🤝 Contributing](#-contributing)
-- [📝 Changelog](#-changelog)
-- [📄 License](#-license)
+- [Requirements](#-requirements)
+- [Installation](#-installation)
+- [Quick Start](#-quick-start)
+- [Project Structure](#-project-structure)
+- [Development](#-development)
+- [Benchmarks](#-benchmarks)
+- [Documentation](#-documentation)
+- [Contributing](#-contributing)
+- [Changelog](#-changelog)
+- [License](#-license)
 
 ## ✨ Features
 
