@@ -2,7 +2,18 @@ name: Documentation
 
 on:
   push:
+    branches:
+      - main
   pull_request:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
 
 jobs:
   docs:
@@ -16,7 +27,7 @@ jobs:
           sudo apt update
           sudo apt install -y doxygen graphviz
 
-      - name: Generate ocumentation
+      - name: Generate Documentation
         run: doxygen docs/Doxyfile
 
       - name: Upload documentation
@@ -25,3 +36,20 @@ jobs:
           name: VectorPro-docs
           path: docs/build/html
 
+      - name: Upload Pages artifact
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/build/html
+
+  deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: docs
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
