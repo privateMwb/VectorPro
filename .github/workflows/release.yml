@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
 
 jobs:
   release:
@@ -17,5 +18,3 @@ jobs:
 
       - name: Create Github Release
         uses: softprops/action-gh-release@v2
-
-
