@@ -56,7 +56,7 @@ modification-event system.
 - [Documentation](#documentation)
 - [Contributing](#contributing)
 - [Changelog](#changelog)
-- [License](#license)
+- [License](#📄 license)
 
 ## ✨ Features
 
