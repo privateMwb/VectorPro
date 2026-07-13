@@ -6,20 +6,32 @@
   <img src="https://img.shields.io/badge/C%2B%2B-23-blue?style=for-the-badge&logo=c%2B%2B" alt="C++ - 23">
 </p>
 
-<table align="center">
-  <tr>
-    <td><a href="https://github.com/privateMwb/VectorPro/actions/workflows/build.yml"><img src="https://github.com/privateMwb/VectorPro/actions/workflows/build.yml/badge.svg" alt="Build and Test"></a></td>
-    <td><a href="https://github.com/privateMwb/VectorPro/actions/workflows/benchmark.yml"><img src="https://github.com/privateMwb/VectorPro/actions/workflows/benchmark.yml/badge.svg" alt="Benchmarks"></a></td>
-    <td><a href="https://github.com/privateMwb/VectorPro/actions/workflows/coverage.yml"><img src="https://github.com/privateMwb/VectorPro/actions/workflows/coverage.yml/badge.svg" alt="Coverage"></a></td>
-    <td><a href="https://github.com/privateMwb/VectorPro/actions/workflows/sanitizers.yml"><img src="https://github.com/privateMwb/VectorPro/actions/workflows/sanitizers.yml/badge.svg" alt="Sanitizers"></a></td>
-  </tr>
-  <tr>
-    <td><a href="https://github.com/privateMwb/VectorPro/actions/workflows/clang-tidy.yml"><img src="https://github.com/privateMwb/VectorPro/actions/workflows/clang-tidy.yml/badge.svg" alt="Clang Tidy"></a></td>
-    <td><a href="https://github.com/privateMwb/VectorPro/actions/workflows/clang-format.yml"><img src="https://github.com/privateMwb/VectorPro/actions/workflows/clang-format.yml/badge.svg" alt="Clang Format"></a></td>
-    <td><a href="https://github.com/privateMwb/VectorPro/actions/workflows/docs.yml"><img src="https://github.com/privateMwb/VectorPro/actions/workflows/docs.yml/badge.svg" alt="Documentation"></a></td>
-    <td><a href="https://github.com/privateMwb/VectorPro/actions/workflows/release.yml"><img src="https://github.com/privateMwb/VectorPro/actions/workflows/release.yml/badge.svg" alt="Release"></a></td>
-  </tr>
-</table>
+<p align="center">
+  <a href="https://github.com/privateMwb/VectorPro/actions/workflows/build.yml">
+    <img src="https://github.com/privateMwb/VectorPro/actions/workflows/build.yml/badge.svg" alt="Build and Test">
+  </a>
+  <a href="https://github.com/privateMwb/VectorPro/actions/workflows/benchmark.yml">
+    <img src="https://github.com/privateMwb/VectorPro/actions/workflows/benchmark.yml/badge.svg" alt="Benchmarks">
+  </a>
+  <a href="https://github.com/privateMwb/VectorPro/actions/workflows/coverage.yml">
+    <img src="https://github.com/privateMwb/VectorPro/actions/workflows/coverage.yml/badge.svg" alt="Coverage">
+  </a>
+  <a href="https://github.com/privateMwb/VectorPro/actions/workflows/sanitizers.yml">
+    <img src="https://github.com/privateMwb/VectorPro/actions/workflows/sanitizers.yml/badge.svg" alt="Sanitizers">
+  </a>
+  <a href="https://github.com/privateMwb/VectorPro/actions/workflows/clang-tidy.yml">
+    <img src="https://github.com/privateMwb/VectorPro/actions/workflows/clang-tidy.yml/badge.svg" alt="Clang Tidy">
+  </a>
+  <a href="https://github.com/privateMwb/VectorPro/actions/workflows/clang-format.yml">
+    <img src="https://github.com/privateMwb/VectorPro/actions/workflows/clang-format.yml/badge.svg" alt="Clang Format">
+  </a>
+  <a href="https://github.com/privateMwb/VectorPro/actions/workflows/docs.yml">
+    <img src="https://github.com/privateMwb/VectorPro/actions/workflows/docs.yml/badge.svg" alt="Documentation">
+  </a>
+  <a href="https://github.com/privateMwb/VectorPro/actions/workflows/release.yml">
+    <img src="https://github.com/privateMwb/VectorPro/actions/workflows/release.yml/badge.svg" alt="Release">
+  </a>
+</p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/GCC-support-B46F1B?style=flat&logo=gnu" alt="GCC - support">
