@@ -17,4 +17,5 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Create Github Release
+        if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
