@@ -44,7 +44,7 @@ A header-only, C++23, `std::vector`-compatible contiguous container with a
 configurable growth policy, custom allocator support, and an opt-in
 modification-event system.
 
-## Table of Contents
+## 📑 Table of Contents
 
 - [Features](#features)
 - [Requirements](#requirements)
@@ -58,7 +58,7 @@ modification-event system.
 - [Changelog](#changelog)
 - [License](#license)
 
-## Features
+## ✨ Features
 
 - **Familiar `std::vector` API** — `push_back`, `emplace_back`, `insert`,
   `erase`, `remove_if`, forward/reverse iterators, `operator==`/`operator<=>`,
@@ -78,12 +78,12 @@ modification-event system.
 - **`std::contiguous_iterator`-conformant** custom iterator type, usable
   anywhere the standard library expects one.
 
-## Requirements
+## 📋 Requirements
 
 - A C++23-conformant compiler (tested: GCC, Clang, MSVC, AppleClang)
 - CMake 3.20+
 
-## Installation
+## 📦 Installation
 
 **From source:**
 
@@ -108,7 +108,7 @@ target_link_libraries(your_target PRIVATE VectorPro::VectorPro)
 > vcpkg and Conan packages are built and verified, but not yet published to
 > the public registries. This section will be updated once they are.
 
-## Quick Start
+## 🚀 Quick Start
 
 **Basic usage:**
 
@@ -171,7 +171,7 @@ int main() {
 }
 ```
 
-## Project Structure
+## 🗂️ Project Structure
 
 ```
 VectorPro/
@@ -224,7 +224,7 @@ VectorPro/
 └── LICENSE
 ```
 
-## Development
+## 🛠️ Development
 
 The from-source install above builds the library only. To work on
 VectorPro itself — running tests, benchmarks, or the analysis tools —
@@ -263,7 +263,7 @@ doxygen docs/Doxyfile
 See `docs/PACKAGING.md` for notes on verifying the vcpkg port and Conan
 recipe locally.
 
-## Benchmarks
+## 📊 Benchmarks
 
 Measured against `std::vector` on the same build
 (`benchmarks/baselines/v1.0.0.json` has the full dataset).
@@ -301,14 +301,14 @@ profiling your own use case if it leans on those specifically.
 
 </details>
 
-## Documentation
+## 📖 Documentation
 
 Full API reference (generated with Doxygen, updated on every push to
 `main`):
 
 **https://privateMwb.github.io/VectorPro/**
 
-## Contributing
+## 🤝 Contributing
 
 Issues and pull requests are welcome. Before submitting a PR:
 
@@ -317,11 +317,11 @@ Issues and pull requests are welcome. Before submitting a PR:
 - If you're changing a hot path, run `./build/compare` and
   `./build/regression` and mention the results in your PR description
 
-## Changelog
+## 📝 Changelog
 
 See the [Releases](https://github.com/privateMwb/VectorPro/releases) page
 for version history and release notes.
 
-## License
+## 📄 License
 
 MIT — see [LICENSE](LICENSE) for details.
