@@ -1,8 +1,8 @@
-#include "helper.h"
 #include "export.h"
+#include "helper.h"
 
 static void printRegression(const VectorPro::Vector<BenchmarkResult>& baseline,
-                             const VectorPro::Vector<BenchmarkResult>& current) {
+                            const VectorPro::Vector<BenchmarkResult>& current) {
     std::string currentSuite = " ";
 
     for (std::size_t i = 0; i < baseline.size(); ++i) {

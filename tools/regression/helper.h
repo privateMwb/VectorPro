@@ -74,15 +74,16 @@ inline VectorPro::Vector<BenchmarkResult> loadResults(const std::string& file) {
 
     for (const auto& entry : data) {
         results.push_back({entry["suite"].get<std::string>(), entry["operation"].get<std::string>(),
-                            entry["total_ns"].get<std::uint64_t>(), entry["iterations"].get<std::size_t>(),
-                            entry["ns_per_op"].get<double>()});
+                           entry["total_ns"].get<std::uint64_t>(),
+                           entry["iterations"].get<std::size_t>(),
+                           entry["ns_per_op"].get<double>()});
     }
 
     return results;
 }
 
 inline double getCns(const VectorPro::Vector<BenchmarkResult>& results, const std::string& op,
-                      std::size_t iter) {
+                     std::size_t iter) {
     for (const auto& result : results) {
         if (result.operation == op && result.iterations == iter) {
             return result.ns_per_op;
@@ -121,7 +122,7 @@ inline void setHeader(std::string_view header) {
 // that order — worth double-checking that's the mapping you actually want,
 // this function doesn't change it either way.
 inline void printComparisonRow(std::string_view suite, std::string_view name, std::size_t iter,
-                                std::string_view iteration, double bNs, double cNs) {
+                               std::string_view iteration, double bNs, double cNs) {
     const double pct = cNs == 0 ? 0.0 : (cNs - bNs) / bNs * 100.0;
 
     // +-15% treated as measurement noise, not a real signal — see the
@@ -142,9 +143,8 @@ inline void printComparisonRow(std::string_view suite, std::string_view name, st
               << deltaStream.str() << RESET << "\n";
 
     markdown_buffer() += "| " + std::string(name) + " | " + std::string(iteration) + " | " +
-                          cnsStream.str() + " | " + snsStream.str() + " | " + deltaStream.str() +
-                          " |\n";
+                         cnsStream.str() + " | " + snsStream.str() + " | " + deltaStream.str() +
+                         " |\n";
 
-    regression_results().push_back(
-        {std::string(suite), std::string(name), iter, bNs, cNs, pct});
+    regression_results().push_back({std::string(suite), std::string(name), iter, bNs, cNs, pct});
 }

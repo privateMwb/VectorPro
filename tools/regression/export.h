@@ -23,8 +23,10 @@ inline void exportJson(const std::string& filename) {
         out << "    \"suite\": \"" << r.suite << "\",\n";
         out << "    \"operation\": \"" << r.operation << "\",\n";
         out << "    \"iteration\": " << r.iteration << ", \n";
-        out << "    \"baseline_ns\": " << std::fixed << std::setprecision(2) << r.baseline_ns << ",\n";
-        out << "    \"current_ns\": " << std::fixed << std::setprecision(2) << r.current_ns << ",\n";
+        out << "    \"baseline_ns\": " << std::fixed << std::setprecision(2) << r.baseline_ns
+            << ",\n";
+        out << "    \"current_ns\": " << std::fixed << std::setprecision(2) << r.current_ns
+            << ",\n";
         out << "    \"pct_change\": " << std::fixed << std::setprecision(2) << r.pct_change << "\n";
         out << "  }";
 
