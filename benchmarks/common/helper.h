@@ -134,15 +134,23 @@ inline void setSoloHeader(std::string_view header) {
 
 // Prints one solo row: name, iteration tier, single duration. No delta,
 // no color — there's nothing to compare against.
+// clang-format off
 inline void printSoloRow(std::string_view name, std::string_view iteration, nanoseconds ns) {
-    std::cout << std::left << std::setw(30) << prettify(name) << std::setw(15) << iteration
-              << std::setw(15) << formatDuration(ns) << std::setw(15) << "     —" << std::setw(15)
-              << "    —"
+    std::cout << std::left 
+              << std::setw(30) << prettify(name) 
+              << std::setw(15) << iteration
+              << std::setw(15) << formatDuration(ns) 
+              << std::setw(15) << "     —" 
+              << std::setw(15) << "    —" 
               << "\n";
 
-    markdown_buffer() += "| " + prettify(name) + " | " + std::string(iteration) + " | " +
-                         formatDuration(ns) + " |\n";
+    markdown_buffer() += "| " + prettify(name) 
+                      + " | " + std::string(iteration) 
+                      + " | " + formatDuration(ns) 
+                      + " |\n";
 }
+// clang-format on
+
 
 // Prints the benchmark table header.
 inline void setHeader(std::string_view header) {
