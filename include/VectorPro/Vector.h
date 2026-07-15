@@ -1,38 +1,38 @@
 /**
  * @file            Vector.hpp
- * 
+ *
  * @date            2026-14-7
- * 
+ *
  * @version         1.0.0
- * 
+ *
  * @copyright       Copyright (c) 2026 PrivateMwb
  *                  All rigts reserved.
  *                  https://github.com/privateMwb/VectorPro
- * 
+ *
  * @attention       This source is released under the MIT license
  *                  SPDX-License-Identifier: MIT
  *                  <http://opensource.org/licenses/MIT>
  */
- 
+
 #pragma once
 
 #include "Iterator.h"
 
-#include <algorithm>            // std::copy, std::move, std::equal, std::lexicographical_compare_three_way
-#include <compare>              // std::strong_ordering / operator<=>
-#include <concepts>             // std::invocable, std::input_iterator (Listener concept, iterator-pair ctor)
-#include <cstddef>              // std::size_t, std::ptrdiff_t
-#include <cstring>              // std::memcpy (trivial-type fast path in insert/erase/push_back)
-#include <functional>           // std::function (ListenerFn storage)
-#include <initializer_list>     // std::initializer_list ctor/assign
-#include <iterator>             // std::reverse_iterator, iterator tag dispatch
-#include <limits>               // std::numeric_limits (overflow checks in growCapacity)
-#include <memory>               // std::allocator, std::allocator_traits
-#include <optional>             // (reserved: nullable return values)
-#include <span>                 // std::span (as_span())
-#include <stdexcept>            // std::out_of_range, std::length_error
-#include <type_traits>          // std::is_trivially_copyable, etc.
-#include <utility>              // std::move, std::forward, std::exchange
+#include <algorithm>  // std::copy, std::move, std::equal, std::lexicographical_compare_three_way
+#include <compare>    // std::strong_ordering / operator<=>
+#include <concepts>   // std::invocable, std::input_iterator (Listener concept, iterator-pair ctor)
+#include <cstddef>    // std::size_t, std::ptrdiff_t
+#include <cstring>    // std::memcpy (trivial-type fast path in insert/erase/push_back)
+#include <functional> // std::function (ListenerFn storage)
+#include <initializer_list> // std::initializer_list ctor/assign
+#include <iterator>         // std::reverse_iterator, iterator tag dispatch
+#include <limits>           // std::numeric_limits (overflow checks in growCapacity)
+#include <memory>           // std::allocator, std::allocator_traits
+#include <optional>         // (reserved: nullable return values)
+#include <span>             // std::span (as_span())
+#include <stdexcept>        // std::out_of_range, std::length_error
+#include <type_traits>      // std::is_trivially_copyable, etc.
+#include <utility>          // std::move, std::forward, std::exchange
 
 // A std::vector-like dynamic array with configurable growth policy,
 // custom allocator support, and optional modification-event notifications.
@@ -328,7 +328,8 @@ class Vector {
      * than a silent no-op.
      */
     template <typename F>
-        requires EnableEvents && Listener<F, Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>>
+        requires EnableEvents &&
+                 Listener<F, Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>>
     [[nodiscard]] ListenerHandle subscribe(F&& listeners);
 
     /**
@@ -336,7 +337,8 @@ class Vector {
      * @param handle Handle returned by subscribe(). No-op if out of range.
      * @details Only callable when `EnableEvents` is `true`.
      */
-    void unsubscribe(ListenerHandle handle) requires EnableEvents;
+    void unsubscribe(ListenerHandle handle)
+        requires EnableEvents;
 
     /**
      * @brief Compares two vectors for equality.
