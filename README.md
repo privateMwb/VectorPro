@@ -46,19 +46,19 @@ modification-event system.
 
 ## 📑 Table of Contents
 
-- [✨ Features](#-features)
-- [📋 Requirements](#-requirements)
-- [📦 Installation](#-installation)
-- [🚀 Quick Start](#-quick-start)
-- [🗂️ Project Structure](#️-project-structure)
-- [🛠️ Development](#️-development)
-- [📊 Benchmarks](#-benchmarks)
-- [📖 Documentation](#-documentation)
-- [🤝 Contributing](#-contributing)
-- [📝 Changelog](#-changelog)
-- [📄 License](#-license)
+- [Features](#-features)
+- [Requirements](#-requirements)
+- [Installation](#-installation)
+- [Quick Start](#-quick-start)
+- [Project Structure](#project-structure)
+- [Development](#development)
+- [Benchmarks](#-benchmarks)
+- [Documentation](#-documentation)
+- [Contributing](#-contributing)
+- [Changelog](#-changelog)
+- [License](#-license)
 
-## ✨ Features
+## <a id="features"></a>✨ Features
 
 - **Familiar `std::vector` API** — `push_back`, `emplace_back`, `insert`,
   `erase`, `remove_if`, forward/reverse iterators, `operator==`/`operator<=>`,
@@ -78,12 +78,12 @@ modification-event system.
 - **`std::contiguous_iterator`-conformant** custom iterator type, usable
   anywhere the standard library expects one.
 
-## 📋 Requirements
+## <a id="requirements"></a>📋 Requirements
 
 - A C++23-conformant compiler (tested: GCC, Clang, MSVC, AppleClang)
 - CMake 3.20+
 
-## 📦 Installation
+## <a id="installation"></a>📦 Installation
 
 **From source:**
 
@@ -108,7 +108,7 @@ target_link_libraries(your_target PRIVATE VectorPro::VectorPro)
 > vcpkg and Conan packages are built and verified, but not yet published to
 > the public registries. This section will be updated once they are.
 
-## 🚀 Quick Start
+## <a id="quick-start"></a>🚀 Quick Start
 
 **Basic usage:**
 
@@ -171,7 +171,7 @@ int main() {
 }
 ```
 
-## 🗂️ Project Structure
+## <a id="project-structure"></a>🗂️ Project Structure
 
 ```
 VectorPro/
@@ -223,7 +223,7 @@ VectorPro/
 └── LICENSE
 ```
 
-## 🛠️ Development
+## <a id="development"></a>🛠️ Development
 
 The from-source install above builds the library only. To work on
 VectorPro itself — running tests, benchmarks, or the regression tool —
@@ -261,7 +261,7 @@ doxygen docs/Doxyfile
 See `docs/PACKAGING.md` for notes on verifying the vcpkg port and Conan
 recipe locally.
 
-## 📊 Benchmarks
+## <a id="benchmarks"></a>📊 Benchmarks
 
 Measured against `std::vector`, same build, at 10K / 100K / 1M elements
 (`benchmarks/baselines/v1.0.0.json` has the full dataset). Numbers below
@@ -273,7 +273,8 @@ for most operations.
 | Operation | VectorPro | std::vector | Difference |
 |---|---|---|---|
 | `Reserve no-op` | 266.85 μs | 400.62 μs | ~50% faster |
-| `Front/back` (10K, 1M) | — | — | ~24-26% faster |
+| `Front/back` (10K) | 13.54 μs | 16.85 μs | ~24% faster |
+| `Front/back` (1M) | 1.33 ms | 1.67 ms | ~26% faster |
 | `Default construct` | 344.92 μs | 419.69 μs | ~22% faster |
 | `Insert end` | 161.51 ms | 166.03 ms | ~3% faster |
 | `Operator<=> equal` | 3.84 s | 4.08 s | ~6% faster |
@@ -311,14 +312,14 @@ look yourself.
 
 </details>
 
-## 📖 Documentation
+## <a id="documentation"></a>📖 Documentation
 
 Full API reference (generated with Doxygen, updated on every push to
 `main`):
 
 **https://privateMwb.github.io/VectorPro/**
 
-## 🤝 Contributing
+## <a id="contributing"></a>🤝 Contributing
 
 Issues and pull requests are welcome. Before submitting a PR:
 
@@ -327,11 +328,11 @@ Issues and pull requests are welcome. Before submitting a PR:
 - If you're changing a hot path, run `./build/regression` and mention the
   results in your PR description
 
-## 📝 Changelog
+## <a id="changelog"></a>📝 Changelog
 
 See the [Releases](https://github.com/privateMwb/VectorPro/releases) page
 for version history and release notes.
 
-## 📄 License
+## <a id="license"></a>📄 License
 
 MIT — see [LICENSE](LICENSE) for details.

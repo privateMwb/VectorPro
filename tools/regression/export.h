@@ -1,13 +1,16 @@
 #pragma once
 
-#include "helper.h"
+// clang-format off
+#include "helper.h"  // regression_results(), kResultsDir consumers
 
-#include <fstream>
-#include <iomanip>
-#include <string>
+#include <fstream>   // std::ofstream (exportJson, exportMarkdown)
+#include <iomanip>   // std::fixed, std::setprecision (exportJson)
+#include <string>    // std::string (filename params)
+// clang-format on
 
 constexpr const char* kResultsDir = "benchmarks/results/";
 
+// Writes regression_results() out as a JSON array to <kResultsDir>/filename.
 inline void exportJson(const std::string& filename) {
     std::ofstream out(kResultsDir + filename);
 

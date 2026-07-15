@@ -1,6 +1,10 @@
-#include "export.h"
-#include "helper.h"
+// clang-format off
+#include "export.h" // exportJson, exportMarkdown
+#include "helper.h" // loadResults, setHeader, printComparisonRow, convertIter, getCns, BenchmarkResult
+// clang-format on
 
+// Iterates baseline results, printing/recording a comparison row against
+// current results for each entry, grouped and re-headered by suite.
 static void printRegression(const VectorPro::Vector<BenchmarkResult>& baseline,
                             const VectorPro::Vector<BenchmarkResult>& current) {
     std::string currentSuite = " ";
@@ -27,6 +31,8 @@ static void printRegression(const VectorPro::Vector<BenchmarkResult>& baseline,
     }
 }
 
+// Loads baseline + current benchmark snapshots, prints the regression
+// comparison, and exports the results as JSON and markdown reports.
 int main() {
     try {
         auto baselineResults = loadResults("benchmarks/baselines/v1.0.0.json");

@@ -1,10 +1,12 @@
 #pragma once
 
-#include <cassert>
-#include <compare>
-#include <cstddef>
-#include <iterator>
-#include <type_traits>
+// clang-format off
+#include <cassert>     // assert (bounds check in operator[])
+#include <compare>     // std::strong_ordering / operator<=>
+#include <cstddef>     // std::ptrdiff_t
+#include <iterator>    // std::contiguous_iterator_tag, std::random_access_iterator_tag
+#include <type_traits> // std::remove_cv_t, std::is_same_v
+// clang-format on
 
 namespace VectorPro {
 

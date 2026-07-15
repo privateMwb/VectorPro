@@ -18,12 +18,13 @@
 
 #include "Iterator.h"
 
-#include <algorithm>  // std::copy, std::move, std::equal, std::lexicographical_compare_three_way
-#include <compare>    // std::strong_ordering / operator<=>
-#include <concepts>   // std::invocable, std::input_iterator (Listener concept, iterator-pair ctor)
-#include <cstddef>    // std::size_t, std::ptrdiff_t
-#include <cstring>    // std::memcpy (trivial-type fast path in insert/erase/push_back)
-#include <functional> // std::function (ListenerFn storage)
+// clang-format off
+#include <algorithm>        // std::copy, std::move, std::equal, std::lexicographical_compare_three_way
+#include <compare>          // std::strong_ordering / operator<=>
+#include <concepts>         // std::invocable, std::input_iterator (Listener concept, iterator-pair ctor)
+#include <cstddef>          // std::size_t, std::ptrdiff_t
+#include <cstring>          // std::memcpy (trivial-type fast path in insert/erase/push_back)
+#include <functional>       // std::function (ListenerFn storage)
 #include <initializer_list> // std::initializer_list ctor/assign
 #include <iterator>         // std::reverse_iterator, iterator tag dispatch
 #include <limits>           // std::numeric_limits (overflow checks in growCapacity)
@@ -33,6 +34,7 @@
 #include <stdexcept>        // std::out_of_range, std::length_error
 #include <type_traits>      // std::is_trivially_copyable, etc.
 #include <utility>          // std::move, std::forward, std::exchange
+// clang-format on
 
 // A std::vector-like dynamic array with configurable growth policy,
 // custom allocator support, and optional modification-event notifications.

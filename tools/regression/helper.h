@@ -1,15 +1,17 @@
 #pragma once
 
-#include <nlohmann/json.hpp>
+// clang-format off
+#include <nlohmann/json.hpp>   // nlohmann::json (parses benchmark snapshots in loadResults)
 
-#include <VectorPro/Vector.h>
+#include <VectorPro/Vector.h>  // VectorPro::Vector (BenchmarkResult/RegressionRow storage)
 
-#include <chrono>
-#include <fstream>
-#include <iomanip>
-#include <iostream>
-#include <sstream>
-#include <string>
+#include <chrono>              // pulled in via `using namespace std::chrono` (no direct use here)
+#include <fstream>             // std::ifstream (loadResults)
+#include <iomanip>             // std::setw, std::setprecision, std::fixed, std::left, std::showpos
+#include <iostream>            // std::cout
+#include <sstream>             // std::ostringstream (printComparisonRow)
+#include <string>              // std::string, std::string_view
+// clang-format on
 
 using json = nlohmann::json;
 using namespace std::chrono;
@@ -45,6 +47,8 @@ struct RegressionRow {
     double pct_change;
 };
 
+// Process-wide accumulator of comparison rows, populated by
+// printComparisonRow() and read back by exportJson().
 inline VectorPro::Vector<RegressionRow>& regression_results() {
     static VectorPro::Vector<RegressionRow> results;
     return results;
@@ -60,6 +64,7 @@ inline std::string& markdown_buffer() {
     return buffer;
 }
 
+// Loads a benchmark JSON snapshot (see BenchmarkResult) from disk into a Vector.
 inline VectorPro::Vector<BenchmarkResult> loadResults(const std::string& file) {
     std::ifstream in(file);
 
@@ -82,6 +87,7 @@ inline VectorPro::Vector<BenchmarkResult> loadResults(const std::string& file) {
     return results;
 }
 
+// Looks up the current ns/op for a given operation + iteration count.
 inline double getCns(const VectorPro::Vector<BenchmarkResult>& results, const std::string& op,
                      std::size_t iter) {
     for (const auto& result : results) {
@@ -93,6 +99,7 @@ inline double getCns(const VectorPro::Vector<BenchmarkResult>& results, const st
     return 0.0;
 }
 
+// Formats an iteration count (10'000/100'000/1'000'000) as a short label ("10K"/"100K"/"1M").
 inline std::string convertIter(std::size_t iter) {
     return iter == 10'000 ? "10K" : iter == 100'000 ? "100K" : "1M";
 }
@@ -102,6 +109,7 @@ inline void borderLine() {
     std::cout << GRAY << std::string(90, '-') << RESET << "\n";
 }
 
+// Prints a section header row and starts the matching markdown table.
 inline void setHeader(std::string_view header) {
     borderLine();
     std::cout << std::left << CYAN << std::setw(30) << header << std::setw(15) << "Iteration"
