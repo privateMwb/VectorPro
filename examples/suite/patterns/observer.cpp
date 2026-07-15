@@ -11,25 +11,25 @@
 using namespace VectorPro;
 
 // Converts event type to a readable string.
-static const char* eventName(Vector<int>::EventType type) {
+static const char* eventName(ObservableVector<int>::EventType type) {
     switch (type) {
-    case Vector<int>::EventType::PUSHBACK:
+    case ObservableVector<int>::EventType::PUSHBACK:
         return "PUSHBACK";
-    case Vector<int>::EventType::EMPLACEBACK:
+    case ObservableVector<int>::EventType::EMPLACEBACK:
         return "EMPLACEBACK";
-    case Vector<int>::EventType::POPBACK:
+    case ObservableVector<int>::EventType::POPBACK:
         return "POPBACK";
-    case Vector<int>::EventType::INSERT:
+    case ObservableVector<int>::EventType::INSERT:
         return "INSERT";
-    case Vector<int>::EventType::ERASE:
+    case ObservableVector<int>::EventType::ERASE:
         return "ERASE";
-    case Vector<int>::EventType::REMOVE:
+    case ObservableVector<int>::EventType::REMOVE:
         return "REMOVE";
-    case Vector<int>::EventType::CLEAR:
+    case ObservableVector<int>::EventType::CLEAR:
         return "CLEAR";
-    case Vector<int>::EventType::RESERVE:
+    case ObservableVector<int>::EventType::RESERVE:
         return "RESERVE";
-    case Vector<int>::EventType::SHRINK:
+    case ObservableVector<int>::EventType::SHRINK:
         return "SHRINK";
     }
     return "UNKNOWN";
@@ -39,9 +39,9 @@ static void run_examples() {
     // Subscribe to mutation events.
     setTitle("Subscribe");
 
-    Vector<int> v;
+    ObservableVector<int> v;
 
-    (void)v.subscribe([](const Vector<int>&, Vector<int>::EventData e) {
+    (void)v.subscribe([](const ObservableVector<int>&, ObservableVector<int>::EventData e) {
         std::cout << "Event: " << eventName(e.type) << " | old=" << e.oldSize
                   << " new=" << e.newSize << "\n";
     });
@@ -65,11 +65,13 @@ static void run_examples() {
     // Multiple listeners.
     setTitle("Multiple Listeners");
 
-    Vector<int> multi;
+    ObservableVector<int> multi;
     int a = 0, b = 0;
 
-    (void)multi.subscribe([&](const Vector<int>&, Vector<int>::EventData) { ++a; });
-    (void)multi.subscribe([&](const Vector<int>&, Vector<int>::EventData) { ++b; });
+    (void)multi.subscribe(
+        [&](const ObservableVector<int>&, ObservableVector<int>::EventData) { ++a; });
+    (void)multi.subscribe(
+        [&](const ObservableVector<int>&, ObservableVector<int>::EventData) { ++b; });
 
     multi.push_back(1);
     multi.push_back(2);
@@ -80,8 +82,10 @@ static void run_examples() {
     // Unsubscribe behavior.
     setTitle("Unsubscribe");
 
-    auto handle = multi.subscribe(
-        [](const Vector<int>&, Vector<int>::EventData) { std::cout << "Third listener fired\n"; });
+    auto handle =
+        multi.subscribe([](const ObservableVector<int>&, ObservableVector<int>::EventData) {
+            std::cout << "Third listener fired\n";
+        });
 
     multi.push_back(3);
     multi.unsubscribe(handle);

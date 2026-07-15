@@ -20,7 +20,6 @@ static void bench_push_back() {
             v.push_back(i);
         doNotOptimize(v);
     };
-    BENCH("VectorPro push_back", SMALL, vp);
 
     auto sv = [&] {
         std::vector<int> v;
@@ -28,7 +27,8 @@ static void bench_push_back() {
             v.push_back(i);
         doNotOptimize(v);
     };
-    BENCH("std::vector push_back", SMALL, sv);
+
+    BENCH("push_back", vp, sv);
 }
 
 // Measures push_back performance with reserved capacity.
@@ -40,7 +40,6 @@ static void bench_push_back_reserved() {
             v.push_back(i);
         doNotOptimize(v);
     };
-    BENCH("VectorPro push_back reserved", SMALL, vp);
 
     auto sv = [&] {
         std::vector<int> v;
@@ -49,7 +48,8 @@ static void bench_push_back_reserved() {
             v.push_back(i);
         doNotOptimize(v);
     };
-    BENCH("std::vector push_back reserved", SMALL, sv);
+
+    BENCH("push_back reserved", vp, sv);
 }
 
 // Measures emplace_back performance.
@@ -61,7 +61,6 @@ static void bench_emplace_back() {
             v.emplace_back(i);
         doNotOptimize(v);
     };
-    BENCH("VectorPro emplace_back", SMALL, vp);
 
     auto sv = [&] {
         std::vector<int> v;
@@ -70,7 +69,8 @@ static void bench_emplace_back() {
             v.emplace_back(i);
         doNotOptimize(v);
     };
-    BENCH("std::vector emplace_back", SMALL, sv);
+
+    BENCH("emplace_back", vp, sv);
 }
 
 // Executes all push_back benchmark cases.

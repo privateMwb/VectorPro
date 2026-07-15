@@ -17,14 +17,14 @@ static void bench_erase_front() {
         (void)v.erase(v.cbegin());
         doNotOptimize(v);
     };
-    BENCH("VectorPro erase front", SMALL, vp);
 
     auto sv = [&] {
         std::vector<int> v(500, 0);
         v.erase(v.cbegin());
         doNotOptimize(v);
     };
-    BENCH("std::vector erase front", SMALL, sv);
+
+    BENCH("erase front", vp, sv);
 }
 
 // Measures erasure in the middle.
@@ -34,14 +34,14 @@ static void bench_erase_middle() {
         (void)v.erase(v.cbegin() + 250);
         doNotOptimize(v);
     };
-    BENCH("VectorPro erase middle", SMALL, vp);
 
     auto sv = [&] {
         std::vector<int> v(500, 0);
         v.erase(v.cbegin() + 250);
         doNotOptimize(v);
     };
-    BENCH("std::vector erase middle", SMALL, sv);
+
+    BENCH("erase middle", vp, sv);
 }
 
 // Measures erasure at the end.
@@ -51,14 +51,14 @@ static void bench_erase_end() {
         (void)v.erase(v.cend() - 1);
         doNotOptimize(v);
     };
-    BENCH("VectorPro erase end", SMALL, vp);
 
     auto sv = [&] {
         std::vector<int> v(500, 0);
         v.erase(v.cend() - 1);
         doNotOptimize(v);
     };
-    BENCH("std::vector erase end", SMALL, sv);
+
+    BENCH("erase end", vp, sv);
 }
 
 // Executes all erase benchmark cases.

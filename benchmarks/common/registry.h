@@ -41,10 +41,8 @@ struct BenchRegistrar {
 };
 
 struct BenchmarkResult {
-    std::string name;
-    std::string library;
+    std::string suite;
     std::string operation;
-
     std::uint64_t total_ns;
     std::size_t iterations;
     double ns_per_op;

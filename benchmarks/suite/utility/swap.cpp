@@ -21,7 +21,6 @@ static void bench_member_swap() {
         doNotOptimize(a);
         doNotOptimize(b);
     };
-    BENCH("VectorPro member swap", MEDIUM, vp);
 
     auto sv = [&] {
         std::vector<int> a(1000, 1);
@@ -30,7 +29,8 @@ static void bench_member_swap() {
         doNotOptimize(a);
         doNotOptimize(b);
     };
-    BENCH("std::vector member swap", MEDIUM, sv);
+
+    BENCH("member swap", vp, sv);
 }
 
 // Measures free-function swap() resolved via ADL.
@@ -42,7 +42,6 @@ static void bench_free_swap() {
         doNotOptimize(a);
         doNotOptimize(b);
     };
-    BENCH("VectorPro free swap", MEDIUM, vp);
 
     auto sv = [&] {
         std::vector<int> a(1000, 1);
@@ -51,7 +50,8 @@ static void bench_free_swap() {
         doNotOptimize(a);
         doNotOptimize(b);
     };
-    BENCH("std::vector free swap", MEDIUM, sv);
+
+    BENCH("free swap", vp, sv);
 }
 
 // Executes all swap benchmark cases.

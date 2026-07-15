@@ -97,11 +97,12 @@ static void free_swap_matches_member_swap() {
 
 // Verifies subscribed listeners remain attached to the swapped state.
 static void swap_preserves_listeners() {
-    Vector<int> a{1, 2};
-    Vector<int> b{3, 4};
+    ObservableVector<int> a{1, 2};
+    ObservableVector<int> b{3, 4};
 
     int callCount = 0;
-    (void)a.subscribe([&](const Vector<int>&, Vector<int>::EventData) { ++callCount; });
+    (void)a.subscribe(
+        [&](const ObservableVector<int>&, ObservableVector<int>::EventData) { ++callCount; });
 
     a.swap(b);
 

@@ -21,7 +21,6 @@ static void bench_shrink_to_fit() {
         v.shrink_to_fit();
         doNotOptimize(v);
     };
-    BENCH("VectorPro shrink_to_fit", MEDIUM, vp);
 
     auto sv = [&] {
         std::vector<int> v;
@@ -31,7 +30,8 @@ static void bench_shrink_to_fit() {
         v.shrink_to_fit();
         doNotOptimize(v);
     };
-    BENCH("std::vector shrink_to_fit", MEDIUM, sv);
+
+    BENCH("shrink_to_fit", vp, sv);
 }
 
 // Executes all shrink benchmark cases.

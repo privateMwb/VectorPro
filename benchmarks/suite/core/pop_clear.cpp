@@ -19,7 +19,6 @@ static void bench_pop_back() {
             v.pop_back();
         doNotOptimize(v);
     };
-    BENCH("VectorPro pop_back", SMALL, vp);
 
     auto sv = [&] {
         std::vector<int> v(1000, 0);
@@ -27,7 +26,8 @@ static void bench_pop_back() {
             v.pop_back();
         doNotOptimize(v);
     };
-    BENCH("std::vector pop_back", SMALL, sv);
+
+    BENCH("pop_back", vp, sv);
 }
 
 // Measures clear performance.
@@ -37,14 +37,14 @@ static void bench_clear() {
         v.clear();
         doNotOptimize(v);
     };
-    BENCH("VectorPro clear", SMALL, vp);
 
     auto sv = [&] {
         std::vector<int> v(1000, 0);
         v.clear();
         doNotOptimize(v);
     };
-    BENCH("std::vector clear", SMALL, sv);
+
+    BENCH("clear", vp, sv);
 }
 
 // Executes all pop_back/clear benchmark cases.

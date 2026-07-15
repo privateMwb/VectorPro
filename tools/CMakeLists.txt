@@ -19,29 +19,6 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(nlohmann_json)
 
 # ============================================================================
-# Compare Tool
-# ============================================================================
-
-add_executable(
-    compare
-    compare/compare.cpp
-)
-
-# Allow simple compare includes.
-target_include_directories(
-    compare
-    PRIVATE
-        ${CMAKE_SOURCE_DIR}/benchmarks
-)
-
-# Link nlohmann_json to the compare executable.
-target_link_libraries(
-    compare
-    PRIVATE
-        nlohmann_json::nlohmann_json
-)
-
-# ============================================================================
 # Regression Tool
 # ============================================================================
 
@@ -55,6 +32,8 @@ target_include_directories(
     regression
     PRIVATE
         ${CMAKE_SOURCE_DIR}/benchmarks
+        ${CMAKE_SOURCE_DIR}
+        ${CMAKE_SOURCE_DIR}/include
 )
 
 # Link nlohmann_json to the regression executable.

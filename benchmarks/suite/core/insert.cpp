@@ -17,14 +17,14 @@ static void bench_insert_front() {
         (void)v.insert(v.cbegin(), 99);
         doNotOptimize(v);
     };
-    BENCH("VectorPro insert front", SMALL, vp);
 
     auto sv = [&] {
         std::vector<int> v(500, 0);
         v.insert(v.cbegin(), 99);
         doNotOptimize(v);
     };
-    BENCH("std::vector insert front", SMALL, sv);
+
+    BENCH("insert front", vp, sv);
 }
 
 // Measures insertion in the middle.
@@ -34,14 +34,14 @@ static void bench_insert_middle() {
         (void)v.insert(v.cbegin() + 250, 99);
         doNotOptimize(v);
     };
-    BENCH("VectorPro insert middle", SMALL, vp);
 
     auto sv = [&] {
         std::vector<int> v(500, 0);
         v.insert(v.cbegin() + 250, 99);
         doNotOptimize(v);
     };
-    BENCH("std::vector insert middle", SMALL, sv);
+
+    BENCH("insert middle", vp, sv);
 }
 
 // Measures insertion at the end.
@@ -51,14 +51,14 @@ static void bench_insert_end() {
         (void)v.insert(v.cend(), 99);
         doNotOptimize(v);
     };
-    BENCH("VectorPro insert end", SMALL, vp);
 
     auto sv = [&] {
         std::vector<int> v(500, 0);
         v.insert(v.cend(), 99);
         doNotOptimize(v);
     };
-    BENCH("std::vector insert end", SMALL, sv);
+
+    BENCH("insert end", vp, sv);
 }
 
 // Executes all insert benchmark cases.

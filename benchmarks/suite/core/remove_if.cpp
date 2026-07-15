@@ -21,7 +21,6 @@ static void bench_remove_if() {
         (void)v.remove_if([](const int& x) { return x % 2 == 0; });
         doNotOptimize(v);
     };
-    BENCH("VectorPro remove_if", SMALL, vp);
 
     auto sv = [&] {
         std::vector<int> v;
@@ -32,7 +31,8 @@ static void bench_remove_if() {
                 v.end());
         doNotOptimize(v);
     };
-    BENCH("std::vector erase-remove_if", SMALL, sv);
+
+    BENCH("erase-remove_if", vp, sv);
 }
 
 // Executes all remove_if benchmark cases.

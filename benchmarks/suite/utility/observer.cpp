@@ -26,79 +26,87 @@ static void bench_push_back_no_listeners() {
             v.push_back(i);
         doNotOptimize(v);
     };
-    BENCH("VectorPro push_back, 0 listeners", 10000, vp);
+
+    BENCH_SOLO("push_back, 0 listeners", vp);
 }
 
 // Measures push_back with a single subscribed listener.
 static void bench_push_back_one_listener() {
     auto vp = [&] {
-        Vector<int> v;
+        ObservableVector<int> v;
         v.reserve(1000);
-        (void)v.subscribe([](const Vector<int>&, Vector<int>::EventData) {});
+        (void)v.subscribe([](const ObservableVector<int>&, ObservableVector<int>::EventData) {});
         for (int i = 0; i < 1000; ++i)
             v.push_back(i);
         doNotOptimize(v);
     };
-    BENCH("VectorPro push_back, 1 listener", 10000, vp);
+
+    BENCH_SOLO("push_back, 1 listener", vp);
 }
 
 // Measures push_back with multiple subscribed listeners.
 static void bench_push_back_many_listeners() {
     auto vp = [&] {
-        Vector<int> v;
+        ObservableVector<int> v;
         v.reserve(1000);
         for (int i = 0; i < 8; ++i)
-            (void)v.subscribe([](const Vector<int>&, Vector<int>::EventData) {});
+            (void)v.subscribe(
+                [](const ObservableVector<int>&, ObservableVector<int>::EventData) {});
         for (int i = 0; i < 1000; ++i)
             v.push_back(i);
         doNotOptimize(v);
     };
-    BENCH("VectorPro push_back, 8 listeners", 10000, vp);
+
+    BENCH_SOLO("push_back, 8 listeners", vp);
 }
 
 // Measures push_back with a listener that captures external state.
 static void bench_push_back_capturing_listener() {
     auto vp = [&] {
-        Vector<int> v;
+        ObservableVector<int> v;
         v.reserve(1000);
 
         long total = 0;
-        (void)v.subscribe(
-            [&total](const Vector<int>&, Vector<int>::EventData e) { total += e.newSize; });
+        (void)v.subscribe([&total](const ObservableVector<int>&,
+                                   ObservableVector<int>::EventData e) { total += e.newSize; });
 
         for (int i = 0; i < 1000; ++i)
             v.push_back(i);
         doNotOptimize(total);
     };
-    BENCH("VectorPro push_back, capturing listener", 10000, vp);
+
+    BENCH_SOLO("push_back, capturing listener", vp);
 }
 
 // Measures listener registration.
 static void bench_subscribe() {
     auto vp = [&] {
-        Vector<int> v;
+        ObservableVector<int> v;
         for (int i = 0; i < 100; ++i)
-            (void)v.subscribe([](const Vector<int>&, Vector<int>::EventData) {});
+            (void)v.subscribe(
+                [](const ObservableVector<int>&, ObservableVector<int>::EventData) {});
         doNotOptimize(v);
     };
-    BENCH("VectorPro subscribe x100", 10000, vp);
+
+    BENCH_SOLO("subscribe x100", vp);
 }
 
 // Measures listener removal.
 static void bench_unsubscribe() {
     auto vp = [&] {
-        Vector<int> v;
+        ObservableVector<int> v;
 
-        Vector<int>::ListenerHandle handles[100];
+        ObservableVector<int>::ListenerHandle handles[100];
         for (int i = 0; i < 100; ++i)
-            handles[i] = v.subscribe([](const Vector<int>&, Vector<int>::EventData) {});
+            handles[i] =
+                v.subscribe([](const ObservableVector<int>&, ObservableVector<int>::EventData) {});
 
         for (int i = 0; i < 100; ++i)
             v.unsubscribe(handles[0]);
 
         doNotOptimize(v);
     };
-    BENCH("VectorPro unsubscribe x100", 10000, vp);
+    BENCH_SOLO("unsubscribe x100", vp);
 }
 
 // Executes all observer benchmark cases.

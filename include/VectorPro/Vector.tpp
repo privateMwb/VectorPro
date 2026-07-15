@@ -26,25 +26,33 @@ namespace VectorPro {
 // Section 1 — Constructors & Destructor
 // ============================================================
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
-Vector<T, Allocator, GrowthNum, GrowthDen>::Vector(std::size_t count, const T& value) {
+Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::Vector(std::size_t count, const T& value) {
     if (count == 0)
         return;
 
     data_ = std::allocator_traits<Allocator>::allocate(alloc_, count);
     vcap_ = count;
 
-    for (std::size_t i = 0; i < count; ++i) {
-        std::allocator_traits<Allocator>::construct(alloc_, data_ + i, value);
+    if constexpr (std::is_trivially_copyable_v<T> && std::is_same_v<Allocator, std::allocator<T>>) {
+        // std::fill_n on a trivial type vectorizes (or reduces to memset for
+        // zero-fill) far better than a per-element placement-new loop does.
+        std::fill_n(data_, count, value);
+    } else {
+        for (std::size_t i = 0; i < count; ++i) {
+            std::allocator_traits<Allocator>::construct(alloc_, data_ + i, value);
+        }
     }
 
     vsize_ = count;
 }
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
-Vector<T, Allocator, GrowthNum, GrowthDen>::Vector(std::initializer_list<T> init) {
+Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::Vector(std::initializer_list<T> init) {
     if (init.size() == 0)
         return;
 
@@ -56,27 +64,32 @@ Vector<T, Allocator, GrowthNum, GrowthDen>::Vector(std::initializer_list<T> init
     }
 }
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
 template <std::input_iterator It>
-Vector<T, Allocator, GrowthNum, GrowthDen>::Vector(It first, It last) {
+Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::Vector(It first, It last) {
     for (; first != last; ++first) {
         push_back(*first);
     }
 }
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
-Vector<T, Allocator, GrowthNum, GrowthDen>::Vector(const Allocator& alloc) : alloc_(alloc) {}
+Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::Vector(const Allocator& alloc) : alloc_(alloc) {}
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
-Vector<T, Allocator, GrowthNum, GrowthDen>::~Vector() noexcept {
+Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::~Vector() noexcept {
     release();
 
-    if (listeners_) {
-        delete[] listeners_;
-        listeners_ = nullptr;
+    if constexpr (EnableEvents) {
+        if (listenerStore_.listeners_) {
+            delete[] listenerStore_.listeners_;
+            listenerStore_.listeners_ = nullptr;
+        }
     }
 }
 
@@ -84,18 +97,20 @@ Vector<T, Allocator, GrowthNum, GrowthDen>::~Vector() noexcept {
 // Section 2 — Copy & Move Semantics
 // ============================================================
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
-Vector<T, Allocator, GrowthNum, GrowthDen>::Vector(const Vector& other)
+Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::Vector(const Vector& other)
     : alloc_(
           std::allocator_traits<Allocator>::select_on_container_copy_construction(other.alloc_)) {
     copyBufferFrom(other);
 }
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
-Vector<T, Allocator, GrowthNum, GrowthDen>&
-Vector<T, Allocator, GrowthNum, GrowthDen>::operator=(const Vector& other) {
+Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>&
+Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::operator=(const Vector& other) {
     if (this == &other)
         return *this;
 
@@ -169,23 +184,27 @@ Vector<T, Allocator, GrowthNum, GrowthDen>::operator=(const Vector& other) {
     return *this;
 }
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
-Vector<T, Allocator, GrowthNum, GrowthDen>::Vector(Vector&& other) noexcept
+Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::Vector(Vector&& other) noexcept
     : alloc_(std::move(other.alloc_)), data_(other.data_), vsize_(other.vsize_), vcap_(other.vcap_),
-      listeners_(other.listeners_), lsize_(other.lsize_), lcap_(other.lcap_) {
+      listenerStore_(other.listenerStore_) {
     other.data_ = nullptr;
     other.vsize_ = 0;
     other.vcap_ = 0;
-    other.listeners_ = nullptr;
-    other.lsize_ = 0;
-    other.lcap_ = 0;
+    if constexpr (EnableEvents) {
+        other.listenerStore_.listeners_ = nullptr;
+        other.listenerStore_.lsize_ = 0;
+        other.listenerStore_.lcap_ = 0;
+    }
 }
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
-Vector<T, Allocator, GrowthNum, GrowthDen>&
-Vector<T, Allocator, GrowthNum, GrowthDen>::operator=(Vector&& other) noexcept {
+Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>&
+Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::operator=(Vector&& other) noexcept {
     if (this != &other) {
         constexpr bool kPropagate =
             std::allocator_traits<Allocator>::propagate_on_container_move_assignment::value;
@@ -194,9 +213,11 @@ Vector<T, Allocator, GrowthNum, GrowthDen>::operator=(Vector&& other) noexcept {
         const bool canSteal = kPropagate || kAlwaysEqual || (alloc_ == other.alloc_);
 
         release();
-        if (listeners_) {
-            delete[] listeners_;
-            listeners_ = nullptr;
+        if constexpr (EnableEvents) {
+            if (listenerStore_.listeners_) {
+                delete[] listenerStore_.listeners_;
+                listenerStore_.listeners_ = nullptr;
+            }
         }
 
         if (canSteal) {
@@ -207,16 +228,18 @@ Vector<T, Allocator, GrowthNum, GrowthDen>::operator=(Vector&& other) noexcept {
             data_ = other.data_;
             vsize_ = other.vsize_;
             vcap_ = other.vcap_;
-            listeners_ = other.listeners_;
-            lsize_ = other.lsize_;
-            lcap_ = other.lcap_;
+            if constexpr (EnableEvents) {
+                listenerStore_ = other.listenerStore_;
+            }
 
             other.data_ = nullptr;
             other.vsize_ = 0;
             other.vcap_ = 0;
-            other.listeners_ = nullptr;
-            other.lsize_ = 0;
-            other.lcap_ = 0;
+            if constexpr (EnableEvents) {
+                other.listenerStore_.listeners_ = nullptr;
+                other.listenerStore_.lsize_ = 0;
+                other.listenerStore_.lcap_ = 0;
+            }
         } else {
             // Unequal, non-propagating allocators: move elements individually
             // using our own allocator; leave `other` cleared via its own release().
@@ -240,16 +263,36 @@ Vector<T, Allocator, GrowthNum, GrowthDen>::operator=(Vector&& other) noexcept {
 // Section 3 — Modifiers
 // ============================================================
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
-void Vector<T, Allocator, GrowthNum, GrowthDen>::push_back(const T& value) {
+void Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::push_back(const T& value) {
+    // Hot path only: no branch-heavy aliasing bookkeeping, no reallocate()
+    // call site inline here. Small enough to reliably inline at call sites,
+    // which the mixed hot/cold version wasn't.
+    if (vsize_ == vcap_) [[unlikely]] {
+        grow_and_push_back(value);
+        return;
+    }
+    std::allocator_traits<Allocator>::construct(alloc_, data_ + vsize_, value);
+    std::size_t old = vsize_;
+    ++vsize_;
+    notify({EventType::PUSHBACK, old, old, vsize_});
+}
+
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
+    requires std::destructible<T>
+void Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::grow_and_push_back(const T& value) {
+    // About to reallocate, which can invalidate `value` if it's a
+    // reference into our own storage (e.g. v.push_back(v[i])).
+    // Snapshot its offset now, while the old buffer is still valid.
     std::ptrdiff_t offset = -1;
     if (data_ && std::addressof(value) >= data_ && std::addressof(value) < data_ + vsize_) {
         offset = std::addressof(value) - data_;
     }
 
-    if (vsize_ == vcap_)
-        reallocate(growCapacity());
+    reallocate(growCapacity());
 
     const T& src = (offset >= 0) ? data_[offset] : value;
     std::allocator_traits<Allocator>::construct(alloc_, data_ + vsize_, src);
@@ -259,16 +302,33 @@ void Vector<T, Allocator, GrowthNum, GrowthDen>::push_back(const T& value) {
     notify({EventType::PUSHBACK, old, old, vsize_});
 }
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
-void Vector<T, Allocator, GrowthNum, GrowthDen>::push_back(T&& value) {
+void Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::push_back(T&& value) {
+    if (vsize_ == vcap_) [[unlikely]] {
+        grow_and_push_back(std::move(value));
+        return;
+    }
+    std::allocator_traits<Allocator>::construct(alloc_, data_ + vsize_, std::move(value));
+    std::size_t old = vsize_;
+    ++vsize_;
+    notify({EventType::PUSHBACK, old, old, vsize_});
+}
+
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
+    requires std::destructible<T>
+void Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::grow_and_push_back(T&& value) {
+    // About to reallocate, which can invalidate `value` if it's a
+    // reference into our own storage (e.g. v.push_back(std::move(v[i]))).
+    // Snapshot its offset now, while the old buffer is still valid.
     std::ptrdiff_t offset = -1;
     if (data_ && std::addressof(value) >= data_ && std::addressof(value) < data_ + vsize_) {
         offset = std::addressof(value) - data_;
     }
 
-    if (vsize_ == vcap_)
-        reallocate(growCapacity());
+    reallocate(growCapacity());
 
     if (offset >= 0) {
         std::allocator_traits<Allocator>::construct(alloc_, data_ + vsize_,
@@ -282,11 +342,12 @@ void Vector<T, Allocator, GrowthNum, GrowthDen>::push_back(T&& value) {
     notify({EventType::PUSHBACK, old, old, vsize_});
 }
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
 template <typename... Args>
     requires std::constructible_from<T, Args...>
-void Vector<T, Allocator, GrowthNum, GrowthDen>::emplace_back(Args&&... args) {
+void Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::emplace_back(Args&&... args) {
     if (vsize_ == vcap_)
         reallocate(growCapacity());
 
@@ -298,35 +359,47 @@ void Vector<T, Allocator, GrowthNum, GrowthDen>::emplace_back(Args&&... args) {
     notify({EventType::EMPLACEBACK, old, old, vsize_});
 }
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
-typename Vector<T, Allocator, GrowthNum, GrowthDen>::iterator
-Vector<T, Allocator, GrowthNum, GrowthDen>::insert(const_iterator pos, const T& value) {
+typename Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::iterator
+Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::insert(const_iterator pos, const T& value) {
     std::size_t index = pos - cbegin();
+    const bool willReallocate = (vsize_ == vcap_);
+    const bool willShift = (index != vsize_);
 
-    std::ptrdiff_t offset = -1;
-    if (data_ && std::addressof(value) >= data_ && std::addressof(value) < data_ + vsize_) {
-        offset = std::addressof(value) - data_;
-    }
-
-    if (vsize_ == vcap_)
-        reallocate(growCapacity());
-
-    // Snapshot before shifting — the shift loop can overwrite `offset`
-    // before we'd otherwise read it.
-    std::optional<T> snapshot;
-    if (offset >= 0)
-        snapshot.emplace(data_[offset]);
-    const T& src = snapshot ? *snapshot : value;
-
-    if (index == vsize_) {
-        std::allocator_traits<Allocator>::construct(alloc_, data_ + index, src);
+    if (!willReallocate && !willShift) {
+        // Fast path: plain append with capacity to spare. Nothing below
+        // touches or invalidates `value`, so no aliasing check is needed.
+        std::allocator_traits<Allocator>::construct(alloc_, data_ + index, value);
     } else {
-        std::allocator_traits<Allocator>::construct(alloc_, data_ + vsize_,
-                                                    std::move(data_[vsize_ - 1]));
-        for (std::size_t i = vsize_ - 1; i > index; --i)
-            data_[i] = std::move(data_[i - 1]);
-        data_[index] = src;
+        // Either reallocation (invalidates the old buffer) or the shift
+        // loop (can overwrite the slot `value` points to) is about to
+        // happen — snapshot `value` first if it aliases our own storage.
+        std::ptrdiff_t offset = -1;
+        if (data_ && std::addressof(value) >= data_ && std::addressof(value) < data_ + vsize_) {
+            offset = std::addressof(value) - data_;
+        }
+
+        if (willReallocate)
+            reallocate(growCapacity());
+
+        // Snapshot before shifting — the shift loop can overwrite `offset`
+        // before we'd otherwise read it.
+        std::optional<T> snapshot;
+        if (offset >= 0)
+            snapshot.emplace(data_[offset]);
+        const T& src = snapshot ? *snapshot : value;
+
+        if (index == vsize_) {
+            std::allocator_traits<Allocator>::construct(alloc_, data_ + index, src);
+        } else {
+            std::allocator_traits<Allocator>::construct(alloc_, data_ + vsize_,
+                                                        std::move(data_[vsize_ - 1]));
+            for (std::size_t i = vsize_ - 1; i > index; --i)
+                data_[i] = std::move(data_[i - 1]);
+            data_[index] = src;
+        }
     }
 
     std::size_t old = vsize_;
@@ -335,40 +408,48 @@ Vector<T, Allocator, GrowthNum, GrowthDen>::insert(const_iterator pos, const T& 
     return iterator(data_ + index);
 }
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
-typename Vector<T, Allocator, GrowthNum, GrowthDen>::iterator
-Vector<T, Allocator, GrowthNum, GrowthDen>::insert(const_iterator pos, T&& value) {
+typename Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::iterator
+Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::insert(const_iterator pos, T&& value) {
     std::size_t index = pos - cbegin();
+    const bool willReallocate = (vsize_ == vcap_);
+    const bool willShift = (index != vsize_);
 
-    std::ptrdiff_t offset = -1;
-    if (data_ && std::addressof(value) >= data_ && std::addressof(value) < data_ + vsize_) {
-        offset = std::addressof(value) - data_;
-    }
-
-    if (vsize_ == vcap_)
-        reallocate(growCapacity());
-
-    std::optional<T> snapshot;
-    if (offset >= 0)
-        snapshot.emplace(std::move(data_[offset]));
-
-    if (index == vsize_) {
-        if (snapshot)
-            std::allocator_traits<Allocator>::construct(alloc_, data_ + index,
-                                                        std::move(*snapshot));
-        else
-            std::allocator_traits<Allocator>::construct(alloc_, data_ + index, std::move(value));
+    if (!willReallocate && !willShift) {
+        // Fast path: plain append with capacity to spare.
+        std::allocator_traits<Allocator>::construct(alloc_, data_ + index, std::move(value));
     } else {
-        std::allocator_traits<Allocator>::construct(alloc_, data_ + vsize_,
-                                                    std::move(data_[vsize_ - 1]));
-        for (std::size_t i = vsize_ - 1; i > index; --i)
-            data_[i] = std::move(data_[i - 1]);
+        std::ptrdiff_t offset = -1;
+        if (data_ && std::addressof(value) >= data_ && std::addressof(value) < data_ + vsize_) {
+            offset = std::addressof(value) - data_;
+        }
 
-        if (snapshot)
-            data_[index] = std::move(*snapshot);
-        else
-            data_[index] = std::move(value);
+        if (willReallocate)
+            reallocate(growCapacity());
+
+        std::optional<T> snapshot;
+        if (offset >= 0)
+            snapshot.emplace(std::move(data_[offset]));
+
+        if (index == vsize_) {
+            if (snapshot)
+                std::allocator_traits<Allocator>::construct(alloc_, data_ + index,
+                                                            std::move(*snapshot));
+            else
+                std::allocator_traits<Allocator>::construct(alloc_, data_ + index, std::move(value));
+        } else {
+            std::allocator_traits<Allocator>::construct(alloc_, data_ + vsize_,
+                                                        std::move(data_[vsize_ - 1]));
+            for (std::size_t i = vsize_ - 1; i > index; --i)
+                data_[i] = std::move(data_[i - 1]);
+
+            if (snapshot)
+                data_[index] = std::move(*snapshot);
+            else
+                data_[index] = std::move(value);
+        }
     }
 
     std::size_t old = vsize_;
@@ -377,11 +458,12 @@ Vector<T, Allocator, GrowthNum, GrowthDen>::insert(const_iterator pos, T&& value
     return iterator(data_ + index);
 }
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
 template <std::input_iterator It>
-typename Vector<T, Allocator, GrowthNum, GrowthDen>::iterator
-Vector<T, Allocator, GrowthNum, GrowthDen>::insert(const_iterator pos, It first, It last) {
+typename Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::iterator
+Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::insert(const_iterator pos, It first, It last) {
     std::size_t index = pos - cbegin();
     std::size_t i = index;
 
@@ -392,12 +474,13 @@ Vector<T, Allocator, GrowthNum, GrowthDen>::insert(const_iterator pos, It first,
     return iterator(data_ + index);
 }
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
 template <typename... Args>
     requires std::constructible_from<T, Args...>
-typename Vector<T, Allocator, GrowthNum, GrowthDen>::iterator
-Vector<T, Allocator, GrowthNum, GrowthDen>::emplace(const_iterator pos, Args&&... args) {
+typename Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::iterator
+Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::emplace(const_iterator pos, Args&&... args) {
     std::size_t index = pos - cbegin();
 
     if (vsize_ == vcap_)
@@ -423,11 +506,12 @@ Vector<T, Allocator, GrowthNum, GrowthDen>::emplace(const_iterator pos, Args&&..
     return iterator(data_ + index);
 }
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
 template <typename Predicate>
     requires std::predicate<Predicate, const T&>
-std::size_t Vector<T, Allocator, GrowthNum, GrowthDen>::remove_if(Predicate pred) {
+std::size_t Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::remove_if(Predicate pred) {
     std::size_t old = vsize_;
     std::size_t dest = 0;
 
@@ -453,9 +537,10 @@ std::size_t Vector<T, Allocator, GrowthNum, GrowthDen>::remove_if(Predicate pred
     return old - vsize_;
 }
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
-void Vector<T, Allocator, GrowthNum, GrowthDen>::pop_back() {
+void Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::pop_back() {
     if (vsize_ == 0)
         return;
 
@@ -466,10 +551,11 @@ void Vector<T, Allocator, GrowthNum, GrowthDen>::pop_back() {
     notify({EventType::POPBACK, vsize_, old, vsize_});
 }
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
-typename Vector<T, Allocator, GrowthNum, GrowthDen>::iterator
-Vector<T, Allocator, GrowthNum, GrowthDen>::erase(const_iterator pos) {
+typename Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::iterator
+Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::erase(const_iterator pos) {
     std::size_t index = pos - cbegin();
 
     for (std::size_t i = index; i + 1 < vsize_; ++i) {
@@ -485,10 +571,11 @@ Vector<T, Allocator, GrowthNum, GrowthDen>::erase(const_iterator pos) {
     return iterator(data_ + index);
 }
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
-typename Vector<T, Allocator, GrowthNum, GrowthDen>::iterator
-Vector<T, Allocator, GrowthNum, GrowthDen>::erase(const_iterator first, const_iterator last) {
+typename Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::iterator
+Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::erase(const_iterator first, const_iterator last) {
     std::size_t indexFirst = first - cbegin();
     std::size_t indexLast = last - cbegin();
     std::size_t count = indexLast - indexFirst;
@@ -511,9 +598,10 @@ Vector<T, Allocator, GrowthNum, GrowthDen>::erase(const_iterator first, const_it
     return iterator(data_ + indexFirst);
 }
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
-void Vector<T, Allocator, GrowthNum, GrowthDen>::clear() noexcept {
+void Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::clear() noexcept {
     if (vsize_ == 0)
         return;
 
@@ -527,9 +615,10 @@ void Vector<T, Allocator, GrowthNum, GrowthDen>::clear() noexcept {
     notify({EventType::CLEAR, 0, old, 0});
 }
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
-void Vector<T, Allocator, GrowthNum, GrowthDen>::reserve(std::size_t newCap) {
+void Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::reserve(std::size_t newCap) {
     if (newCap <= vcap_)
         return;
 
@@ -539,9 +628,10 @@ void Vector<T, Allocator, GrowthNum, GrowthDen>::reserve(std::size_t newCap) {
     notify({EventType::RESERVE, 0, old, vcap_});
 }
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
-void Vector<T, Allocator, GrowthNum, GrowthDen>::shrink_to_fit() {
+void Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::shrink_to_fit() {
     if (vsize_ == vcap_)
         return;
 
@@ -555,41 +645,44 @@ void Vector<T, Allocator, GrowthNum, GrowthDen>::shrink_to_fit() {
 // Section 4 — Observer
 // ============================================================
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
 template <typename F>
-    requires Listener<F, Vector<T, Allocator, GrowthNum, GrowthDen>>
-typename Vector<T, Allocator, GrowthNum, GrowthDen>::ListenerHandle
-Vector<T, Allocator, GrowthNum, GrowthDen>::subscribe(F&& listeners) {
-    if (lsize_ == lcap_) {
-        std::size_t newCap = lcap_ == 0 ? INITIAL_CAP : lcap_ * 2;
+    requires EnableEvents && Listener<F, Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>>
+typename Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::ListenerHandle
+Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::subscribe(F&& listeners) {
+    if (listenerStore_.lsize_ == listenerStore_.lcap_) {
+        std::size_t newCap = listenerStore_.lcap_ == 0 ? INITIAL_CAP : listenerStore_.lcap_ * 2;
         ListenerFn* newBuf = new ListenerFn[newCap];
 
-        for (std::size_t i = 0; i < lsize_; ++i) {
-            newBuf[i] = std::move(listeners_[i]);
+        for (std::size_t i = 0; i < listenerStore_.lsize_; ++i) {
+            newBuf[i] = std::move(listenerStore_.listeners_[i]);
         }
 
-        delete[] listeners_;
-        listeners_ = newBuf;
-        lcap_ = newCap;
+        delete[] listenerStore_.listeners_;
+        listenerStore_.listeners_ = newBuf;
+        listenerStore_.lcap_ = newCap;
     }
 
-    listeners_[lsize_] = std::forward<F>(listeners);
-    return lsize_++;
+    listenerStore_.listeners_[listenerStore_.lsize_] = std::forward<F>(listeners);
+    return listenerStore_.lsize_++;
 }
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
-void Vector<T, Allocator, GrowthNum, GrowthDen>::unsubscribe(ListenerHandle handle) {
-    if (handle >= lsize_)
+void Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::unsubscribe(ListenerHandle handle)
+    requires EnableEvents {
+    if (handle >= listenerStore_.lsize_)
         return;
 
-    for (std::size_t i = handle; i < lsize_ - 1; ++i) {
-        listeners_[i] = std::move(listeners_[i + 1]);
+    for (std::size_t i = handle; i < listenerStore_.lsize_ - 1; ++i) {
+        listenerStore_.listeners_[i] = std::move(listenerStore_.listeners_[i + 1]);
     }
 
-    listeners_[lsize_ - 1] = nullptr;
-    --lsize_;
+    listenerStore_.listeners_[listenerStore_.lsize_ - 1] = nullptr;
+    --listenerStore_.lsize_;
 }
 
 // ============================================================
@@ -597,16 +690,38 @@ void Vector<T, Allocator, GrowthNum, GrowthDen>::unsubscribe(ListenerHandle hand
 // ============================================================//
 // ============================================================
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
-bool Vector<T, Allocator, GrowthNum, GrowthDen>::operator==(const Vector& other) const
+bool Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::operator==(const Vector& other) const
     noexcept(noexcept(std::declval<const T&>() == std::declval<const T&>())) {
-    return vsize_ == other.vsize_ && std::equal(begin(), end(), other.begin());
+    if (vsize_ != other.vsize_)
+        return false;
+
+    if (vsize_ == 0)
+        return true;
+
+    // Fast path: for trivially-copyable T with the default allocator, the
+    // underlying storage is a flat byte buffer, so a single memcmp() over
+    // the whole range is equivalent to comparing element-by-element but
+    // lets the CPU compare many bytes per instruction instead of one T at
+    // a time. std::equal() can't take this shortcut here because it only
+    // recognizes libstdc++'s own vector iterator as "really a pointer";
+    // our Iterator type is a true contiguous_iterator but isn't special-cased
+    // by that internal check, so without this branch it falls back to a
+    // scalar, element-by-element loop.
+    if constexpr (std::is_trivially_copyable_v<T> && std::is_same_v<Allocator, std::allocator<T>>) {
+        return std::memcmp(std::to_address(data_), std::to_address(other.data_),
+                            vsize_ * sizeof(T)) == 0;
+    } else {
+        return std::equal(begin(), end(), other.begin());
+    }
 }
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
-auto Vector<T, Allocator, GrowthNum, GrowthDen>::operator<=>(const Vector& other) const
+auto Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::operator<=>(const Vector& other) const
     noexcept(noexcept(std::declval<const T&>() <=> std::declval<const T&>())) {
     return std::lexicographical_compare_three_way(begin(), end(), other.begin(), other.end());
 }
@@ -615,15 +730,17 @@ auto Vector<T, Allocator, GrowthNum, GrowthDen>::operator<=>(const Vector& other
 // Section 6 — Span Access
 // ============================================================
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
-std::span<T> Vector<T, Allocator, GrowthNum, GrowthDen>::as_span() noexcept {
+std::span<T> Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::as_span() noexcept {
     return std::span<T>(data_, vsize_);
 }
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
-std::span<const T> Vector<T, Allocator, GrowthNum, GrowthDen>::as_span() const noexcept {
+std::span<const T> Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::as_span() const noexcept {
     return std::span<const T>(data_, vsize_);
 }
 
@@ -631,79 +748,89 @@ std::span<const T> Vector<T, Allocator, GrowthNum, GrowthDen>::as_span() const n
 // Section 7 — Element Access
 // ============================================================
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
-typename Vector<T, Allocator, GrowthNum, GrowthDen>::pointer
-Vector<T, Allocator, GrowthNum, GrowthDen>::data_ptr() noexcept {
+typename Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::pointer
+Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::data_ptr() noexcept {
     return data_;
 }
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
-typename Vector<T, Allocator, GrowthNum, GrowthDen>::const_pointer
-Vector<T, Allocator, GrowthNum, GrowthDen>::data_ptr() const noexcept {
+typename Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::const_pointer
+Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::data_ptr() const noexcept {
     return data_;
 }
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
-typename Vector<T, Allocator, GrowthNum, GrowthDen>::reference
-Vector<T, Allocator, GrowthNum, GrowthDen>::at(std::size_t index) {
+typename Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::reference
+Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::at(std::size_t index) {
     if (index >= vsize_)
         throw std::out_of_range("Vector::at() index out of range");
 
     return data_[index];
 }
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
-typename Vector<T, Allocator, GrowthNum, GrowthDen>::const_reference
-Vector<T, Allocator, GrowthNum, GrowthDen>::at(std::size_t index) const {
+typename Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::const_reference
+Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::at(std::size_t index) const {
     if (index >= vsize_)
         throw std::out_of_range("Vector::at() index out of range");
 
     return data_[index];
 }
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
-typename Vector<T, Allocator, GrowthNum, GrowthDen>::reference
-Vector<T, Allocator, GrowthNum, GrowthDen>::front() {
+typename Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::reference
+Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::front() {
     return data_[0];
 }
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
-typename Vector<T, Allocator, GrowthNum, GrowthDen>::const_reference
-Vector<T, Allocator, GrowthNum, GrowthDen>::front() const {
+typename Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::const_reference
+Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::front() const {
     return data_[0];
 }
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
-typename Vector<T, Allocator, GrowthNum, GrowthDen>::reference
-Vector<T, Allocator, GrowthNum, GrowthDen>::back() {
+typename Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::reference
+Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::back() {
     return data_[vsize_ - 1];
 }
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
-typename Vector<T, Allocator, GrowthNum, GrowthDen>::const_reference
-Vector<T, Allocator, GrowthNum, GrowthDen>::back() const {
+typename Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::const_reference
+Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::back() const {
     return data_[vsize_ - 1];
 }
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
-typename Vector<T, Allocator, GrowthNum, GrowthDen>::reference
-Vector<T, Allocator, GrowthNum, GrowthDen>::operator[](std::size_t index) noexcept {
+typename Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::reference
+Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::operator[](std::size_t index) noexcept {
     return data_[index];
 }
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
-typename Vector<T, Allocator, GrowthNum, GrowthDen>::const_reference
-Vector<T, Allocator, GrowthNum, GrowthDen>::operator[](std::size_t index) const noexcept {
+typename Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::const_reference
+Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::operator[](std::size_t index) const noexcept {
     return data_[index];
 }
 
@@ -711,78 +838,79 @@ Vector<T, Allocator, GrowthNum, GrowthDen>::operator[](std::size_t index) const 
 // Section 8 — Lookup
 // ============================================================
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
-bool Vector<T, Allocator, GrowthNum, GrowthDen>::contains(const T& value) const
+bool Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::contains(const T& value) const
     noexcept(noexcept(std::declval<const T&>() == std::declval<const T&>())) {
-    for (std::size_t i = 0; i < vsize_; ++i) {
-        if (data_[i] == value)
-            return true;
-    }
+    if (vsize_ == 0)
+        return false;
 
-    return false;
+    // std::find() on a raw pointer range picks up libstdc++'s internal
+    // fast paths (manual loop-unrolling for scalar types, memchr for
+    // byte-sized types) that our own hand-written loop doesn't get for free.
+    const T* first = std::to_address(data_);
+    return std::find(first, first + vsize_, value) != first + vsize_;
 }
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
-typename Vector<T, Allocator, GrowthNum, GrowthDen>::iterator
-Vector<T, Allocator, GrowthNum, GrowthDen>::find(const T& value) noexcept(
+typename Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::iterator
+Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::find(const T& value) noexcept(
     noexcept(std::declval<const T&>() == std::declval<const T&>())) {
-    for (std::size_t i = 0; i < vsize_; ++i) {
-        if (data_[i] == value)
-            return iterator(data_ + i);
-    }
-    return end();
+    T* first = std::to_address(data_);
+    return iterator(std::find(first, first + vsize_, value));
 }
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
-typename Vector<T, Allocator, GrowthNum, GrowthDen>::const_iterator
-Vector<T, Allocator, GrowthNum, GrowthDen>::find(const T& value) const
+typename Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::const_iterator
+Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::find(const T& value) const
     noexcept(noexcept(std::declval<const T&>() == std::declval<const T&>())) {
-    for (std::size_t i = 0; i < vsize_; ++i) {
-        if (data_[i] == value)
-            return const_iterator(data_ + i);
-    }
-    return end();
+    const T* first = std::to_address(data_);
+    return const_iterator(std::find(first, first + vsize_, value));
 }
 
 // ============================================================
 // Section 9 — Swap
 // ============================================================
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
-void Vector<T, Allocator, GrowthNum, GrowthDen>::swap(Vector& other) noexcept {
+void Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::swap(Vector& other) noexcept {
     using std::swap;
     swap(alloc_, other.alloc_);
     swap(data_, other.data_);
     swap(vsize_, other.vsize_);
     swap(vcap_, other.vcap_);
-    swap(listeners_, other.listeners_);
-    swap(lsize_, other.lsize_);
-    swap(lcap_, other.lcap_);
+    swap(listenerStore_, other.listenerStore_);
 }
 
 // ============================================================
 // Section 10 — Capacity
 // ============================================================
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
-bool Vector<T, Allocator, GrowthNum, GrowthDen>::empty() const noexcept {
+bool Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::empty() const noexcept {
     return vsize_ == 0;
 }
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
-std::size_t Vector<T, Allocator, GrowthNum, GrowthDen>::size() const noexcept {
+std::size_t Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::size() const noexcept {
     return vsize_;
 }
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
-std::size_t Vector<T, Allocator, GrowthNum, GrowthDen>::capacity() const noexcept {
+std::size_t Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::capacity() const noexcept {
     return vcap_;
 }
 
@@ -790,87 +918,99 @@ std::size_t Vector<T, Allocator, GrowthNum, GrowthDen>::capacity() const noexcep
 // Section 11 — Iterator Access
 // ============================================================
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
-typename Vector<T, Allocator, GrowthNum, GrowthDen>::iterator
-Vector<T, Allocator, GrowthNum, GrowthDen>::begin() noexcept {
+typename Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::iterator
+Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::begin() noexcept {
     return iterator(data_);
 }
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
-typename Vector<T, Allocator, GrowthNum, GrowthDen>::iterator
-Vector<T, Allocator, GrowthNum, GrowthDen>::end() noexcept {
+typename Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::iterator
+Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::end() noexcept {
     return iterator(data_ + vsize_);
 }
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
-typename Vector<T, Allocator, GrowthNum, GrowthDen>::const_iterator
-Vector<T, Allocator, GrowthNum, GrowthDen>::begin() const noexcept {
+typename Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::const_iterator
+Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::begin() const noexcept {
     return const_iterator(data_);
 }
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
-typename Vector<T, Allocator, GrowthNum, GrowthDen>::const_iterator
-Vector<T, Allocator, GrowthNum, GrowthDen>::end() const noexcept {
+typename Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::const_iterator
+Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::end() const noexcept {
     return const_iterator(data_ + vsize_);
 }
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
-typename Vector<T, Allocator, GrowthNum, GrowthDen>::const_iterator
-Vector<T, Allocator, GrowthNum, GrowthDen>::cbegin() const noexcept {
+typename Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::const_iterator
+Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::cbegin() const noexcept {
     return const_iterator(data_);
 }
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
-typename Vector<T, Allocator, GrowthNum, GrowthDen>::const_iterator
-Vector<T, Allocator, GrowthNum, GrowthDen>::cend() const noexcept {
+typename Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::const_iterator
+Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::cend() const noexcept {
     return const_iterator(data_ + vsize_);
 }
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
-typename Vector<T, Allocator, GrowthNum, GrowthDen>::reverse_iterator
-Vector<T, Allocator, GrowthNum, GrowthDen>::rbegin() noexcept {
+typename Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::reverse_iterator
+Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::rbegin() noexcept {
     return reverse_iterator(end());
 }
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
-typename Vector<T, Allocator, GrowthNum, GrowthDen>::reverse_iterator
-Vector<T, Allocator, GrowthNum, GrowthDen>::rend() noexcept {
+typename Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::reverse_iterator
+Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::rend() noexcept {
     return reverse_iterator(begin());
 }
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
-typename Vector<T, Allocator, GrowthNum, GrowthDen>::const_reverse_iterator
-Vector<T, Allocator, GrowthNum, GrowthDen>::rbegin() const noexcept {
+typename Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::const_reverse_iterator
+Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::rbegin() const noexcept {
     return const_reverse_iterator(end());
 }
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
-typename Vector<T, Allocator, GrowthNum, GrowthDen>::const_reverse_iterator
-Vector<T, Allocator, GrowthNum, GrowthDen>::rend() const noexcept {
+typename Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::const_reverse_iterator
+Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::rend() const noexcept {
     return const_reverse_iterator(begin());
 }
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
-typename Vector<T, Allocator, GrowthNum, GrowthDen>::const_reverse_iterator
-Vector<T, Allocator, GrowthNum, GrowthDen>::crbegin() const noexcept {
+typename Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::const_reverse_iterator
+Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::crbegin() const noexcept {
     return const_reverse_iterator(end());
 }
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
-typename Vector<T, Allocator, GrowthNum, GrowthDen>::const_reverse_iterator
-Vector<T, Allocator, GrowthNum, GrowthDen>::crend() const noexcept {
+typename Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::const_reverse_iterator
+Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::crend() const noexcept {
     return const_reverse_iterator(begin());
 }
 
@@ -878,9 +1018,10 @@ Vector<T, Allocator, GrowthNum, GrowthDen>::crend() const noexcept {
 // Section 12 — Private Helpers
 // ============================================================
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
-void Vector<T, Allocator, GrowthNum, GrowthDen>::release() noexcept {
+void Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::release() noexcept {
     for (std::size_t i = 0; i < vsize_; ++i) {
         std::allocator_traits<Allocator>::destroy(alloc_, data_ + i);
     }
@@ -894,9 +1035,10 @@ void Vector<T, Allocator, GrowthNum, GrowthDen>::release() noexcept {
     vcap_ = 0;
 }
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
-void Vector<T, Allocator, GrowthNum, GrowthDen>::copyBufferFrom(const Vector& other) {
+void Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::copyBufferFrom(const Vector& other) {
     if (other.vcap_ == 0)
         return;
 
@@ -928,9 +1070,10 @@ void Vector<T, Allocator, GrowthNum, GrowthDen>::copyBufferFrom(const Vector& ot
     vsize_ = other.vsize_;
 }
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
-std::size_t Vector<T, Allocator, GrowthNum, GrowthDen>::growCapacity() const noexcept {
+std::size_t Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::growCapacity() const noexcept {
     if (vcap_ == 0)
         return INITIAL_CAP;
 
@@ -950,9 +1093,10 @@ std::size_t Vector<T, Allocator, GrowthNum, GrowthDen>::growCapacity() const noe
     return grown;
 }
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
-void Vector<T, Allocator, GrowthNum, GrowthDen>::reallocate(std::size_t newCap) {
+void Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::reallocate(std::size_t newCap) {
     pointer newData = std::allocator_traits<Allocator>::allocate(alloc_, newCap);
 
     if constexpr (std::is_trivially_copyable_v<T> && std::is_same_v<Allocator, std::allocator<T>>) {
@@ -986,12 +1130,20 @@ void Vector<T, Allocator, GrowthNum, GrowthDen>::reallocate(std::size_t newCap) 
     vcap_ = newCap;
 }
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
     requires std::destructible<T>
-void Vector<T, Allocator, GrowthNum, GrowthDen>::notify(EventData data) {
-    for (std::size_t i = 0; i < lsize_; ++i) {
-        if (listeners_[i])
-            listeners_[i](*this, data);
+void Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::notify(EventData data) {
+    // `if constexpr` here is what makes EnableEvents = false a true zero-cost
+    // path: unlike a runtime `if (lsize_ == 0) return;`, this branch is
+    // discarded during compilation, not just at runtime. There's no leftover
+    // load of lsize_, no branch, and no reason for the compiler to leave a
+    // real function call behind — the whole call site collapses to nothing.
+    if constexpr (EnableEvents) {
+        for (std::size_t i = 0; i < listenerStore_.lsize_; ++i) {
+            if (listenerStore_.listeners_[i])
+                listenerStore_.listeners_[i](*this, data);
+        }
     }
 }
 
@@ -999,9 +1151,10 @@ void Vector<T, Allocator, GrowthNum, GrowthDen>::notify(EventData data) {
 // Section 13 — Non-member Functions
 // ============================================================
 
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
-void swap(Vector<T, Allocator, GrowthNum, GrowthDen>& a,
-          Vector<T, Allocator, GrowthNum, GrowthDen>& b) noexcept {
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
+void swap(Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>& a,
+          Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>& b) noexcept {
     a.swap(b);
 }
 

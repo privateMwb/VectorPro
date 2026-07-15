@@ -1,27 +1,47 @@
+/**
+ * @file            Vector.hpp
+ * 
+ * @date            2026-14-7
+ * 
+ * @version         1.0.0
+ * 
+ * @copyright       Copyright (c) 2026 PrivateMwb
+ *                  All rigts reserved.
+ *                  https://github.com/privateMwb/VectorPro
+ * 
+ * @attention       This source is released under the MIT license
+ *                  SPDX-License-Identifier: MIT
+ *                  <http://opensource.org/licenses/MIT>
+ */
+ 
 #pragma once
 
 #include "Iterator.h"
 
-#include <algorithm>
-#include <compare>
-#include <concepts>
-#include <cstddef>
-#include <cstring>
-#include <functional>
-#include <initializer_list>
-#include <iterator>
-#include <limits>
-#include <memory>
-#include <optional>
-#include <span>
-#include <stdexcept>
-#include <type_traits>
-#include <utility>
+#include <algorithm>            // std::copy, std::move, std::equal, std::lexicographical_compare_three_way
+#include <compare>              // std::strong_ordering / operator<=>
+#include <concepts>             // std::invocable, std::input_iterator (Listener concept, iterator-pair ctor)
+#include <cstddef>              // std::size_t, std::ptrdiff_t
+#include <cstring>              // std::memcpy (trivial-type fast path in insert/erase/push_back)
+#include <functional>           // std::function (ListenerFn storage)
+#include <initializer_list>     // std::initializer_list ctor/assign
+#include <iterator>             // std::reverse_iterator, iterator tag dispatch
+#include <limits>               // std::numeric_limits (overflow checks in growCapacity)
+#include <memory>               // std::allocator, std::allocator_traits
+#include <optional>             // (reserved: nullable return values)
+#include <span>                 // std::span (as_span())
+#include <stdexcept>            // std::out_of_range, std::length_error
+#include <type_traits>          // std::is_trivially_copyable, etc.
+#include <utility>              // std::move, std::forward, std::exchange
+
+// A std::vector-like dynamic array with configurable growth policy,
+// custom allocator support, and optional modification-event notifications.
+// Requires C++20 (concepts, <=>, std::span, [[no_unique_address]]).
 
 namespace VectorPro {
 
 /**
- * @brief Constrains listener callbacks usable with Vector::subscribe().
+ * @brief Constrains listener callbacks usable with Vector:subscribe().
  * @tparam F The callable type being constrained.
  * @tparam VectorType The Vector specialization the listener will observe.
  * @details Requires the callable to accept the vector instance and the
@@ -30,19 +50,46 @@ namespace VectorPro {
 template <typename F, typename VectorType>
 concept Listener = std::invocable<F, const VectorType&, typename VectorType::EventData>;
 
+namespace detail {
+
+/**
+ * @brief Listener bookkeeping storage, conditionally present.
+ * @tparam ListenerFn Callback type stored per listener.
+ * @tparam Enabled Whether event support is turned on for the owning Vector.
+ * @details When `Enabled` is `false`, this is an empty type. Combined with
+ * `[[no_unique_address]]` on the Vector member that holds it, this means a
+ * Vector with events disabled pays zero storage cost for listener
+ * bookkeeping — the fields simply don't exist in that instantiation, rather
+ * than existing but always being zero.
+ */
+template <typename ListenerFn, bool Enabled> struct ListenerStore {
+    ListenerFn* listeners_ = nullptr;
+    std::size_t lsize_ = 0;
+    std::size_t lcap_ = 0;
+};
+
+/// @brief Empty specialization used when event support is disabled.
+template <typename ListenerFn> struct ListenerStore<ListenerFn, false> {};
+
+} // namespace detail
+
 /**
  * @brief A dynamically resizable contiguous array.
  * @tparam T Element type. Must satisfy `std::destructible`.
  * @tparam Allocator Allocator type used for storage. Defaults to `std::allocator<T>`.
  * @tparam GrowthNum Numerator of the capacity growth factor (`GrowthNum / GrowthDen`).
  * @tparam GrowthDen Denominator of the capacity growth factor.
+ * @tparam EnableEvents Whether modification-event notifications (subscribe()/
+ * unsubscribe()) are compiled in. Defaults to `false`; when disabled, no
+ * listener storage exists and no notification code is emitted anywhere in
+ * the class — see VectorPro::ObservableVector for the enabled alias.
  * @details Provides std::vector-like semantics with configurable growth,
  * custom allocator support, iterator support, and modification event
  * notifications. `GrowthNum` must be greater than `GrowthDen` so that
  * capacity strictly increases on each reallocation.
  */
 template <typename T, typename Allocator = std::allocator<T>, std::size_t GrowthNum = 2,
-          std::size_t GrowthDen = 1>
+          std::size_t GrowthDen = 1, bool EnableEvents = false>
     requires std::destructible<T>
 class Vector {
   public:
@@ -107,10 +154,8 @@ class Vector {
     std::size_t vsize_ = 0;
     std::size_t vcap_ = 0;
 
-    // Registered event listeners.
-    ListenerFn* listeners_ = nullptr;
-    std::size_t lsize_ = 0;
-    std::size_t lcap_ = 0;
+    // Registered event listeners. Empty (zero size) when EnableEvents is false.
+    [[no_unique_address]] detail::ListenerStore<ListenerFn, EnableEvents> listenerStore_;
 
     // Default capacity used for the first allocation.
     static constexpr std::size_t INITIAL_CAP = 8;
@@ -278,16 +323,20 @@ class Vector {
      * @tparam F Callable type satisfying the Listener concept.
      * @param listeners Callable to invoke with `(*this, EventData)` on each modification.
      * @return A handle that can be passed to unsubscribe() to remove the listener.
+     * @details Only callable when `EnableEvents` is `true`; a Vector with events
+     * disabled has no listener storage, so subscribing is a compile error rather
+     * than a silent no-op.
      */
     template <typename F>
-        requires Listener<F, Vector<T, Allocator, GrowthNum, GrowthDen>>
+        requires EnableEvents && Listener<F, Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>>
     [[nodiscard]] ListenerHandle subscribe(F&& listeners);
 
     /**
      * @brief Removes a previously registered listener.
      * @param handle Handle returned by subscribe(). No-op if out of range.
+     * @details Only callable when `EnableEvents` is `true`.
      */
-    void unsubscribe(ListenerHandle handle);
+    void unsubscribe(ListenerHandle handle) requires EnableEvents;
 
     /**
      * @brief Compares two vectors for equality.
@@ -448,6 +497,21 @@ class Vector {
     void reallocate(std::size_t newCap);
 
     /**
+     * @brief Cold path for push_back(const T&): handles the aliasing snapshot,
+     * reallocation, and construction when `vsize_ == vcap_`. Kept out of
+     * push_back's body so the common (no-growth) path stays small enough to
+     * reliably inline at call sites; this rarely-taken path is not.
+     * @param value Value to append. Safe to pass a reference into this vector.
+     */
+    void grow_and_push_back(const T& value);
+
+    /**
+     * @brief Cold path for push_back(T&&). See grow_and_push_back(const T&).
+     * @param value Value to move-append. Safe to pass a reference into this vector.
+     */
+    void grow_and_push_back(T&& value);
+
+    /**
      * @brief Invokes every registered listener with the given event data.
      * @param data Event describing the modification that just occurred.
      */
@@ -459,10 +523,26 @@ class Vector {
  * @param a First vector.
  * @param b Second vector.
  */
-template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen>
-void swap(Vector<T, Allocator, GrowthNum, GrowthDen>& a,
-          Vector<T, Allocator, GrowthNum, GrowthDen>& b) noexcept;
+template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
+          bool EnableEvents>
+void swap(Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>& a,
+          Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>& b) noexcept;
+
+/**
+ * @brief Convenience alias for a Vector with event notifications enabled.
+ * @details Equivalent to `Vector<T, Allocator, GrowthNum, GrowthDen, true>`.
+ * Use this wherever code needs subscribe()/unsubscribe(); a plain `Vector<T>`
+ * has events disabled and won't compile against those calls.
+ */
+template <typename T, typename Allocator = std::allocator<T>, std::size_t GrowthNum = 2,
+          std::size_t GrowthDen = 1>
+using ObservableVector = Vector<T, Allocator, GrowthNum, GrowthDen, true>;
 
 } // namespace VectorPro
+
+/// @brief Short alias so this library can be used as `rain::Vector` while
+/// its true namespace (and all internal diagnostics/static_asserts) remains
+/// `VectorPro`. See Iterator.h for the same alias applied to `rain::Iterator`.
+namespace rain = VectorPro;
 
 #include "Vector.tpp"

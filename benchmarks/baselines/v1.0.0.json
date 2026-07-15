@@ -1,770 +1,1073 @@
 [
   {
-    "name": "VectorPro at()",
-    "library": "VectorPro",
+    "suite": "Element Access",
     "operation": "at()",
-    "total_ns": 16641054,
-    "iterations": 100000,
-    "ns_per_op": 166.41
+    "total_ns": 2631615,
+    "iterations": 10000,
+    "ns_per_op": 263.16
   },
   {
-    "name": "std::vector at()",
-    "library": "std::vector",
+    "suite": "Element Access",
     "operation": "at()",
-    "total_ns": 16434839,
+    "total_ns": 25587308,
     "iterations": 100000,
-    "ns_per_op": 164.35
+    "ns_per_op": 255.87
   },
   {
-    "name": "VectorPro front/back",
-    "library": "VectorPro",
+    "suite": "Element Access",
+    "operation": "at()",
+    "total_ns": 255191769,
+    "iterations": 1000000,
+    "ns_per_op": 255.19
+  },
+  {
+    "suite": "Element Access",
     "operation": "front/back",
-    "total_ns": 65923,
-    "iterations": 100000,
-    "ns_per_op": 0.66
+    "total_ns": 12308,
+    "iterations": 10000,
+    "ns_per_op": 1.23
   },
   {
-    "name": "std::vector front/back",
-    "library": "std::vector",
+    "suite": "Element Access",
     "operation": "front/back",
-    "total_ns": 63849,
+    "total_ns": 178693,
     "iterations": 100000,
-    "ns_per_op": 0.64
+    "ns_per_op": 1.79
   },
   {
-    "name": "VectorPro data_ptr()",
-    "library": "VectorPro",
+    "suite": "Element Access",
+    "operation": "front/back",
+    "total_ns": 1228308,
+    "iterations": 1000000,
+    "ns_per_op": 1.23
+  },
+  {
+    "suite": "Element Access",
     "operation": "data_ptr()",
-    "total_ns": 16256065,
-    "iterations": 100000,
-    "ns_per_op": 162.56
+    "total_ns": 2559385,
+    "iterations": 10000,
+    "ns_per_op": 255.94
   },
   {
-    "name": "std::vector data()",
-    "library": "std::vector",
-    "operation": "data()",
-    "total_ns": 16212274,
+    "suite": "Element Access",
+    "operation": "data_ptr()",
+    "total_ns": 25561923,
     "iterations": 100000,
-    "ns_per_op": 162.12
+    "ns_per_op": 255.62
   },
   {
-    "name": "VectorPro range-for",
-    "library": "VectorPro",
+    "suite": "Element Access",
+    "operation": "data_ptr()",
+    "total_ns": 255052077,
+    "iterations": 1000000,
+    "ns_per_op": 255.05
+  },
+  {
+    "suite": "Iteration",
     "operation": "range-for",
-    "total_ns": 16245336,
-    "iterations": 100000,
-    "ns_per_op": 162.45
+    "total_ns": 2579769,
+    "iterations": 10000,
+    "ns_per_op": 257.98
   },
   {
-    "name": "std::vector range-for",
-    "library": "std::vector",
+    "suite": "Iteration",
     "operation": "range-for",
-    "total_ns": 16238854,
+    "total_ns": 25594769,
     "iterations": 100000,
-    "ns_per_op": 162.39
+    "ns_per_op": 255.95
   },
   {
-    "name": "VectorPro iterator loop",
-    "library": "VectorPro",
+    "suite": "Iteration",
+    "operation": "range-for",
+    "total_ns": 255456846,
+    "iterations": 1000000,
+    "ns_per_op": 255.46
+  },
+  {
+    "suite": "Iteration",
     "operation": "iterator loop",
-    "total_ns": 16505090,
-    "iterations": 100000,
-    "ns_per_op": 165.05
+    "total_ns": 2547769,
+    "iterations": 10000,
+    "ns_per_op": 254.78
   },
   {
-    "name": "std::vector iterator loop",
-    "library": "std::vector",
+    "suite": "Iteration",
     "operation": "iterator loop",
-    "total_ns": 16255866,
+    "total_ns": 25580385,
     "iterations": 100000,
-    "ns_per_op": 162.56
+    "ns_per_op": 255.80
   },
   {
-    "name": "VectorPro index loop",
-    "library": "VectorPro",
+    "suite": "Iteration",
+    "operation": "iterator loop",
+    "total_ns": 256463307,
+    "iterations": 1000000,
+    "ns_per_op": 256.46
+  },
+  {
+    "suite": "Iteration",
     "operation": "index loop",
-    "total_ns": 16226330,
-    "iterations": 100000,
-    "ns_per_op": 162.26
+    "total_ns": 2533923,
+    "iterations": 10000,
+    "ns_per_op": 253.39
   },
   {
-    "name": "std::vector index loop",
-    "library": "std::vector",
+    "suite": "Iteration",
     "operation": "index loop",
-    "total_ns": 16207315,
+    "total_ns": 25445539,
     "iterations": 100000,
-    "ns_per_op": 162.07
+    "ns_per_op": 254.46
   },
   {
-    "name": "VectorPro reverse iteration",
-    "library": "VectorPro",
+    "suite": "Iteration",
+    "operation": "index loop",
+    "total_ns": 255513231,
+    "iterations": 1000000,
+    "ns_per_op": 255.51
+  },
+  {
+    "suite": "Iteration",
     "operation": "reverse iteration",
-    "total_ns": 16242219,
-    "iterations": 100000,
-    "ns_per_op": 162.42
+    "total_ns": 4426231,
+    "iterations": 10000,
+    "ns_per_op": 442.62
   },
   {
-    "name": "std::vector reverse iteration",
-    "library": "std::vector",
+    "suite": "Iteration",
     "operation": "reverse iteration",
-    "total_ns": 16330785,
+    "total_ns": 44486385,
     "iterations": 100000,
-    "ns_per_op": 163.31
+    "ns_per_op": 444.86
   },
   {
-    "name": "VectorPro accumulate",
-    "library": "VectorPro",
+    "suite": "Iteration",
+    "operation": "reverse iteration",
+    "total_ns": 443115077,
+    "iterations": 1000000,
+    "ns_per_op": 443.12
+  },
+  {
+    "suite": "Iteration",
     "operation": "accumulate",
-    "total_ns": 16796283,
-    "iterations": 100000,
-    "ns_per_op": 167.96
+    "total_ns": 2568615,
+    "iterations": 10000,
+    "ns_per_op": 256.86
   },
   {
-    "name": "std::vector accumulate",
-    "library": "std::vector",
+    "suite": "Iteration",
     "operation": "accumulate",
-    "total_ns": 16434589,
+    "total_ns": 25571692,
     "iterations": 100000,
-    "ns_per_op": 164.35
+    "ns_per_op": 255.72
   },
   {
-    "name": "VectorPro contains hit (1k)",
-    "library": "VectorPro",
+    "suite": "Iteration",
+    "operation": "accumulate",
+    "total_ns": 261587615,
+    "iterations": 1000000,
+    "ns_per_op": 261.59
+  },
+  {
+    "suite": "Search",
     "operation": "contains hit (1k)",
-    "total_ns": 20259224,
-    "iterations": 100000,
-    "ns_per_op": 202.59
+    "total_ns": 5450769,
+    "iterations": 10000,
+    "ns_per_op": 545.08
   },
   {
-    "name": "std::vector contains hit (1k)",
-    "library": "std::vector",
+    "suite": "Search",
     "operation": "contains hit (1k)",
-    "total_ns": 10907899,
+    "total_ns": 54367384,
     "iterations": 100000,
-    "ns_per_op": 109.08
+    "ns_per_op": 543.67
   },
   {
-    "name": "VectorPro contains miss (1k)",
-    "library": "VectorPro",
+    "suite": "Search",
+    "operation": "contains hit (1k)",
+    "total_ns": 543189154,
+    "iterations": 1000000,
+    "ns_per_op": 543.19
+  },
+  {
+    "suite": "Search",
     "operation": "contains miss (1k)",
-    "total_ns": 33653109,
-    "iterations": 100000,
-    "ns_per_op": 336.53
+    "total_ns": 10706462,
+    "iterations": 10000,
+    "ns_per_op": 1070.65
   },
   {
-    "name": "std::vector contains miss (1k)",
-    "library": "std::vector",
+    "suite": "Search",
     "operation": "contains miss (1k)",
-    "total_ns": 20242723,
+    "total_ns": 107048923,
     "iterations": 100000,
-    "ns_per_op": 202.43
+    "ns_per_op": 1070.49
   },
   {
-    "name": "VectorPro contains hit (100k)",
-    "library": "VectorPro",
-    "operation": "contains hit (100k)",
-    "total_ns": 1645471402,
-    "iterations": 100000,
-    "ns_per_op": 16454.71
+    "suite": "Search",
+    "operation": "contains miss (1k)",
+    "total_ns": 1068980000,
+    "iterations": 1000000,
+    "ns_per_op": 1068.98
   },
   {
-    "name": "std::vector contains hit (100k)",
-    "library": "std::vector",
-    "operation": "contains hit (100k)",
-    "total_ns": 1171134481,
-    "iterations": 100000,
-    "ns_per_op": 11711.34
+    "suite": "Search",
+    "operation": "contains hit (10k)",
+    "total_ns": 105776924,
+    "iterations": 10000,
+    "ns_per_op": 10577.69
   },
   {
-    "name": "VectorPro find hit (1k)",
-    "library": "VectorPro",
+    "suite": "Search",
+    "operation": "contains hit (10k)",
+    "total_ns": 1056649616,
+    "iterations": 100000,
+    "ns_per_op": 10566.50
+  },
+  {
+    "suite": "Search",
+    "operation": "contains hit (10k)",
+    "total_ns": 10563650770,
+    "iterations": 1000000,
+    "ns_per_op": 10563.65
+  },
+  {
+    "suite": "Search",
     "operation": "find hit (1k)",
-    "total_ns": 21034130,
-    "iterations": 100000,
-    "ns_per_op": 210.34
+    "total_ns": 5446769,
+    "iterations": 10000,
+    "ns_per_op": 544.68
   },
   {
-    "name": "std::vector find hit (1k)",
-    "library": "std::vector",
+    "suite": "Search",
     "operation": "find hit (1k)",
-    "total_ns": 10657060,
+    "total_ns": 54845462,
     "iterations": 100000,
-    "ns_per_op": 106.57
+    "ns_per_op": 548.45
   },
   {
-    "name": "VectorPro find miss (1k)",
-    "library": "VectorPro",
+    "suite": "Search",
+    "operation": "find hit (1k)",
+    "total_ns": 685264000,
+    "iterations": 1000000,
+    "ns_per_op": 685.26
+  },
+  {
+    "suite": "Search",
     "operation": "find miss (1k)",
-    "total_ns": 33829358,
-    "iterations": 100000,
-    "ns_per_op": 338.29
+    "total_ns": 10882769,
+    "iterations": 10000,
+    "ns_per_op": 1088.28
   },
   {
-    "name": "std::vector find miss (1k)",
-    "library": "std::vector",
+    "suite": "Search",
     "operation": "find miss (1k)",
-    "total_ns": 20364319,
+    "total_ns": 362455462,
     "iterations": 100000,
-    "ns_per_op": 203.64
+    "ns_per_op": 3624.55
   },
   {
-    "name": "VectorPro erase front",
-    "library": "VectorPro",
+    "suite": "Search",
+    "operation": "find miss (1k)",
+    "total_ns": 1756042385,
+    "iterations": 1000000,
+    "ns_per_op": 1756.04
+  },
+  {
+    "suite": "Erase",
     "operation": "erase front",
-    "total_ns": 10317718,
-    "iterations": 100000,
-    "ns_per_op": 103.18
+    "total_ns": 2430231,
+    "iterations": 10000,
+    "ns_per_op": 243.02
   },
   {
-    "name": "std::vector erase front",
-    "library": "std::vector",
+    "suite": "Erase",
     "operation": "erase front",
-    "total_ns": 9502447,
+    "total_ns": 26119384,
     "iterations": 100000,
-    "ns_per_op": 95.02
+    "ns_per_op": 261.19
   },
   {
-    "name": "VectorPro erase middle",
-    "library": "VectorPro",
+    "suite": "Erase",
+    "operation": "erase front",
+    "total_ns": 533318154,
+    "iterations": 1000000,
+    "ns_per_op": 533.32
+  },
+  {
+    "suite": "Erase",
     "operation": "erase middle",
-    "total_ns": 9458454,
-    "iterations": 100000,
-    "ns_per_op": 94.58
+    "total_ns": 3199077,
+    "iterations": 10000,
+    "ns_per_op": 319.91
   },
   {
-    "name": "std::vector erase middle",
-    "library": "std::vector",
+    "suite": "Erase",
     "operation": "erase middle",
-    "total_ns": 8697776,
+    "total_ns": 31918846,
     "iterations": 100000,
-    "ns_per_op": 86.98
+    "ns_per_op": 319.19
   },
   {
-    "name": "VectorPro erase end",
-    "library": "VectorPro",
+    "suite": "Erase",
+    "operation": "erase middle",
+    "total_ns": 773387923,
+    "iterations": 1000000,
+    "ns_per_op": 773.39
+  },
+  {
+    "suite": "Erase",
     "operation": "erase end",
-    "total_ns": 8502110,
-    "iterations": 100000,
-    "ns_per_op": 85.02
+    "total_ns": 5931615,
+    "iterations": 10000,
+    "ns_per_op": 593.16
   },
   {
-    "name": "std::vector erase end",
-    "library": "std::vector",
+    "suite": "Erase",
     "operation": "erase end",
-    "total_ns": 7944670,
+    "total_ns": 58505846,
     "iterations": 100000,
-    "ns_per_op": 79.45
+    "ns_per_op": 585.06
   },
   {
-    "name": "VectorPro insert front",
-    "library": "VectorPro",
+    "suite": "Erase",
+    "operation": "erase end",
+    "total_ns": 579780000,
+    "iterations": 1000000,
+    "ns_per_op": 579.78
+  },
+  {
+    "suite": "Insert",
     "operation": "insert front",
-    "total_ns": 17326171,
-    "iterations": 100000,
-    "ns_per_op": 173.26
+    "total_ns": 19956923,
+    "iterations": 10000,
+    "ns_per_op": 1995.69
   },
   {
-    "name": "std::vector insert front",
-    "library": "std::vector",
+    "suite": "Insert",
     "operation": "insert front",
-    "total_ns": 13511837,
+    "total_ns": 199283384,
     "iterations": 100000,
-    "ns_per_op": 135.12
+    "ns_per_op": 1992.83
   },
   {
-    "name": "VectorPro insert middle",
-    "library": "VectorPro",
+    "suite": "Insert",
+    "operation": "insert front",
+    "total_ns": 6735593847,
+    "iterations": 1000000,
+    "ns_per_op": 6735.59
+  },
+  {
+    "suite": "Insert",
     "operation": "insert middle",
-    "total_ns": 13553774,
-    "iterations": 100000,
-    "ns_per_op": 135.54
+    "total_ns": 19761154,
+    "iterations": 10000,
+    "ns_per_op": 1976.12
   },
   {
-    "name": "std::vector insert middle",
-    "library": "std::vector",
+    "suite": "Insert",
     "operation": "insert middle",
-    "total_ns": 14902951,
+    "total_ns": 96582461,
     "iterations": 100000,
-    "ns_per_op": 149.03
+    "ns_per_op": 965.82
   },
   {
-    "name": "VectorPro insert end",
-    "library": "VectorPro",
+    "suite": "Insert",
+    "operation": "insert middle",
+    "total_ns": 733821538,
+    "iterations": 1000000,
+    "ns_per_op": 733.82
+  },
+  {
+    "suite": "Insert",
     "operation": "insert end",
-    "total_ns": 12162139,
-    "iterations": 100000,
-    "ns_per_op": 121.62
+    "total_ns": 5664538,
+    "iterations": 10000,
+    "ns_per_op": 566.45
   },
   {
-    "name": "std::vector insert end",
-    "library": "std::vector",
+    "suite": "Insert",
     "operation": "insert end",
-    "total_ns": 13378457,
+    "total_ns": 84503616,
     "iterations": 100000,
-    "ns_per_op": 133.78
+    "ns_per_op": 845.04
   },
   {
-    "name": "VectorPro pop_back",
-    "library": "VectorPro",
+    "suite": "Insert",
+    "operation": "insert end",
+    "total_ns": 854764000,
+    "iterations": 1000000,
+    "ns_per_op": 854.76
+  },
+  {
+    "suite": "Pop Clear",
     "operation": "pop_back",
-    "total_ns": 8807440,
-    "iterations": 100000,
-    "ns_per_op": 88.07
+    "total_ns": 4686769,
+    "iterations": 10000,
+    "ns_per_op": 468.68
   },
   {
-    "name": "std::vector pop_back",
-    "library": "std::vector",
+    "suite": "Pop Clear",
     "operation": "pop_back",
-    "total_ns": 8662881,
+    "total_ns": 34948308,
     "iterations": 100000,
-    "ns_per_op": 86.63
+    "ns_per_op": 349.48
   },
   {
-    "name": "VectorPro clear",
-    "library": "VectorPro",
+    "suite": "Pop Clear",
+    "operation": "pop_back",
+    "total_ns": 459808384,
+    "iterations": 1000000,
+    "ns_per_op": 459.81
+  },
+  {
+    "suite": "Pop Clear",
     "operation": "clear",
-    "total_ns": 8896436,
-    "iterations": 100000,
-    "ns_per_op": 88.96
+    "total_ns": 3624077,
+    "iterations": 10000,
+    "ns_per_op": 362.41
   },
   {
-    "name": "std::vector clear",
-    "library": "std::vector",
+    "suite": "Pop Clear",
     "operation": "clear",
-    "total_ns": 8657711,
+    "total_ns": 50878077,
     "iterations": 100000,
-    "ns_per_op": 86.58
+    "ns_per_op": 508.78
   },
   {
-    "name": "VectorPro push_back",
-    "library": "VectorPro",
+    "suite": "Pop Clear",
+    "operation": "clear",
+    "total_ns": 376013461,
+    "iterations": 1000000,
+    "ns_per_op": 376.01
+  },
+  {
+    "suite": "Push Back",
     "operation": "push_back",
-    "total_ns": 274784148,
-    "iterations": 100000,
-    "ns_per_op": 2747.84
+    "total_ns": 43318384,
+    "iterations": 10000,
+    "ns_per_op": 4331.84
   },
   {
-    "name": "std::vector push_back",
-    "library": "std::vector",
+    "suite": "Push Back",
     "operation": "push_back",
-    "total_ns": 87356393,
+    "total_ns": 490632923,
     "iterations": 100000,
-    "ns_per_op": 873.56
+    "ns_per_op": 4906.33
   },
   {
-    "name": "VectorPro push_back reserved",
-    "library": "VectorPro",
+    "suite": "Push Back",
+    "operation": "push_back",
+    "total_ns": 7534772924,
+    "iterations": 1000000,
+    "ns_per_op": 7534.77
+  },
+  {
+    "suite": "Push Back",
     "operation": "push_back reserved",
-    "total_ns": 190507891,
-    "iterations": 100000,
-    "ns_per_op": 1905.08
+    "total_ns": 50091153,
+    "iterations": 10000,
+    "ns_per_op": 5009.12
   },
   {
-    "name": "std::vector push_back reserved",
-    "library": "std::vector",
+    "suite": "Push Back",
     "operation": "push_back reserved",
-    "total_ns": 65336595,
+    "total_ns": 492782462,
     "iterations": 100000,
-    "ns_per_op": 653.37
+    "ns_per_op": 4927.82
   },
   {
-    "name": "VectorPro emplace_back",
-    "library": "VectorPro",
+    "suite": "Push Back",
+    "operation": "push_back reserved",
+    "total_ns": 4984917846,
+    "iterations": 1000000,
+    "ns_per_op": 4984.92
+  },
+  {
+    "suite": "Push Back",
     "operation": "emplace_back",
-    "total_ns": 97798693,
-    "iterations": 100000,
-    "ns_per_op": 977.99
+    "total_ns": 37115077,
+    "iterations": 10000,
+    "ns_per_op": 3711.51
   },
   {
-    "name": "std::vector emplace_back",
-    "library": "std::vector",
+    "suite": "Push Back",
     "operation": "emplace_back",
-    "total_ns": 64325028,
+    "total_ns": 370210230,
     "iterations": 100000,
-    "ns_per_op": 643.25
+    "ns_per_op": 3702.10
   },
   {
-    "name": "VectorPro remove_if",
-    "library": "VectorPro",
-    "operation": "remove_if",
-    "total_ns": 316391816,
-    "iterations": 100000,
-    "ns_per_op": 3163.92
+    "suite": "Push Back",
+    "operation": "emplace_back",
+    "total_ns": 3705479692,
+    "iterations": 1000000,
+    "ns_per_op": 3705.48
   },
   {
-    "name": "std::vector erase-remove_if",
-    "library": "std::vector",
+    "suite": "Remove If",
     "operation": "erase-remove_if",
-    "total_ns": 124467453,
-    "iterations": 100000,
-    "ns_per_op": 1244.67
+    "total_ns": 102104385,
+    "iterations": 10000,
+    "ns_per_op": 10210.44
   },
   {
-    "name": "VectorPro default construct",
-    "library": "VectorPro",
+    "suite": "Remove If",
+    "operation": "erase-remove_if",
+    "total_ns": 1037205000,
+    "iterations": 100000,
+    "ns_per_op": 10372.05
+  },
+  {
+    "suite": "Remove If",
+    "operation": "erase-remove_if",
+    "total_ns": 10260222385,
+    "iterations": 1000000,
+    "ns_per_op": 10260.22
+  },
+  {
+    "suite": "Construction",
     "operation": "default construct",
-    "total_ns": 2210503,
-    "iterations": 1000000,
-    "ns_per_op": 2.21
+    "total_ns": 52923,
+    "iterations": 10000,
+    "ns_per_op": 5.29
   },
   {
-    "name": "std::vector default construct",
-    "library": "std::vector",
+    "suite": "Construction",
     "operation": "default construct",
-    "total_ns": 626008,
-    "iterations": 1000000,
-    "ns_per_op": 0.63
+    "total_ns": 526692,
+    "iterations": 100000,
+    "ns_per_op": 5.27
   },
   {
-    "name": "VectorPro fill construct",
-    "library": "VectorPro",
+    "suite": "Construction",
+    "operation": "default construct",
+    "total_ns": 5289154,
+    "iterations": 1000000,
+    "ns_per_op": 5.29
+  },
+  {
+    "suite": "Construction",
     "operation": "fill construct",
-    "total_ns": 39925818,
-    "iterations": 1000000,
-    "ns_per_op": 39.93
+    "total_ns": 1547385,
+    "iterations": 10000,
+    "ns_per_op": 154.74
   },
   {
-    "name": "std::vector fill construct",
-    "library": "std::vector",
+    "suite": "Construction",
     "operation": "fill construct",
-    "total_ns": 37328663,
-    "iterations": 1000000,
-    "ns_per_op": 37.33
+    "total_ns": 14523384,
+    "iterations": 100000,
+    "ns_per_op": 145.23
   },
   {
-    "name": "VectorPro init list construct",
-    "library": "VectorPro",
+    "suite": "Construction",
+    "operation": "fill construct",
+    "total_ns": 224572077,
+    "iterations": 1000000,
+    "ns_per_op": 224.57
+  },
+  {
+    "suite": "Construction",
     "operation": "init list construct",
-    "total_ns": 15686662,
-    "iterations": 1000000,
-    "ns_per_op": 15.69
+    "total_ns": 1259615,
+    "iterations": 10000,
+    "ns_per_op": 125.96
   },
   {
-    "name": "std::vector init list construct",
-    "library": "std::vector",
+    "suite": "Construction",
     "operation": "init list construct",
-    "total_ns": 13462814,
-    "iterations": 1000000,
-    "ns_per_op": 13.46
+    "total_ns": 21167154,
+    "iterations": 100000,
+    "ns_per_op": 211.67
   },
   {
-    "name": "VectorPro copy construct",
-    "library": "VectorPro",
+    "suite": "Construction",
+    "operation": "init list construct",
+    "total_ns": 126168692,
+    "iterations": 1000000,
+    "ns_per_op": 126.17
+  },
+  {
+    "suite": "Copy",
     "operation": "copy construct",
-    "total_ns": 40308591,
-    "iterations": 500000,
-    "ns_per_op": 80.62
+    "total_ns": 7016000,
+    "iterations": 10000,
+    "ns_per_op": 701.60
   },
   {
-    "name": "std::vector copy construct",
-    "library": "std::vector",
+    "suite": "Copy",
     "operation": "copy construct",
-    "total_ns": 44424279,
-    "iterations": 500000,
-    "ns_per_op": 88.85
+    "total_ns": 70403154,
+    "iterations": 100000,
+    "ns_per_op": 704.03
   },
   {
-    "name": "VectorPro copy assignment",
-    "library": "VectorPro",
+    "suite": "Copy",
+    "operation": "copy construct",
+    "total_ns": 810531384,
+    "iterations": 1000000,
+    "ns_per_op": 810.53
+  },
+  {
+    "suite": "Copy",
     "operation": "copy assignment",
-    "total_ns": 34454732,
-    "iterations": 500000,
-    "ns_per_op": 68.91
+    "total_ns": 5539,
+    "iterations": 10000,
+    "ns_per_op": 0.55
   },
   {
-    "name": "std::vector copy assignment",
-    "library": "std::vector",
+    "suite": "Copy",
     "operation": "copy assignment",
-    "total_ns": 34960335,
-    "iterations": 500000,
-    "ns_per_op": 69.92
+    "total_ns": 52615,
+    "iterations": 100000,
+    "ns_per_op": 0.53
   },
   {
-    "name": "VectorPro move construct",
-    "library": "VectorPro",
+    "suite": "Copy",
+    "operation": "copy assignment",
+    "total_ns": 526231,
+    "iterations": 1000000,
+    "ns_per_op": 0.53
+  },
+  {
+    "suite": "Move",
     "operation": "move construct",
-    "total_ns": 12308921,
-    "iterations": 500000,
-    "ns_per_op": 24.62
+    "total_ns": 3450154,
+    "iterations": 10000,
+    "ns_per_op": 345.02
   },
   {
-    "name": "std::vector move construct",
-    "library": "std::vector",
+    "suite": "Move",
     "operation": "move construct",
-    "total_ns": 8404348,
-    "iterations": 500000,
-    "ns_per_op": 16.81
+    "total_ns": 48273615,
+    "iterations": 100000,
+    "ns_per_op": 482.74
   },
   {
-    "name": "VectorPro move assignment",
-    "library": "VectorPro",
+    "suite": "Move",
+    "operation": "move construct",
+    "total_ns": 290436231,
+    "iterations": 1000000,
+    "ns_per_op": 290.44
+  },
+  {
+    "suite": "Move",
     "operation": "move assignment",
-    "total_ns": 10423393,
-    "iterations": 500000,
-    "ns_per_op": 20.85
+    "total_ns": 3523462,
+    "iterations": 10000,
+    "ns_per_op": 352.35
   },
   {
-    "name": "std::vector move assignment",
-    "library": "std::vector",
+    "suite": "Move",
     "operation": "move assignment",
-    "total_ns": 8718093,
-    "iterations": 500000,
-    "ns_per_op": 17.44
+    "total_ns": 14690461,
+    "iterations": 100000,
+    "ns_per_op": 146.90
   },
   {
-    "name": "VectorPro growth reallocation",
-    "library": "VectorPro",
+    "suite": "Move",
+    "operation": "move assignment",
+    "total_ns": 203181846,
+    "iterations": 1000000,
+    "ns_per_op": 203.18
+  },
+  {
+    "suite": "Reallocation",
     "operation": "growth reallocation",
-    "total_ns": 101130649,
-    "iterations": 500000,
-    "ns_per_op": 202.26
+    "total_ns": 9050769,
+    "iterations": 10000,
+    "ns_per_op": 905.08
   },
   {
-    "name": "std::vector growth reallocation",
-    "library": "std::vector",
+    "suite": "Reallocation",
     "operation": "growth reallocation",
-    "total_ns": 98754005,
-    "iterations": 500000,
-    "ns_per_op": 197.51
+    "total_ns": 104796308,
+    "iterations": 100000,
+    "ns_per_op": 1047.96
   },
   {
-    "name": "VectorPro reserve",
-    "library": "VectorPro",
+    "suite": "Reallocation",
+    "operation": "growth reallocation",
+    "total_ns": 1090715693,
+    "iterations": 1000000,
+    "ns_per_op": 1090.72
+  },
+  {
+    "suite": "Reserve",
     "operation": "reserve",
-    "total_ns": 19196168,
-    "iterations": 500000,
-    "ns_per_op": 38.39
+    "total_ns": 2531000,
+    "iterations": 10000,
+    "ns_per_op": 253.10
   },
   {
-    "name": "std::vector reserve",
-    "library": "std::vector",
+    "suite": "Reserve",
     "operation": "reserve",
-    "total_ns": 18482387,
-    "iterations": 500000,
-    "ns_per_op": 36.96
+    "total_ns": 50628693,
+    "iterations": 100000,
+    "ns_per_op": 506.29
   },
   {
-    "name": "VectorPro reserve growth",
-    "library": "VectorPro",
+    "suite": "Reserve",
+    "operation": "reserve",
+    "total_ns": 391296308,
+    "iterations": 1000000,
+    "ns_per_op": 391.30
+  },
+  {
+    "suite": "Reserve",
     "operation": "reserve growth",
-    "total_ns": 18585760,
-    "iterations": 100000,
-    "ns_per_op": 185.86
+    "total_ns": 33135000,
+    "iterations": 10000,
+    "ns_per_op": 3313.50
   },
   {
-    "name": "std::vector reserve growth",
-    "library": "std::vector",
+    "suite": "Reserve",
     "operation": "reserve growth",
-    "total_ns": 17529209,
+    "total_ns": 301189538,
     "iterations": 100000,
-    "ns_per_op": 175.29
+    "ns_per_op": 3011.90
   },
   {
-    "name": "VectorPro reserve no-op",
-    "library": "VectorPro",
+    "suite": "Reserve",
+    "operation": "reserve growth",
+    "total_ns": 2267070462,
+    "iterations": 1000000,
+    "ns_per_op": 2267.07
+  },
+  {
+    "suite": "Reserve",
     "operation": "reserve no-op",
-    "total_ns": 932821,
-    "iterations": 1000000,
-    "ns_per_op": 0.93
+    "total_ns": 10538,
+    "iterations": 10000,
+    "ns_per_op": 1.05
   },
   {
-    "name": "std::vector reserve no-op",
-    "library": "std::vector",
+    "suite": "Reserve",
     "operation": "reserve no-op",
-    "total_ns": 624475,
-    "iterations": 1000000,
-    "ns_per_op": 0.62
+    "total_ns": 105308,
+    "iterations": 100000,
+    "ns_per_op": 1.05
   },
   {
-    "name": "VectorPro shrink_to_fit",
-    "library": "VectorPro",
+    "suite": "Reserve",
+    "operation": "reserve no-op",
+    "total_ns": 1052615,
+    "iterations": 1000000,
+    "ns_per_op": 1.05
+  },
+  {
+    "suite": "Shrink",
     "operation": "shrink_to_fit",
-    "total_ns": 155622057,
-    "iterations": 500000,
-    "ns_per_op": 311.24
+    "total_ns": 8426154,
+    "iterations": 10000,
+    "ns_per_op": 842.62
   },
   {
-    "name": "std::vector shrink_to_fit",
-    "library": "std::vector",
+    "suite": "Shrink",
     "operation": "shrink_to_fit",
-    "total_ns": 60699188,
-    "iterations": 500000,
-    "ns_per_op": 121.40
-  },
-  {
-    "name": "VectorPro operator== equal",
-    "library": "VectorPro",
-    "operation": "operator== equal",
-    "total_ns": 317579802,
+    "total_ns": 94495692,
     "iterations": 100000,
-    "ns_per_op": 3175.80
+    "ns_per_op": 944.96
   },
   {
-    "name": "std::vector operator== equal",
-    "library": "std::vector",
-    "operation": "operator== equal",
-    "total_ns": 78538356,
-    "iterations": 100000,
-    "ns_per_op": 785.38
-  },
-  {
-    "name": "VectorPro operator== differs early",
-    "library": "VectorPro",
-    "operation": "operator== differs early",
-    "total_ns": 92552,
-    "iterations": 100000,
-    "ns_per_op": 0.93
-  },
-  {
-    "name": "std::vector operator== differs early",
-    "library": "std::vector",
-    "operation": "operator== differs early",
-    "total_ns": 383125,
-    "iterations": 100000,
-    "ns_per_op": 3.83
-  },
-  {
-    "name": "VectorPro operator== differs late",
-    "library": "VectorPro",
-    "operation": "operator== differs late",
-    "total_ns": 318617297,
-    "iterations": 100000,
-    "ns_per_op": 3186.17
-  },
-  {
-    "name": "std::vector operator== differs late",
-    "library": "std::vector",
-    "operation": "operator== differs late",
-    "total_ns": 80355004,
-    "iterations": 100000,
-    "ns_per_op": 803.55
-  },
-  {
-    "name": "VectorPro operator== diff sizes",
-    "library": "VectorPro",
-    "operation": "operator== diff sizes",
-    "total_ns": 617392,
+    "suite": "Shrink",
+    "operation": "shrink_to_fit",
+    "total_ns": 890484077,
     "iterations": 1000000,
-    "ns_per_op": 0.62
+    "ns_per_op": 890.48
   },
   {
-    "name": "std::vector operator== diff sizes",
-    "library": "std::vector",
-    "operation": "operator== diff sizes",
-    "total_ns": 625777,
+    "suite": "Comparison",
+    "operation": "operator== equal",
+    "total_ns": 61882231,
+    "iterations": 10000,
+    "ns_per_op": 6188.22
+  },
+  {
+    "suite": "Comparison",
+    "operation": "operator== equal",
+    "total_ns": 1572769462,
+    "iterations": 100000,
+    "ns_per_op": 15727.69
+  },
+  {
+    "suite": "Comparison",
+    "operation": "operator== equal",
+    "total_ns": 6358491462,
     "iterations": 1000000,
-    "ns_per_op": 0.63
+    "ns_per_op": 6358.49
   },
   {
-    "name": "VectorPro operator<=> equal",
-    "library": "VectorPro",
+    "suite": "Comparison",
+    "operation": "operator== differs early",
+    "total_ns": 63692,
+    "iterations": 10000,
+    "ns_per_op": 6.37
+  },
+  {
+    "suite": "Comparison",
+    "operation": "operator== differs early",
+    "total_ns": 670693,
+    "iterations": 100000,
+    "ns_per_op": 6.71
+  },
+  {
+    "suite": "Comparison",
+    "operation": "operator== differs early",
+    "total_ns": 6334539,
+    "iterations": 1000000,
+    "ns_per_op": 6.33
+  },
+  {
+    "suite": "Comparison",
+    "operation": "operator== differs late",
+    "total_ns": 61833923,
+    "iterations": 10000,
+    "ns_per_op": 6183.39
+  },
+  {
+    "suite": "Comparison",
+    "operation": "operator== differs late",
+    "total_ns": 620985539,
+    "iterations": 100000,
+    "ns_per_op": 6209.86
+  },
+  {
+    "suite": "Comparison",
+    "operation": "operator== differs late",
+    "total_ns": 6673545231,
+    "iterations": 1000000,
+    "ns_per_op": 6673.55
+  },
+  {
+    "suite": "Comparison",
+    "operation": "operator== diff sizes",
+    "total_ns": 10693,
+    "iterations": 10000,
+    "ns_per_op": 1.07
+  },
+  {
+    "suite": "Comparison",
+    "operation": "operator== diff sizes",
+    "total_ns": 105462,
+    "iterations": 100000,
+    "ns_per_op": 1.05
+  },
+  {
+    "suite": "Comparison",
+    "operation": "operator== diff sizes",
+    "total_ns": 526462,
+    "iterations": 1000000,
+    "ns_per_op": 0.53
+  },
+  {
+    "suite": "Comparison",
     "operation": "operator<=> equal",
-    "total_ns": 492096465,
-    "iterations": 100000,
-    "ns_per_op": 4920.96
+    "total_ns": 118799077,
+    "iterations": 10000,
+    "ns_per_op": 11879.91
   },
   {
-    "name": "std::vector operator<=> equal",
-    "library": "std::vector",
+    "suite": "Comparison",
     "operation": "operator<=> equal",
-    "total_ns": 490994339,
+    "total_ns": 1173832077,
     "iterations": 100000,
-    "ns_per_op": 4909.94
+    "ns_per_op": 11738.32
   },
   {
-    "name": "VectorPro operator<=> less",
-    "library": "VectorPro",
+    "suite": "Comparison",
+    "operation": "operator<=> equal",
+    "total_ns": 20879481770,
+    "iterations": 1000000,
+    "ns_per_op": 20879.48
+  },
+  {
+    "suite": "Comparison",
     "operation": "operator<=> less",
-    "total_ns": 92563,
-    "iterations": 100000,
-    "ns_per_op": 0.93
+    "total_ns": 98693,
+    "iterations": 10000,
+    "ns_per_op": 9.87
   },
   {
-    "name": "std::vector operator<=> less",
-    "library": "std::vector",
+    "suite": "Comparison",
     "operation": "operator<=> less",
-    "total_ns": 119443,
+    "total_ns": 984693,
     "iterations": 100000,
-    "ns_per_op": 1.19
+    "ns_per_op": 9.85
   },
   {
-    "name": "VectorPro push_back, 0 listeners",
-    "library": "VectorPro",
+    "suite": "Comparison",
+    "operation": "operator<=> less",
+    "total_ns": 9975076,
+    "iterations": 1000000,
+    "ns_per_op": 9.98
+  },
+  {
+    "suite": "Observer",
     "operation": "push_back, 0 listeners",
-    "total_ns": 38122463,
+    "total_ns": 49459077,
     "iterations": 10000,
-    "ns_per_op": 3812.25
+    "ns_per_op": 4945.91
   },
   {
-    "name": "VectorPro push_back, 1 listener",
-    "library": "VectorPro",
+    "suite": "Observer",
+    "operation": "push_back, 0 listeners",
+    "total_ns": 492569538,
+    "iterations": 100000,
+    "ns_per_op": 4925.70
+  },
+  {
+    "suite": "Observer",
+    "operation": "push_back, 0 listeners",
+    "total_ns": 3755690846,
+    "iterations": 1000000,
+    "ns_per_op": 3755.69
+  },
+  {
+    "suite": "Observer",
     "operation": "push_back, 1 listener",
-    "total_ns": 54052309,
+    "total_ns": 196726847,
     "iterations": 10000,
-    "ns_per_op": 5405.23
+    "ns_per_op": 19672.68
   },
   {
-    "name": "VectorPro push_back, 8 listeners",
-    "library": "VectorPro",
+    "suite": "Observer",
+    "operation": "push_back, 1 listener",
+    "total_ns": 1967827077,
+    "iterations": 100000,
+    "ns_per_op": 19678.27
+  },
+  {
+    "suite": "Observer",
+    "operation": "push_back, 1 listener",
+    "total_ns": 19669924616,
+    "iterations": 1000000,
+    "ns_per_op": 19669.92
+  },
+  {
+    "suite": "Observer",
     "operation": "push_back, 8 listeners",
-    "total_ns": 188207692,
+    "total_ns": 939195616,
     "iterations": 10000,
-    "ns_per_op": 18820.77
+    "ns_per_op": 93919.56
   },
   {
-    "name": "VectorPro push_back, capturing listener",
-    "library": "VectorPro",
+    "suite": "Observer",
+    "operation": "push_back, 8 listeners",
+    "total_ns": 9408129770,
+    "iterations": 100000,
+    "ns_per_op": 94081.30
+  },
+  {
+    "suite": "Observer",
+    "operation": "push_back, 8 listeners",
+    "total_ns": 101176331775,
+    "iterations": 1000000,
+    "ns_per_op": 101176.33
+  },
+  {
+    "suite": "Observer",
     "operation": "push_back, capturing listener",
-    "total_ns": 60304883,
+    "total_ns": 243096231,
     "iterations": 10000,
-    "ns_per_op": 6030.49
+    "ns_per_op": 24309.62
   },
   {
-    "name": "VectorPro subscribe x100",
-    "library": "VectorPro",
+    "suite": "Observer",
+    "operation": "push_back, capturing listener",
+    "total_ns": 2360180693,
+    "iterations": 100000,
+    "ns_per_op": 23601.81
+  },
+  {
+    "suite": "Observer",
+    "operation": "push_back, capturing listener",
+    "total_ns": 23538767617,
+    "iterations": 1000000,
+    "ns_per_op": 23538.77
+  },
+  {
+    "suite": "Observer",
     "operation": "subscribe x100",
-    "total_ns": 12687487,
+    "total_ns": 90140000,
     "iterations": 10000,
-    "ns_per_op": 1268.75
+    "ns_per_op": 9014.00
   },
   {
-    "name": "VectorPro unsubscribe x100",
-    "library": "VectorPro",
+    "suite": "Observer",
+    "operation": "subscribe x100",
+    "total_ns": 898386538,
+    "iterations": 100000,
+    "ns_per_op": 8983.87
+  },
+  {
+    "suite": "Observer",
+    "operation": "subscribe x100",
+    "total_ns": 9020787770,
+    "iterations": 1000000,
+    "ns_per_op": 9020.79
+  },
+  {
+    "suite": "Observer",
     "operation": "unsubscribe x100",
-    "total_ns": 232198422,
+    "total_ns": 992445231,
     "iterations": 10000,
-    "ns_per_op": 23219.84
+    "ns_per_op": 99244.52
   },
   {
-    "name": "VectorPro member swap",
-    "library": "VectorPro",
+    "suite": "Observer",
+    "operation": "unsubscribe x100",
+    "total_ns": 9841034154,
+    "iterations": 100000,
+    "ns_per_op": 98410.34
+  },
+  {
+    "suite": "Observer",
+    "operation": "unsubscribe x100",
+    "total_ns": 99043755391,
+    "iterations": 1000000,
+    "ns_per_op": 99043.76
+  },
+  {
+    "suite": "Swap",
     "operation": "member swap",
-    "total_ns": 115817606,
-    "iterations": 500000,
-    "ns_per_op": 231.64
+    "total_ns": 18707692,
+    "iterations": 10000,
+    "ns_per_op": 1870.77
   },
   {
-    "name": "std::vector member swap",
-    "library": "std::vector",
+    "suite": "Swap",
     "operation": "member swap",
-    "total_ns": 113834647,
-    "iterations": 500000,
-    "ns_per_op": 227.67
+    "total_ns": 185796923,
+    "iterations": 100000,
+    "ns_per_op": 1857.97
   },
   {
-    "name": "VectorPro free swap",
-    "library": "VectorPro",
-    "operation": "free swap",
-    "total_ns": 117687263,
-    "iterations": 500000,
-    "ns_per_op": 235.37
+    "suite": "Swap",
+    "operation": "member swap",
+    "total_ns": 1859466231,
+    "iterations": 1000000,
+    "ns_per_op": 1859.47
   },
   {
-    "name": "std::vector free swap",
-    "library": "std::vector",
+    "suite": "Swap",
     "operation": "free swap",
-    "total_ns": 120761398,
-    "iterations": 500000,
-    "ns_per_op": 241.52
+    "total_ns": 18667077,
+    "iterations": 10000,
+    "ns_per_op": 1866.71
+  },
+  {
+    "suite": "Swap",
+    "operation": "free swap",
+    "total_ns": 185903385,
+    "iterations": 100000,
+    "ns_per_op": 1859.03
+  },
+  {
+    "suite": "Swap",
+    "operation": "free swap",
+    "total_ns": 1622829000,
+    "iterations": 1000000,
+    "ns_per_op": 1622.83
   }
 ]

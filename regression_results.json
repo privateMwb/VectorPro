@@ -1,0 +1,1226 @@
+[
+  {
+    "suite": "Element Access",
+    "operation": "at()",
+    "iteration": 10000, 
+    "baseline_ns": 263.16,
+    "current_ns": 264.84,
+    "pct_change": 0.64
+  },
+  {
+    "suite": "Element Access",
+    "operation": "at()",
+    "iteration": 100000, 
+    "baseline_ns": 255.87,
+    "current_ns": 263.55,
+    "pct_change": 3.00
+  },
+  {
+    "suite": "Element Access",
+    "operation": "at()",
+    "iteration": 1000000, 
+    "baseline_ns": 255.19,
+    "current_ns": 262.68,
+    "pct_change": 2.94
+  },
+  {
+    "suite": "Element Access",
+    "operation": "front/back",
+    "iteration": 10000, 
+    "baseline_ns": 1.23,
+    "current_ns": 1.35,
+    "pct_change": 9.76
+  },
+  {
+    "suite": "Element Access",
+    "operation": "front/back",
+    "iteration": 100000, 
+    "baseline_ns": 1.79,
+    "current_ns": 1.62,
+    "pct_change": -9.50
+  },
+  {
+    "suite": "Element Access",
+    "operation": "front/back",
+    "iteration": 1000000, 
+    "baseline_ns": 1.23,
+    "current_ns": 1.26,
+    "pct_change": 2.44
+  },
+  {
+    "suite": "Element Access",
+    "operation": "data_ptr()",
+    "iteration": 10000, 
+    "baseline_ns": 255.94,
+    "current_ns": 260.99,
+    "pct_change": 1.97
+  },
+  {
+    "suite": "Element Access",
+    "operation": "data_ptr()",
+    "iteration": 100000, 
+    "baseline_ns": 255.62,
+    "current_ns": 262.69,
+    "pct_change": 2.77
+  },
+  {
+    "suite": "Element Access",
+    "operation": "data_ptr()",
+    "iteration": 1000000, 
+    "baseline_ns": 255.05,
+    "current_ns": 262.02,
+    "pct_change": 2.73
+  },
+  {
+    "suite": "Iteration",
+    "operation": "range-for",
+    "iteration": 10000, 
+    "baseline_ns": 257.98,
+    "current_ns": 264.33,
+    "pct_change": 2.46
+  },
+  {
+    "suite": "Iteration",
+    "operation": "range-for",
+    "iteration": 100000, 
+    "baseline_ns": 255.95,
+    "current_ns": 262.90,
+    "pct_change": 2.72
+  },
+  {
+    "suite": "Iteration",
+    "operation": "range-for",
+    "iteration": 1000000, 
+    "baseline_ns": 255.46,
+    "current_ns": 262.42,
+    "pct_change": 2.72
+  },
+  {
+    "suite": "Iteration",
+    "operation": "iterator loop",
+    "iteration": 10000, 
+    "baseline_ns": 254.78,
+    "current_ns": 261.68,
+    "pct_change": 2.71
+  },
+  {
+    "suite": "Iteration",
+    "operation": "iterator loop",
+    "iteration": 100000, 
+    "baseline_ns": 255.80,
+    "current_ns": 263.27,
+    "pct_change": 2.92
+  },
+  {
+    "suite": "Iteration",
+    "operation": "iterator loop",
+    "iteration": 1000000, 
+    "baseline_ns": 256.46,
+    "current_ns": 263.53,
+    "pct_change": 2.76
+  },
+  {
+    "suite": "Iteration",
+    "operation": "index loop",
+    "iteration": 10000, 
+    "baseline_ns": 253.39,
+    "current_ns": 260.04,
+    "pct_change": 2.62
+  },
+  {
+    "suite": "Iteration",
+    "operation": "index loop",
+    "iteration": 100000, 
+    "baseline_ns": 254.46,
+    "current_ns": 262.03,
+    "pct_change": 2.97
+  },
+  {
+    "suite": "Iteration",
+    "operation": "index loop",
+    "iteration": 1000000, 
+    "baseline_ns": 255.51,
+    "current_ns": 262.48,
+    "pct_change": 2.73
+  },
+  {
+    "suite": "Iteration",
+    "operation": "reverse iteration",
+    "iteration": 10000, 
+    "baseline_ns": 442.62,
+    "current_ns": 455.35,
+    "pct_change": 2.88
+  },
+  {
+    "suite": "Iteration",
+    "operation": "reverse iteration",
+    "iteration": 100000, 
+    "baseline_ns": 444.86,
+    "current_ns": 456.74,
+    "pct_change": 2.67
+  },
+  {
+    "suite": "Iteration",
+    "operation": "reverse iteration",
+    "iteration": 1000000, 
+    "baseline_ns": 443.12,
+    "current_ns": 455.50,
+    "pct_change": 2.79
+  },
+  {
+    "suite": "Iteration",
+    "operation": "accumulate",
+    "iteration": 10000, 
+    "baseline_ns": 256.86,
+    "current_ns": 723.45,
+    "pct_change": 181.65
+  },
+  {
+    "suite": "Iteration",
+    "operation": "accumulate",
+    "iteration": 100000, 
+    "baseline_ns": 255.72,
+    "current_ns": 655.12,
+    "pct_change": 156.19
+  },
+  {
+    "suite": "Iteration",
+    "operation": "accumulate",
+    "iteration": 1000000, 
+    "baseline_ns": 261.59,
+    "current_ns": 387.34,
+    "pct_change": 48.07
+  },
+  {
+    "suite": "Search",
+    "operation": "contains hit (1k)",
+    "iteration": 10000, 
+    "baseline_ns": 545.08,
+    "current_ns": 560.16,
+    "pct_change": 2.77
+  },
+  {
+    "suite": "Search",
+    "operation": "contains hit (1k)",
+    "iteration": 100000, 
+    "baseline_ns": 543.67,
+    "current_ns": 578.82,
+    "pct_change": 6.47
+  },
+  {
+    "suite": "Search",
+    "operation": "contains hit (1k)",
+    "iteration": 1000000, 
+    "baseline_ns": 543.19,
+    "current_ns": 558.52,
+    "pct_change": 2.82
+  },
+  {
+    "suite": "Search",
+    "operation": "contains miss (1k)",
+    "iteration": 10000, 
+    "baseline_ns": 1070.65,
+    "current_ns": 1105.11,
+    "pct_change": 3.22
+  },
+  {
+    "suite": "Search",
+    "operation": "contains miss (1k)",
+    "iteration": 100000, 
+    "baseline_ns": 1070.49,
+    "current_ns": 1103.87,
+    "pct_change": 3.12
+  },
+  {
+    "suite": "Search",
+    "operation": "contains miss (1k)",
+    "iteration": 1000000, 
+    "baseline_ns": 1068.98,
+    "current_ns": 1101.95,
+    "pct_change": 3.08
+  },
+  {
+    "suite": "Search",
+    "operation": "contains hit (10k)",
+    "iteration": 10000, 
+    "baseline_ns": 10577.69,
+    "current_ns": 12040.34,
+    "pct_change": 13.83
+  },
+  {
+    "suite": "Search",
+    "operation": "contains hit (10k)",
+    "iteration": 100000, 
+    "baseline_ns": 10566.50,
+    "current_ns": 11816.51,
+    "pct_change": 11.83
+  },
+  {
+    "suite": "Search",
+    "operation": "contains hit (10k)",
+    "iteration": 1000000, 
+    "baseline_ns": 10563.65,
+    "current_ns": 24835.15,
+    "pct_change": 135.10
+  },
+  {
+    "suite": "Search",
+    "operation": "find hit (1k)",
+    "iteration": 10000, 
+    "baseline_ns": 544.68,
+    "current_ns": 1265.94,
+    "pct_change": 132.42
+  },
+  {
+    "suite": "Search",
+    "operation": "find hit (1k)",
+    "iteration": 100000, 
+    "baseline_ns": 548.45,
+    "current_ns": 1257.96,
+    "pct_change": 129.37
+  },
+  {
+    "suite": "Search",
+    "operation": "find hit (1k)",
+    "iteration": 1000000, 
+    "baseline_ns": 685.26,
+    "current_ns": 1256.40,
+    "pct_change": 83.35
+  },
+  {
+    "suite": "Search",
+    "operation": "find miss (1k)",
+    "iteration": 10000, 
+    "baseline_ns": 1088.28,
+    "current_ns": 2507.02,
+    "pct_change": 130.37
+  },
+  {
+    "suite": "Search",
+    "operation": "find miss (1k)",
+    "iteration": 100000, 
+    "baseline_ns": 3624.55,
+    "current_ns": 2500.76,
+    "pct_change": -31.00
+  },
+  {
+    "suite": "Search",
+    "operation": "find miss (1k)",
+    "iteration": 1000000, 
+    "baseline_ns": 1756.04,
+    "current_ns": 2501.50,
+    "pct_change": 42.45
+  },
+  {
+    "suite": "Erase",
+    "operation": "erase front",
+    "iteration": 10000, 
+    "baseline_ns": 243.02,
+    "current_ns": 596.42,
+    "pct_change": 145.42
+  },
+  {
+    "suite": "Erase",
+    "operation": "erase front",
+    "iteration": 100000, 
+    "baseline_ns": 261.19,
+    "current_ns": 581.67,
+    "pct_change": 122.70
+  },
+  {
+    "suite": "Erase",
+    "operation": "erase front",
+    "iteration": 1000000, 
+    "baseline_ns": 533.32,
+    "current_ns": 586.36,
+    "pct_change": 9.95
+  },
+  {
+    "suite": "Erase",
+    "operation": "erase middle",
+    "iteration": 10000, 
+    "baseline_ns": 319.91,
+    "current_ns": 826.06,
+    "pct_change": 158.22
+  },
+  {
+    "suite": "Erase",
+    "operation": "erase middle",
+    "iteration": 100000, 
+    "baseline_ns": 319.19,
+    "current_ns": 821.53,
+    "pct_change": 157.38
+  },
+  {
+    "suite": "Erase",
+    "operation": "erase middle",
+    "iteration": 1000000, 
+    "baseline_ns": 773.39,
+    "current_ns": 821.14,
+    "pct_change": 6.17
+  },
+  {
+    "suite": "Erase",
+    "operation": "erase end",
+    "iteration": 10000, 
+    "baseline_ns": 593.16,
+    "current_ns": 584.56,
+    "pct_change": -1.45
+  },
+  {
+    "suite": "Erase",
+    "operation": "erase end",
+    "iteration": 100000, 
+    "baseline_ns": 585.06,
+    "current_ns": 584.13,
+    "pct_change": -0.16
+  },
+  {
+    "suite": "Erase",
+    "operation": "erase end",
+    "iteration": 1000000, 
+    "baseline_ns": 579.78,
+    "current_ns": 583.72,
+    "pct_change": 0.68
+  },
+  {
+    "suite": "Insert",
+    "operation": "insert front",
+    "iteration": 10000, 
+    "baseline_ns": 1995.69,
+    "current_ns": 2037.81,
+    "pct_change": 2.11
+  },
+  {
+    "suite": "Insert",
+    "operation": "insert front",
+    "iteration": 100000, 
+    "baseline_ns": 1992.83,
+    "current_ns": 2019.92,
+    "pct_change": 1.36
+  },
+  {
+    "suite": "Insert",
+    "operation": "insert front",
+    "iteration": 1000000, 
+    "baseline_ns": 6735.59,
+    "current_ns": 2058.23,
+    "pct_change": -69.44
+  },
+  {
+    "suite": "Insert",
+    "operation": "insert middle",
+    "iteration": 10000, 
+    "baseline_ns": 1976.12,
+    "current_ns": 1749.27,
+    "pct_change": -11.48
+  },
+  {
+    "suite": "Insert",
+    "operation": "insert middle",
+    "iteration": 100000, 
+    "baseline_ns": 965.82,
+    "current_ns": 1765.73,
+    "pct_change": 82.82
+  },
+  {
+    "suite": "Insert",
+    "operation": "insert middle",
+    "iteration": 1000000, 
+    "baseline_ns": 733.82,
+    "current_ns": 1810.91,
+    "pct_change": 146.78
+  },
+  {
+    "suite": "Insert",
+    "operation": "insert end",
+    "iteration": 10000, 
+    "baseline_ns": 566.45,
+    "current_ns": 1486.12,
+    "pct_change": 162.36
+  },
+  {
+    "suite": "Insert",
+    "operation": "insert end",
+    "iteration": 100000, 
+    "baseline_ns": 845.04,
+    "current_ns": 1484.07,
+    "pct_change": 75.62
+  },
+  {
+    "suite": "Insert",
+    "operation": "insert end",
+    "iteration": 1000000, 
+    "baseline_ns": 854.76,
+    "current_ns": 1491.53,
+    "pct_change": 74.50
+  },
+  {
+    "suite": "Pop Clear",
+    "operation": "pop_back",
+    "iteration": 10000, 
+    "baseline_ns": 468.68,
+    "current_ns": 858.58,
+    "pct_change": 83.19
+  },
+  {
+    "suite": "Pop Clear",
+    "operation": "pop_back",
+    "iteration": 100000, 
+    "baseline_ns": 349.48,
+    "current_ns": 856.05,
+    "pct_change": 144.95
+  },
+  {
+    "suite": "Pop Clear",
+    "operation": "pop_back",
+    "iteration": 1000000, 
+    "baseline_ns": 459.81,
+    "current_ns": 862.46,
+    "pct_change": 87.57
+  },
+  {
+    "suite": "Pop Clear",
+    "operation": "clear",
+    "iteration": 10000, 
+    "baseline_ns": 362.41,
+    "current_ns": 858.27,
+    "pct_change": 136.82
+  },
+  {
+    "suite": "Pop Clear",
+    "operation": "clear",
+    "iteration": 100000, 
+    "baseline_ns": 508.78,
+    "current_ns": 852.24,
+    "pct_change": 67.51
+  },
+  {
+    "suite": "Pop Clear",
+    "operation": "clear",
+    "iteration": 1000000, 
+    "baseline_ns": 376.01,
+    "current_ns": 853.99,
+    "pct_change": 127.12
+  },
+  {
+    "suite": "Push Back",
+    "operation": "push_back",
+    "iteration": 10000, 
+    "baseline_ns": 4331.84,
+    "current_ns": 8103.51,
+    "pct_change": 87.07
+  },
+  {
+    "suite": "Push Back",
+    "operation": "push_back",
+    "iteration": 100000, 
+    "baseline_ns": 4906.33,
+    "current_ns": 8087.66,
+    "pct_change": 64.84
+  },
+  {
+    "suite": "Push Back",
+    "operation": "push_back",
+    "iteration": 1000000, 
+    "baseline_ns": 7534.77,
+    "current_ns": 8164.00,
+    "pct_change": 8.35
+  },
+  {
+    "suite": "Push Back",
+    "operation": "push_back reserved",
+    "iteration": 10000, 
+    "baseline_ns": 5009.12,
+    "current_ns": 4923.93,
+    "pct_change": -1.70
+  },
+  {
+    "suite": "Push Back",
+    "operation": "push_back reserved",
+    "iteration": 100000, 
+    "baseline_ns": 4927.82,
+    "current_ns": 4928.52,
+    "pct_change": 0.01
+  },
+  {
+    "suite": "Push Back",
+    "operation": "push_back reserved",
+    "iteration": 1000000, 
+    "baseline_ns": 4984.92,
+    "current_ns": 4988.46,
+    "pct_change": 0.07
+  },
+  {
+    "suite": "Push Back",
+    "operation": "emplace_back",
+    "iteration": 10000, 
+    "baseline_ns": 3711.51,
+    "current_ns": 3694.37,
+    "pct_change": -0.46
+  },
+  {
+    "suite": "Push Back",
+    "operation": "emplace_back",
+    "iteration": 100000, 
+    "baseline_ns": 3702.10,
+    "current_ns": 3696.50,
+    "pct_change": -0.15
+  },
+  {
+    "suite": "Push Back",
+    "operation": "emplace_back",
+    "iteration": 1000000, 
+    "baseline_ns": 3705.48,
+    "current_ns": 3707.20,
+    "pct_change": 0.05
+  },
+  {
+    "suite": "Remove If",
+    "operation": "erase-remove_if",
+    "iteration": 10000, 
+    "baseline_ns": 10210.44,
+    "current_ns": 10245.78,
+    "pct_change": 0.35
+  },
+  {
+    "suite": "Remove If",
+    "operation": "erase-remove_if",
+    "iteration": 100000, 
+    "baseline_ns": 10372.05,
+    "current_ns": 10251.84,
+    "pct_change": -1.16
+  },
+  {
+    "suite": "Remove If",
+    "operation": "erase-remove_if",
+    "iteration": 1000000, 
+    "baseline_ns": 10260.22,
+    "current_ns": 10392.80,
+    "pct_change": 1.29
+  },
+  {
+    "suite": "Construction",
+    "operation": "default construct",
+    "iteration": 10000, 
+    "baseline_ns": 5.29,
+    "current_ns": 3.11,
+    "pct_change": -41.21
+  },
+  {
+    "suite": "Construction",
+    "operation": "default construct",
+    "iteration": 100000, 
+    "baseline_ns": 5.27,
+    "current_ns": 3.71,
+    "pct_change": -29.60
+  },
+  {
+    "suite": "Construction",
+    "operation": "default construct",
+    "iteration": 1000000, 
+    "baseline_ns": 5.29,
+    "current_ns": 3.08,
+    "pct_change": -41.78
+  },
+  {
+    "suite": "Construction",
+    "operation": "fill construct",
+    "iteration": 10000, 
+    "baseline_ns": 154.74,
+    "current_ns": 332.84,
+    "pct_change": 115.10
+  },
+  {
+    "suite": "Construction",
+    "operation": "fill construct",
+    "iteration": 100000, 
+    "baseline_ns": 145.23,
+    "current_ns": 317.54,
+    "pct_change": 118.65
+  },
+  {
+    "suite": "Construction",
+    "operation": "fill construct",
+    "iteration": 1000000, 
+    "baseline_ns": 224.57,
+    "current_ns": 317.24,
+    "pct_change": 41.27
+  },
+  {
+    "suite": "Construction",
+    "operation": "init list construct",
+    "iteration": 10000, 
+    "baseline_ns": 125.96,
+    "current_ns": 267.38,
+    "pct_change": 112.27
+  },
+  {
+    "suite": "Construction",
+    "operation": "init list construct",
+    "iteration": 100000, 
+    "baseline_ns": 211.67,
+    "current_ns": 270.55,
+    "pct_change": 27.82
+  },
+  {
+    "suite": "Construction",
+    "operation": "init list construct",
+    "iteration": 1000000, 
+    "baseline_ns": 126.17,
+    "current_ns": 272.44,
+    "pct_change": 115.93
+  },
+  {
+    "suite": "Copy",
+    "operation": "copy construct",
+    "iteration": 10000, 
+    "baseline_ns": 701.60,
+    "current_ns": 1132.46,
+    "pct_change": 61.41
+  },
+  {
+    "suite": "Copy",
+    "operation": "copy construct",
+    "iteration": 100000, 
+    "baseline_ns": 704.03,
+    "current_ns": 1130.38,
+    "pct_change": 60.56
+  },
+  {
+    "suite": "Copy",
+    "operation": "copy construct",
+    "iteration": 1000000, 
+    "baseline_ns": 810.53,
+    "current_ns": 1132.95,
+    "pct_change": 39.78
+  },
+  {
+    "suite": "Copy",
+    "operation": "copy assignment",
+    "iteration": 10000, 
+    "baseline_ns": 0.55,
+    "current_ns": 0.65,
+    "pct_change": 18.18
+  },
+  {
+    "suite": "Copy",
+    "operation": "copy assignment",
+    "iteration": 100000, 
+    "baseline_ns": 0.53,
+    "current_ns": 0.62,
+    "pct_change": 16.98
+  },
+  {
+    "suite": "Copy",
+    "operation": "copy assignment",
+    "iteration": 1000000, 
+    "baseline_ns": 0.53,
+    "current_ns": 0.62,
+    "pct_change": 16.98
+  },
+  {
+    "suite": "Move",
+    "operation": "move construct",
+    "iteration": 10000, 
+    "baseline_ns": 345.02,
+    "current_ns": 320.58,
+    "pct_change": -7.08
+  },
+  {
+    "suite": "Move",
+    "operation": "move construct",
+    "iteration": 100000, 
+    "baseline_ns": 482.74,
+    "current_ns": 316.86,
+    "pct_change": -34.36
+  },
+  {
+    "suite": "Move",
+    "operation": "move construct",
+    "iteration": 1000000, 
+    "baseline_ns": 290.44,
+    "current_ns": 316.47,
+    "pct_change": 8.96
+  },
+  {
+    "suite": "Move",
+    "operation": "move assignment",
+    "iteration": 10000, 
+    "baseline_ns": 352.35,
+    "current_ns": 317.65,
+    "pct_change": -9.85
+  },
+  {
+    "suite": "Move",
+    "operation": "move assignment",
+    "iteration": 100000, 
+    "baseline_ns": 146.90,
+    "current_ns": 318.58,
+    "pct_change": 116.87
+  },
+  {
+    "suite": "Move",
+    "operation": "move assignment",
+    "iteration": 1000000, 
+    "baseline_ns": 203.18,
+    "current_ns": 316.26,
+    "pct_change": 55.66
+  },
+  {
+    "suite": "Reallocation",
+    "operation": "growth reallocation",
+    "iteration": 10000, 
+    "baseline_ns": 905.08,
+    "current_ns": 2131.02,
+    "pct_change": 135.45
+  },
+  {
+    "suite": "Reallocation",
+    "operation": "growth reallocation",
+    "iteration": 100000, 
+    "baseline_ns": 1047.96,
+    "current_ns": 2120.44,
+    "pct_change": 102.34
+  },
+  {
+    "suite": "Reallocation",
+    "operation": "growth reallocation",
+    "iteration": 1000000, 
+    "baseline_ns": 1090.72,
+    "current_ns": 2118.87,
+    "pct_change": 94.26
+  },
+  {
+    "suite": "Reserve",
+    "operation": "reserve",
+    "iteration": 10000, 
+    "baseline_ns": 253.10,
+    "current_ns": 562.39,
+    "pct_change": 122.20
+  },
+  {
+    "suite": "Reserve",
+    "operation": "reserve",
+    "iteration": 100000, 
+    "baseline_ns": 506.29,
+    "current_ns": 556.58,
+    "pct_change": 9.93
+  },
+  {
+    "suite": "Reserve",
+    "operation": "reserve",
+    "iteration": 1000000, 
+    "baseline_ns": 391.30,
+    "current_ns": 558.08,
+    "pct_change": 42.62
+  },
+  {
+    "suite": "Reserve",
+    "operation": "reserve growth",
+    "iteration": 10000, 
+    "baseline_ns": 3313.50,
+    "current_ns": 5010.76,
+    "pct_change": 51.22
+  },
+  {
+    "suite": "Reserve",
+    "operation": "reserve growth",
+    "iteration": 100000, 
+    "baseline_ns": 3011.90,
+    "current_ns": 5009.34,
+    "pct_change": 66.32
+  },
+  {
+    "suite": "Reserve",
+    "operation": "reserve growth",
+    "iteration": 1000000, 
+    "baseline_ns": 2267.07,
+    "current_ns": 5265.89,
+    "pct_change": 132.28
+  },
+  {
+    "suite": "Reserve",
+    "operation": "reserve no-op",
+    "iteration": 10000, 
+    "baseline_ns": 1.05,
+    "current_ns": 1.10,
+    "pct_change": 4.76
+  },
+  {
+    "suite": "Reserve",
+    "operation": "reserve no-op",
+    "iteration": 100000, 
+    "baseline_ns": 1.05,
+    "current_ns": 1.08,
+    "pct_change": 2.86
+  },
+  {
+    "suite": "Reserve",
+    "operation": "reserve no-op",
+    "iteration": 1000000, 
+    "baseline_ns": 1.05,
+    "current_ns": 1.83,
+    "pct_change": 74.29
+  },
+  {
+    "suite": "Shrink",
+    "operation": "shrink_to_fit",
+    "iteration": 10000, 
+    "baseline_ns": 842.62,
+    "current_ns": 1756.44,
+    "pct_change": 108.45
+  },
+  {
+    "suite": "Shrink",
+    "operation": "shrink_to_fit",
+    "iteration": 100000, 
+    "baseline_ns": 944.96,
+    "current_ns": 981.11,
+    "pct_change": 3.83
+  },
+  {
+    "suite": "Shrink",
+    "operation": "shrink_to_fit",
+    "iteration": 1000000, 
+    "baseline_ns": 890.48,
+    "current_ns": 908.71,
+    "pct_change": 2.05
+  },
+  {
+    "suite": "Comparison",
+    "operation": "operator== equal",
+    "iteration": 10000, 
+    "baseline_ns": 6188.22,
+    "current_ns": 6715.15,
+    "pct_change": 8.52
+  },
+  {
+    "suite": "Comparison",
+    "operation": "operator== equal",
+    "iteration": 100000, 
+    "baseline_ns": 15727.69,
+    "current_ns": 8382.48,
+    "pct_change": -46.70
+  },
+  {
+    "suite": "Comparison",
+    "operation": "operator== equal",
+    "iteration": 1000000, 
+    "baseline_ns": 6358.49,
+    "current_ns": 7152.03,
+    "pct_change": 12.48
+  },
+  {
+    "suite": "Comparison",
+    "operation": "operator== differs early",
+    "iteration": 10000, 
+    "baseline_ns": 6.37,
+    "current_ns": 6.52,
+    "pct_change": 2.35
+  },
+  {
+    "suite": "Comparison",
+    "operation": "operator== differs early",
+    "iteration": 100000, 
+    "baseline_ns": 6.71,
+    "current_ns": 6.53,
+    "pct_change": -2.68
+  },
+  {
+    "suite": "Comparison",
+    "operation": "operator== differs early",
+    "iteration": 1000000, 
+    "baseline_ns": 6.33,
+    "current_ns": 6.55,
+    "pct_change": 3.48
+  },
+  {
+    "suite": "Comparison",
+    "operation": "operator== differs late",
+    "iteration": 10000, 
+    "baseline_ns": 6183.39,
+    "current_ns": 7141.23,
+    "pct_change": 15.49
+  },
+  {
+    "suite": "Comparison",
+    "operation": "operator== differs late",
+    "iteration": 100000, 
+    "baseline_ns": 6209.86,
+    "current_ns": 6409.93,
+    "pct_change": 3.22
+  },
+  {
+    "suite": "Comparison",
+    "operation": "operator== differs late",
+    "iteration": 1000000, 
+    "baseline_ns": 6673.55,
+    "current_ns": 6536.12,
+    "pct_change": -2.06
+  },
+  {
+    "suite": "Comparison",
+    "operation": "operator== diff sizes",
+    "iteration": 10000, 
+    "baseline_ns": 1.07,
+    "current_ns": 1.10,
+    "pct_change": 2.80
+  },
+  {
+    "suite": "Comparison",
+    "operation": "operator== diff sizes",
+    "iteration": 100000, 
+    "baseline_ns": 1.05,
+    "current_ns": 1.08,
+    "pct_change": 2.86
+  },
+  {
+    "suite": "Comparison",
+    "operation": "operator== diff sizes",
+    "iteration": 1000000, 
+    "baseline_ns": 0.53,
+    "current_ns": 0.54,
+    "pct_change": 1.89
+  },
+  {
+    "suite": "Comparison",
+    "operation": "operator<=> equal",
+    "iteration": 10000, 
+    "baseline_ns": 11879.91,
+    "current_ns": 12195.79,
+    "pct_change": 2.66
+  },
+  {
+    "suite": "Comparison",
+    "operation": "operator<=> equal",
+    "iteration": 100000, 
+    "baseline_ns": 11738.32,
+    "current_ns": 11943.16,
+    "pct_change": 1.75
+  },
+  {
+    "suite": "Comparison",
+    "operation": "operator<=> equal",
+    "iteration": 1000000, 
+    "baseline_ns": 20879.48,
+    "current_ns": 46497.25,
+    "pct_change": 122.69
+  },
+  {
+    "suite": "Comparison",
+    "operation": "operator<=> less",
+    "iteration": 10000, 
+    "baseline_ns": 9.87,
+    "current_ns": 3.24,
+    "pct_change": -67.17
+  },
+  {
+    "suite": "Comparison",
+    "operation": "operator<=> less",
+    "iteration": 100000, 
+    "baseline_ns": 9.85,
+    "current_ns": 3.25,
+    "pct_change": -67.01
+  },
+  {
+    "suite": "Comparison",
+    "operation": "operator<=> less",
+    "iteration": 1000000, 
+    "baseline_ns": 9.98,
+    "current_ns": 3.29,
+    "pct_change": -67.03
+  },
+  {
+    "suite": "Observer",
+    "operation": "push_back, 0 listeners",
+    "iteration": 10000, 
+    "baseline_ns": 4945.91,
+    "current_ns": 3081.82,
+    "pct_change": -37.69
+  },
+  {
+    "suite": "Observer",
+    "operation": "push_back, 0 listeners",
+    "iteration": 100000, 
+    "baseline_ns": 4925.70,
+    "current_ns": 3076.21,
+    "pct_change": -37.55
+  },
+  {
+    "suite": "Observer",
+    "operation": "push_back, 0 listeners",
+    "iteration": 1000000, 
+    "baseline_ns": 3755.69,
+    "current_ns": 3268.54,
+    "pct_change": -12.97
+  },
+  {
+    "suite": "Observer",
+    "operation": "push_back, 1 listener",
+    "iteration": 10000, 
+    "baseline_ns": 19672.68,
+    "current_ns": 9596.84,
+    "pct_change": -51.22
+  },
+  {
+    "suite": "Observer",
+    "operation": "push_back, 1 listener",
+    "iteration": 100000, 
+    "baseline_ns": 19678.27,
+    "current_ns": 9447.09,
+    "pct_change": -51.99
+  },
+  {
+    "suite": "Observer",
+    "operation": "push_back, 1 listener",
+    "iteration": 1000000, 
+    "baseline_ns": 19669.92,
+    "current_ns": 9553.03,
+    "pct_change": -51.43
+  },
+  {
+    "suite": "Observer",
+    "operation": "push_back, 8 listeners",
+    "iteration": 10000, 
+    "baseline_ns": 93919.56,
+    "current_ns": 41507.44,
+    "pct_change": -55.81
+  },
+  {
+    "suite": "Observer",
+    "operation": "push_back, 8 listeners",
+    "iteration": 100000, 
+    "baseline_ns": 94081.30,
+    "current_ns": 41454.87,
+    "pct_change": -55.94
+  },
+  {
+    "suite": "Observer",
+    "operation": "push_back, 8 listeners",
+    "iteration": 1000000, 
+    "baseline_ns": 101176.33,
+    "current_ns": 61662.02,
+    "pct_change": -39.05
+  },
+  {
+    "suite": "Observer",
+    "operation": "push_back, capturing listener",
+    "iteration": 10000, 
+    "baseline_ns": 24309.62,
+    "current_ns": 24475.90,
+    "pct_change": 0.68
+  },
+  {
+    "suite": "Observer",
+    "operation": "push_back, capturing listener",
+    "iteration": 100000, 
+    "baseline_ns": 23601.81,
+    "current_ns": 23882.79,
+    "pct_change": 1.19
+  },
+  {
+    "suite": "Observer",
+    "operation": "push_back, capturing listener",
+    "iteration": 1000000, 
+    "baseline_ns": 23538.77,
+    "current_ns": 23764.88,
+    "pct_change": 0.96
+  },
+  {
+    "suite": "Observer",
+    "operation": "subscribe x100",
+    "iteration": 10000, 
+    "baseline_ns": 9014.00,
+    "current_ns": 8901.72,
+    "pct_change": -1.25
+  },
+  {
+    "suite": "Observer",
+    "operation": "subscribe x100",
+    "iteration": 100000, 
+    "baseline_ns": 8983.87,
+    "current_ns": 8876.98,
+    "pct_change": -1.19
+  },
+  {
+    "suite": "Observer",
+    "operation": "subscribe x100",
+    "iteration": 1000000, 
+    "baseline_ns": 9020.79,
+    "current_ns": 6460.48,
+    "pct_change": -28.38
+  },
+  {
+    "suite": "Observer",
+    "operation": "unsubscribe x100",
+    "iteration": 10000, 
+    "baseline_ns": 99244.52,
+    "current_ns": 41270.22,
+    "pct_change": -58.42
+  },
+  {
+    "suite": "Observer",
+    "operation": "unsubscribe x100",
+    "iteration": 100000, 
+    "baseline_ns": 98410.34,
+    "current_ns": 42044.93,
+    "pct_change": -57.28
+  },
+  {
+    "suite": "Observer",
+    "operation": "unsubscribe x100",
+    "iteration": 1000000, 
+    "baseline_ns": 99043.76,
+    "current_ns": 66592.48,
+    "pct_change": -32.76
+  },
+  {
+    "suite": "Swap",
+    "operation": "member swap",
+    "iteration": 10000, 
+    "baseline_ns": 1870.77,
+    "current_ns": 1858.74,
+    "pct_change": -0.64
+  },
+  {
+    "suite": "Swap",
+    "operation": "member swap",
+    "iteration": 100000, 
+    "baseline_ns": 1857.97,
+    "current_ns": 1843.99,
+    "pct_change": -0.75
+  },
+  {
+    "suite": "Swap",
+    "operation": "member swap",
+    "iteration": 1000000, 
+    "baseline_ns": 1859.47,
+    "current_ns": 1844.10,
+    "pct_change": -0.83
+  },
+  {
+    "suite": "Swap",
+    "operation": "free swap",
+    "iteration": 10000, 
+    "baseline_ns": 1866.71,
+    "current_ns": 1841.54,
+    "pct_change": -1.35
+  },
+  {
+    "suite": "Swap",
+    "operation": "free swap",
+    "iteration": 100000, 
+    "baseline_ns": 1859.03,
+    "current_ns": 1861.98,
+    "pct_change": 0.16
+  },
+  {
+    "suite": "Swap",
+    "operation": "free swap",
+    "iteration": 1000000, 
+    "baseline_ns": 1622.83,
+    "current_ns": 1852.70,
+    "pct_change": 14.16
+  }
+]

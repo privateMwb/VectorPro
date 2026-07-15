@@ -18,13 +18,13 @@ static void bench_default_construct() {
         Vector<int> v;
         doNotOptimize(v);
     };
-    BENCH("VectorPro default construct", LARGE, vp);
 
     auto sv = [&] {
         std::vector<int> v;
         doNotOptimize(v);
     };
-    BENCH("std::vector default construct", LARGE, sv);
+
+    BENCH("default construct", vp, sv);
 }
 
 // Measures fill construction of 100 elements.
@@ -33,13 +33,13 @@ static void bench_fill_construct() {
         Vector<int> v(100, 0);
         doNotOptimize(v);
     };
-    BENCH("VectorPro fill construct", LARGE, vp);
 
     auto sv = [&] {
         std::vector<int> v(100, 0);
         doNotOptimize(v);
     };
-    BENCH("std::vector fill construct", LARGE, sv);
+
+    BENCH("fill construct", vp, sv);
 }
 
 // Measures initializer list construction.
@@ -48,13 +48,13 @@ static void bench_init_list_construct() {
         Vector<int> v{1, 2, 3, 4, 5};
         doNotOptimize(v);
     };
-    BENCH("VectorPro init list construct", LARGE, vp);
 
     auto sv = [&] {
         std::vector<int> v{1, 2, 3, 4, 5};
         doNotOptimize(v);
     };
-    BENCH("std::vector init list construct", LARGE, sv);
+
+    BENCH("init list construct", vp, sv);
 }
 
 // Executes all construction benchmark cases.

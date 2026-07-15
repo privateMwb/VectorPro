@@ -20,13 +20,13 @@ static void bench_copy_construct() {
         Vector<int> c(src);
         doNotOptimize(c);
     };
-    BENCH("VectorPro copy construct", MEDIUM, vp);
 
     auto sv = [&] {
         std::vector<int> c(stdSrc);
         doNotOptimize(c);
     };
-    BENCH("std::vector copy construct", MEDIUM, sv);
+
+    BENCH("copy construct", vp, sv);
 }
 
 // Measures copy assignment with reusable destination capacity.
@@ -38,10 +38,10 @@ static void bench_copy_assignment() {
     std::vector<int> stdDst(1000, 0);
 
     auto vp = [&] { dst = src; };
-    BENCH("VectorPro copy assignment", MEDIUM, vp);
 
     auto sv = [&] { stdDst = stdSrc; };
-    BENCH("std::vector copy assignment", MEDIUM, sv);
+
+    BENCH("copy assignment", vp, sv);
 }
 
 // Executes all copy benchmark cases.

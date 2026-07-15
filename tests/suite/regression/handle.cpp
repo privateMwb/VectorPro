@@ -24,13 +24,16 @@ using namespace VectorPro;
 // third listener (h2 == 2) is now past the valid range, so it can never be
 // used to remove that listener again.
 static void unsubscribe_earlier_handle_strands_later_handle() {
-    Vector<int> v;
+    ObservableVector<int> v;
 
     int count0 = 0, count1 = 0, count2 = 0;
-    auto h0 = v.subscribe([&](const Vector<int>&, const Vector<int>::EventData&) { ++count0; });
+    auto h0 = v.subscribe(
+        [&](const ObservableVector<int>&, const ObservableVector<int>::EventData&) { ++count0; });
     (void)h0;
-    (void)v.subscribe([&](const Vector<int>&, const Vector<int>::EventData&) { ++count1; });
-    auto h2 = v.subscribe([&](const Vector<int>&, const Vector<int>::EventData&) { ++count2; });
+    (void)v.subscribe(
+        [&](const ObservableVector<int>&, const ObservableVector<int>::EventData&) { ++count1; });
+    auto h2 = v.subscribe(
+        [&](const ObservableVector<int>&, const ObservableVector<int>::EventData&) { ++count2; });
 
     v.unsubscribe(0);
     // Shift: index 0 <- old index 1 (h1's callback), index 1 <- old index 2
@@ -55,12 +58,15 @@ static void unsubscribe_earlier_handle_strands_later_handle() {
 // removal ends up identifying a different listener than the one it was
 // originally issued for.
 static void unsubscribe_shifted_handle_removes_wrong_listener() {
-    Vector<int> v;
+    ObservableVector<int> v;
 
     int count0 = 0, count1 = 0, count2 = 0;
-    (void)v.subscribe([&](const Vector<int>&, const Vector<int>::EventData&) { ++count0; });
-    auto h1 = v.subscribe([&](const Vector<int>&, const Vector<int>::EventData&) { ++count1; });
-    (void)v.subscribe([&](const Vector<int>&, const Vector<int>::EventData&) { ++count2; });
+    (void)v.subscribe(
+        [&](const ObservableVector<int>&, const ObservableVector<int>::EventData&) { ++count0; });
+    auto h1 = v.subscribe(
+        [&](const ObservableVector<int>&, const ObservableVector<int>::EventData&) { ++count1; });
+    (void)v.subscribe(
+        [&](const ObservableVector<int>&, const ObservableVector<int>::EventData&) { ++count2; });
 
     v.unsubscribe(0);
     // Shift: index 0 <- h1's callback, index 1 <- h2's callback. lsize_ == 2.

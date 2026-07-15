@@ -3,15 +3,18 @@
 #include <iomanip>
 
 int main(int argc, char* argv[]) {
+
     // No args: run every registered suite.
     if (argc == 1) {
         for (const auto& suite : bench_registry()) {
             std::cout << "\n";
             setHeader(suite.name);
+            setSuite(suite.name);
             suite.run();
         }
         std::cout << "\n";
         exportJson("benchmark_results.json");
+        exportMarkdown("benchmark_results.md");
         return 0;
     }
 
@@ -42,9 +45,11 @@ int main(int argc, char* argv[]) {
         if (nameLower == requestedLower || idLower == requestedLower) {
             std::cout << "\n";
             setHeader(suite.name);
+            setSuite(suite.name);
             suite.run();
             std::cout << "\n";
             exportJson("benchmark_results.json");
+            exportMarkdown("benchmark_results.md");
             return 0;
         }
 
@@ -52,6 +57,7 @@ int main(int argc, char* argv[]) {
             foundCategory = true;
             std::cout << "\n";
             setHeader(suite.name);
+            setSuite(suite.name);
             suite.run();
             std::cout << "\n";
         }
@@ -59,6 +65,7 @@ int main(int argc, char* argv[]) {
 
     if (foundCategory) {
         exportJson("benchmark_results.json");
+        exportMarkdown("benchmark_results.md");
         return 0;
     }
 

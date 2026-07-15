@@ -107,10 +107,11 @@ static void independent_listener_counts_across_threads_is_uncorrupted() {
 
     for (int t = 0; t < kThreadCount; ++t) {
         threads.emplace_back([&notificationCounts, &finalSizes, t]() {
-            Vector<int> local;
+            ObservableVector<int> local;
             int localCount = 0;
             (void)local.subscribe(
-                [&localCount](const Vector<int>&, const Vector<int>::EventData&) { ++localCount; });
+                [&localCount](const ObservableVector<int>&,
+                              const ObservableVector<int>::EventData&) { ++localCount; });
 
             for (int i = 0; i < 300; ++i)
                 local.push_back(i);

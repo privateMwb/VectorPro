@@ -30,7 +30,6 @@ static void bench_at() {
             sum += v.at(i);
         doNotOptimize(sum);
     };
-    BENCH("VectorPro at()", SMALL, vp);
 
     auto svf = [&] {
         long sum = 0;
@@ -38,7 +37,8 @@ static void bench_at() {
             sum += sv.at(i);
         doNotOptimize(sum);
     };
-    BENCH("std::vector at()", SMALL, svf);
+
+    BENCH("at()", vp, svf);
 }
 
 // Measures repeated front()/back() access.
@@ -52,7 +52,6 @@ static void bench_front_back() {
             sum += v.front() + v.back();
         doNotOptimize(sum);
     };
-    BENCH("VectorPro front/back", SMALL, vp);
 
     auto svf = [&] {
         long sum = 0;
@@ -60,7 +59,8 @@ static void bench_front_back() {
             sum += sv.front() + sv.back();
         doNotOptimize(sum);
     };
-    BENCH("std::vector front/back", SMALL, svf);
+
+    BENCH("front/back", vp, svf);
 }
 
 // Measures raw pointer traversal via data_ptr() / data().
@@ -82,7 +82,6 @@ static void bench_data_ptr() {
             sum += p[i];
         doNotOptimize(sum);
     };
-    BENCH("VectorPro data_ptr()", SMALL, vp);
 
     auto svf = [&] {
         long sum = 0;
@@ -91,7 +90,8 @@ static void bench_data_ptr() {
             sum += p[i];
         doNotOptimize(sum);
     };
-    BENCH("std::vector data()", SMALL, svf);
+
+    BENCH("data_ptr()", vp, svf);
 }
 
 // Executes all element access benchmark cases.

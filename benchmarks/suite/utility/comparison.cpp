@@ -29,13 +29,13 @@ static void bench_equal_true() {
         bool r = (a == b);
         doNotOptimize(r);
     };
-    BENCH("VectorPro operator== equal", SMALL, vp);
 
     auto sv = [&] {
         bool r = (sa == sb);
         doNotOptimize(r);
     };
-    BENCH("std::vector operator== equal", SMALL, sv);
+
+    BENCH("operator== equal", vp, sv);
 }
 
 // Measures operator== with an early mismatch.
@@ -57,13 +57,13 @@ static void bench_equal_differs_early() {
         bool r = (a == b);
         doNotOptimize(r);
     };
-    BENCH("VectorPro operator== differs early", SMALL, vp);
 
     auto sv = [&] {
         bool r = (sa == sb);
         doNotOptimize(r);
     };
-    BENCH("std::vector operator== differs early", SMALL, sv);
+
+    BENCH("operator== differs early", vp, sv);
 }
 
 // Measures operator== with a late mismatch.
@@ -85,13 +85,13 @@ static void bench_equal_differs_late() {
         bool r = (a == b);
         doNotOptimize(r);
     };
-    BENCH("VectorPro operator== differs late", SMALL, vp);
 
     auto sv = [&] {
         bool r = (sa == sb);
         doNotOptimize(r);
     };
-    BENCH("std::vector operator== differs late", SMALL, sv);
+
+    BENCH("operator== differs late", vp, sv);
 }
 
 // Measures operator== on vectors with different sizes.
@@ -106,13 +106,13 @@ static void bench_equal_different_sizes() {
         bool r = (a == b);
         doNotOptimize(r);
     };
-    BENCH("VectorPro operator== diff sizes", LARGE, vp);
 
     auto sv = [&] {
         bool r = (sa == sb);
         doNotOptimize(r);
     };
-    BENCH("std::vector operator== diff sizes", LARGE, sv);
+
+    BENCH("operator== diff sizes", vp, sv);
 }
 
 // Measures operator<=> on equal vectors.
@@ -132,13 +132,13 @@ static void bench_spaceship_equal() {
         auto r = (a <=> b);
         doNotOptimize(r);
     };
-    BENCH("VectorPro operator<=> equal", SMALL, vp);
 
     auto sv = [&] {
         auto r = (sa <=> sb);
         doNotOptimize(r);
     };
-    BENCH("std::vector operator<=> equal", SMALL, sv);
+
+    BENCH("operator<=> equal", vp, sv);
 }
 
 // Measures operator<=> where the left vector compares less.
@@ -160,13 +160,13 @@ static void bench_spaceship_less() {
         auto r = (a <=> b);
         doNotOptimize(r);
     };
-    BENCH("VectorPro operator<=> less", SMALL, vp);
 
     auto sv = [&] {
         auto r = (sa <=> sb);
         doNotOptimize(r);
     };
-    BENCH("std::vector operator<=> less", SMALL, sv);
+
+    BENCH("operator<=> less", vp, sv);
 }
 
 // Executes all comparison benchmark cases.

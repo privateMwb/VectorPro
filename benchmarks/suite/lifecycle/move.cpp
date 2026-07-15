@@ -18,14 +18,14 @@ static void bench_move_construct() {
         Vector<int> dst(std::move(src));
         doNotOptimize(dst);
     };
-    BENCH("VectorPro move construct", MEDIUM, vp);
 
     auto sv = [&] {
         std::vector<int> src(100, 7);
         std::vector<int> dst(std::move(src));
         doNotOptimize(dst);
     };
-    BENCH("std::vector move construct", MEDIUM, sv);
+
+    BENCH("move construct", vp, sv);
 }
 
 // Measures move assignment.
@@ -36,7 +36,6 @@ static void bench_move_assignment() {
         dst = std::move(src);
         doNotOptimize(dst);
     };
-    BENCH("VectorPro move assignment", MEDIUM, vp);
 
     auto sv = [&] {
         std::vector<int> src(100, 7);
@@ -44,7 +43,7 @@ static void bench_move_assignment() {
         dst = std::move(src);
         doNotOptimize(dst);
     };
-    BENCH("std::vector move assignment", MEDIUM, sv);
+    BENCH("move assignment", vp, sv);
 }
 
 // Executes all move benchmark cases.

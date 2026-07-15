@@ -18,14 +18,14 @@ static void bench_growth_reallocation() {
         v.push_back(99); // size == capacity, forces one reallocation
         doNotOptimize(v);
     };
-    BENCH("VectorPro growth reallocation", MEDIUM, vp);
 
     auto sv = [&] {
         std::vector<int> v(1024, 0);
         v.push_back(99);
         doNotOptimize(v);
     };
-    BENCH("std::vector growth reallocation", MEDIUM, sv);
+
+    BENCH("growth reallocation", vp, sv);
 }
 
 // Executes all reallocation benchmark cases.

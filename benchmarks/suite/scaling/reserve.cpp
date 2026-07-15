@@ -20,14 +20,14 @@ static void bench_reserve() {
         v.reserve(1000);
         doNotOptimize(v);
     };
-    BENCH("VectorPro reserve", MEDIUM, vp);
 
     auto sv = [&] {
         std::vector<int> v;
         v.reserve(1000);
         doNotOptimize(v);
     };
-    BENCH("std::vector reserve", MEDIUM, sv);
+
+    BENCH("reserve", vp, sv);
 }
 
 // Measures repeated reserve() calls with increasing capacity targets.
@@ -38,7 +38,6 @@ static void bench_reserve_growth() {
             v.reserve(cap);
         doNotOptimize(v);
     };
-    BENCH("VectorPro reserve growth", SMALL, vp);
 
     auto sv = [&] {
         std::vector<int> v;
@@ -46,7 +45,8 @@ static void bench_reserve_growth() {
             v.reserve(cap);
         doNotOptimize(v);
     };
-    BENCH("std::vector reserve growth", SMALL, sv);
+
+    BENCH("reserve growth", vp, sv);
 }
 
 // Measures reserve() when the requested capacity is already available.
@@ -61,13 +61,13 @@ static void bench_reserve_noop() {
         vp_v.reserve(1000);
         doNotOptimize(vp_v);
     };
-    BENCH("VectorPro reserve no-op", LARGE, vp);
 
     auto sv = [&] {
         sv_v.reserve(1000);
         doNotOptimize(sv_v);
     };
-    BENCH("std::vector reserve no-op", LARGE, sv);
+
+    BENCH("reserve no-op", vp, sv);
 }
 
 // Executes all reserve benchmark cases.

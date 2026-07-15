@@ -3,6 +3,10 @@
 # Build configuration for the VectorPro benchmark suite.
 # ============================================================
 
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
+endif()
+
 # Collect all benchmark suite source files.
 file(GLOB_RECURSE BENCH_SOURCES CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/suite/*.cpp"

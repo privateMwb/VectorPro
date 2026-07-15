@@ -35,17 +35,11 @@ jobs:
       - name: Run Benchmarks
         run: ./build/benchmarks
 
-      - name: Build Compare
-        run: cmake --build build --target compare
-
-      - name: Run Compare
-        run: ./build/compare > compare_results.txt
-
       - name: Build Regression
         run: cmake --build build --target regression
 
       - name: Run Regression
-        run: ./build/regression > regression_results.txt
+        run: ./build/regression
 
       - name: Determine version
         id: version
@@ -56,30 +50,46 @@ jobs:
             echo "version=${{ github.event.inputs.version }}" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Save Benchmark Snapshot
+      - name: Save Benchmark Json Snapshot
         if: steps.version.outputs.version != ''
         run: |
           cp benchmark_results.json "benchmarks/baselines/${{ steps.version.outputs.version }}.json"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add "benchmarks/baselines/${{ steps.version.outputs.version }}.json"
-          git diff --staged --quiet || git commit -m "benchmarks: add results for ${{ steps.version.outputs.version }}"
+          git diff --staged --quiet || git commit -m "benchmarks: add json results for ${{ steps.version.outputs.version }}"
           git push
 
-      - name: Upload Benchmark Results
+      - name: Upload Benchmark Json Results
         uses: actions/upload-artifact@v4
         with:
-          name: benchmark-results
+          name: benchmark-results-json
           path: benchmark_results.json
 
-      - name: Upload Compare Results
-        uses: actions/upload-artifact@v4
-        with:
-          name: compare-results
-          path: compare_results.txt
+      - name: Save Benchmark Markdown Snapshot
+        if: steps.version.outputs.version != ''
+        run: |
+          cp benchmark_results.md "benchmarks/baselines/${{ steps.version.outputs.version }}.md"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add "benchmarks/baselines/${{ steps.version.outputs.version }}.md"
+          git diff --staged --quiet || git commit -m "benchmarks: add markdown results for ${{ steps.version.outputs.version }}"
+          git push
 
-      - name: Upload Regression Results
+      - name: Upload Benchmark Markdown Results
         uses: actions/upload-artifact@v4
         with:
-          name: regression-results
-          path: regression_results.txt
+          name: benchmark-results-md
+          path: benchmark_results.md
+
+      - name: Upload Regression Json Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: regression-results-json
+          path: regression_results.json
+
+      - name: Upload Regression Markdown Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: regression-results-md
+          path: regression_results.md
