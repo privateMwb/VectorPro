@@ -1,13 +1,19 @@
 #pragma once
 
-#include "helper.h"
+// clang-format off
+#include "helper.h"          // prettify()
 
-#include <cctype>
-#include <filesystem>
-#include <string>
-#include <unordered_map>
-#include <vector>
+#include <cctype>            // std::toupper
+#include <filesystem>        // std::filesystem::path
+#include <string>            // std::string
+#include <unordered_map>     // std::unordered_map
+#include <vector>            // std::vector
+// clang-format on
 
+// One registered benchmark suite: an id ("B1"), the category it belongs to
+// (derived from its containing directory), a display name, and the
+// function that runs it. Populated by BenchRegistrar's constructor via
+// REGISTER_BENCH_SUITE(), not constructed directly.
 struct BenchSuite {
     std::string id;
     std::string category;
@@ -15,16 +21,23 @@ struct BenchSuite {
     void (*run)();
 };
 
+// Global list of every registered benchmark suite, in registration order.
 inline std::vector<BenchSuite>& bench_registry() {
     static std::vector<BenchSuite> registry;
     return registry;
 }
 
+// Per-category counter used to number suites within their category
+// (e.g. the 2nd suite under "search/" becomes "S2").
 inline std::unordered_map<std::string, int>& category_counters() {
     static std::unordered_map<std::string, int> counters;
     return counters;
 }
 
+// Registers one benchmark suite at static-init time. Construct via
+// REGISTER_BENCH_SUITE() in a .cpp file, not directly — the constructor
+// derives the suite's category from `file`'s containing directory name
+// and assigns it the next number within that category.
 struct BenchRegistrar {
     BenchRegistrar(const char* file, void (*run)()) {
         auto path = std::filesystem::path(file);
@@ -40,6 +53,10 @@ struct BenchRegistrar {
     }
 };
 
+// One recorded benchmark measurement: which suite/operation it's from,
+// total elapsed time, iteration count, and the derived per-iteration cost.
+// Shape must match what exportJson()/loadResults() (regression tool) read
+// and write — see export.h.
 struct BenchmarkResult {
     std::string suite;
     std::string operation;
@@ -48,6 +65,9 @@ struct BenchmarkResult {
     double ns_per_op;
 };
 
+// Global list of every benchmark result recorded this run, in the order
+// BENCHMARK()/BENCH()/BENCH_SOLO() produced them. Read by exportJson() and
+// grouped-by-suite by printComparisonRow()/printSoloRow() as they print.
 inline VectorPro::Vector<BenchmarkResult>& benchmark_results() {
     static VectorPro::Vector<BenchmarkResult> results;
     return results;

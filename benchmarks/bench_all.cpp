@@ -1,6 +1,9 @@
-#include <common/framework.h>
+// clang-format off
+#include <common/framework.h>   // bench_registry(), setHeader/setSuite, exportJson/exportMarkdown,
+                                // prettify(), toLower(), color constants
 
-#include <iomanip>
+#include <iomanip>              // std::setw
+// clang-format on
 
 int main(int argc, char* argv[]) {
 
@@ -20,6 +23,7 @@ int main(int argc, char* argv[]) {
 
     std::string_view requested = argv[1];
 
+    // "list": print every registered suite, grouped by category, no run.
     if (requested == "list") {
         std::cout << "\nAvailable bench suites:\n";
         std::string category;
@@ -34,6 +38,7 @@ int main(int argc, char* argv[]) {
         return 0;
     }
 
+    // Otherwise: run whichever suite(s) match the requested name, id, or category.
     const std::string requestedLower = toLower(prettify(requested));
     bool foundCategory = false;
 
@@ -42,6 +47,7 @@ int main(int argc, char* argv[]) {
         const std::string idLower = toLower(suite.id);
         const std::string categoryLower = toLower(suite.category);
 
+        // Exact suite match (by name or id): run just this one and exit.
         if (nameLower == requestedLower || idLower == requestedLower) {
             std::cout << "\n";
             setHeader(suite.name);
@@ -53,6 +59,7 @@ int main(int argc, char* argv[]) {
             return 0;
         }
 
+        // Category match: run every suite in it, keep scanning for more.
         if (categoryLower == requestedLower) {
             foundCategory = true;
             std::cout << "\n";

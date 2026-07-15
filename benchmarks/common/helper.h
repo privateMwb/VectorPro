@@ -1,31 +1,36 @@
 #pragma once
 
-#include <VectorPro/Vector.h>
+// clang-format off
+#include <VectorPro/Vector.h>   // (transitively required by macros.h's BENCH/BENCH_SOLO)
 
-#include <chrono>
-#include <iomanip>
-#include <iostream>
-#include <sstream>
-#include <string>
+#include <chrono>               // nanoseconds, duration<>, used throughout formatDuration
+#include <iomanip>              // std::setw, std::setprecision, std::fixed, std::left
+#include <iostream>             // std::cout
+#include <sstream>              // std::ostringstream
+#include <string>               // std::string
+#include <string_view>          // std::string_view — used in every function signature below
+// clang-format on
 
 using namespace std::chrono;
 
 // ANSI terminal color codes.
-constexpr const char* RESET = "\033[0m";
-constexpr const char* GREEN = "\033[92m";
-constexpr const char* YELLOW = "\033[93m";
-constexpr const char* RED = "\033[91m";
-constexpr const char* CYAN = "\033[96m";
-constexpr const char* GRAY = "\033[37m";
+// clang-format off
+inline constexpr const char* RESET  = "\033[0m";
+inline constexpr const char* GREEN  = "\033[92m";
+inline constexpr const char* YELLOW = "\033[93m";
+inline constexpr const char* RED    = "\033[91m";
+inline constexpr const char* CYAN   = "\033[96m";
+inline constexpr const char* GRAY   = "\033[37m";
 
 // Benchmark iteration presets.
-constexpr const std::size_t SMALL = 10'000;
-constexpr const std::size_t MEDIUM = 100'000;
-constexpr const std::size_t LARGE = 1'000'000;
+inline constexpr std::size_t SMALL  = 10'000;
+inline constexpr std::size_t MEDIUM = 100'000;
+inline constexpr std::size_t LARGE  = 1'000'000;
 
-inline std::string custom = "VectorPro";
+inline std::string custom   = "VectorPro";
 inline std::string standard = "std::vector";
 inline std::string suiteName;
+// clang-format on
 
 // Accumulates a markdown-formatted transcript of the run, built up by
 // setHeader()/printComparisonRow() alongside their normal stdout printing.
@@ -42,10 +47,13 @@ inline void borderLine() {
     std::cout << GRAY << std::string(90, '-') << RESET << "\n";
 }
 
+// Sets the current benchmark suite name (shown in table headers, and
+// recorded into benchmark_results() so exports can group by suite).
 inline void setSuite(const std::string name) {
     suiteName = name;
 }
 
+// Returns the current benchmark suite name set by setSuite().
 inline const std::string getSuite() {
     return suiteName;
 }
@@ -176,7 +184,7 @@ inline void printComparisonRow(std::string_view name, std::string_view iteration
             : (static_cast<double>(stdNs.count()) - static_cast<double>(customNs.count())) /
                   static_cast<double>(customNs.count()) * 100.0;
 
-    // +-15% treated as measurement noise, not a real signal — see the
+    // +-0% treated as measurement noise, not a real signal — see the
     // Termux big.LITTLE / thermal-throttling discussion.
     const char* deltaColor = (pct > 0.0) ? GREEN : (pct < 0.0) ? RED : GRAY;
 

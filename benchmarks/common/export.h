@@ -1,13 +1,22 @@
 #pragma once
 
-#include "registry.h"
+// clang-format off
+#include "registry.h"       // benchmark_results(), markdown_buffer()
 
-#include <fstream>
-#include <iomanip>
-#include <string>
+#include <fstream>          // std::ofstream
+#include <iomanip>          // std::fixed, std::setprecision
+#include <string>           // std::string
+// clang-format on
+
+// All export output lands here. Caller passes just a filename
+// ("benchmark_results.json"), not a path — this prefixes it. Note this
+// does NOT create the directory if it's missing; benchmarks/results/ must
+// already exist in the repo (or be created by CI before this runs), or
+// ofstream silently fails to open and these functions no-op.
+constexpr const char* kResultsDir = "benchmarks/results/";
 
 inline void exportJson(const std::string& filename) {
-    std::ofstream out(filename);
+    std::ofstream out(kResultsDir + filename);
 
     if (!out)
         return;
@@ -42,7 +51,7 @@ inline void exportJson(const std::string& filename) {
 // fact — it needs the section grouping and paired rows that only exist at
 // print time.
 inline void exportMarkdown(const std::string& filename) {
-    std::ofstream out(filename);
+    std::ofstream out(kResultsDir + filename);
 
     if (!out)
         return;

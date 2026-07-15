@@ -6,8 +6,10 @@
 #include <iomanip>
 #include <string>
 
+constexpr const char* kResultsDir = "benchmarks/results/";
+
 inline void exportJson(const std::string& filename) {
-    std::ofstream out(filename);
+    std::ofstream out(kResultsDir + filename);
 
     if (!out)
         return;
@@ -42,7 +44,7 @@ inline void exportJson(const std::string& filename) {
 // Writes the markdown transcript accumulated in markdown_buffer() (built up
 // by setHeader()/printComparisonRow() during the run) to a file.
 inline void exportMarkdown(const std::string& filename) {
-    std::ofstream out(filename);
+    std::ofstream out(kResultsDir + filename);
 
     if (!out)
         return;

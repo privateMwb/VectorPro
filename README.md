@@ -46,17 +46,17 @@ modification-event system.
 
 ## 📑 Table of Contents
 
-- [Features](#-features)
-- [Requirements](#-requirements)
-- [Installation](#-installation)
-- [Quick Start](#-quick-start)
-- [Project Structure](#-project-structure)
-- [Development](#-development)
-- [Benchmarks](#-benchmarks)
-- [Documentation](#-documentation)
-- [Contributing](#-contributing)
-- [Changelog](#-changelog)
-- [License](#-license)
+- [✨ Features](#-features)
+- [📋 Requirements](#-requirements)
+- [📦 Installation](#-installation)
+- [🚀 Quick Start](#-quick-start)
+- [🗂️ Project Structure](#️-project-structure)
+- [🛠️ Development](#️-development)
+- [📊 Benchmarks](#-benchmarks)
+- [📖 Documentation](#-documentation)
+- [🤝 Contributing](#-contributing)
+- [📝 Changelog](#-changelog)
+- [📄 License](#-license)
 
 ## ✨ Features
 
@@ -201,7 +201,6 @@ VectorPro/
 │   └── CMakeLists.txt
 │
 ├── tools/
-│   ├── compare/
 │   ├── regression/
 │   └── CMakeLists.txt
 │
@@ -227,7 +226,7 @@ VectorPro/
 ## 🛠️ Development
 
 The from-source install above builds the library only. To work on
-VectorPro itself — running tests, benchmarks, or the analysis tools —
+VectorPro itself — running tests, benchmarks, or the regression tool —
 build with everything enabled (the default):
 
 ```bash
@@ -241,11 +240,10 @@ cmake --build build
 ctest --test-dir build
 ```
 
-**Run benchmarks and analysis tools:**
+**Run benchmarks and check for regressions:**
 
 ```bash
 ./build/benchmarks
-./build/compare      # VectorPro vs. std::vector
 ./build/regression   # current results vs. benchmarks/baselines/v1.0.0.json
 ```
 
@@ -265,39 +263,51 @@ recipe locally.
 
 ## 📊 Benchmarks
 
-Measured against `std::vector` on the same build
-(`benchmarks/baselines/v1.0.0.json` has the full dataset).
+Measured against `std::vector`, same build, at 10K / 100K / 1M elements
+(`benchmarks/baselines/v1.0.0.json` has the full dataset). Numbers below
+are the 100K row unless noted — differences are consistent across scale
+for most operations.
 
 **At parity or faster:**
 
 | Operation | VectorPro | std::vector | Difference |
 |---|---|---|---|
-| `insert end` | 1476.71 | 1508.91 | ~2% faster |
-| `reserve` (no-op) | 2.46 | 3.76 | ~35% faster |
-| `reserve` (growth) | 5026.00 | 5144.90 | ~2% faster |
-| range-for iteration | 260.19 | 279.45 | ~7% faster |
+| `Reserve no-op` | 266.85 μs | 400.62 μs | ~50% faster |
+| `Front/back` (10K, 1M) | — | — | ~24-26% faster |
+| `Default construct` | 344.92 μs | 419.69 μs | ~22% faster |
+| `Insert end` | 161.51 ms | 166.03 ms | ~3% faster |
+| `Operator<=> equal` | 3.84 s | 4.08 s | ~6% faster |
 
-**Slower, and worth knowing about:**
+**Slower, and consistent across scale — worth fixing:**
 
 | Operation | VectorPro | std::vector | Difference |
 |---|---|---|---|
-| `growth reallocation` | 2726.30 | 1179.27 | ~2.3x slower |
-| `shrink_to_fit` | 3447.59 | 1280.46 | ~2.7x slower |
-| `contains()` @ 100k elements | 235211 | 125667 | ~87% slower |
-| `contains()` @ 1k elements | 836.80 | 540.97 | ~55% slower |
-| `operator==` (equal) | 17536.03 | 15268.81 | ~15% slower |
-| `operator<=>` (equal) | 38505.63 | 36075.37 | ~7% slower |
+| `Growth reallocation` | 233.41 ms | 127.16 ms | ~46% slower |
+| `Push Back` (pre-reserved) | 533.40 ms | 332.74 ms | ~38% slower |
+| `Erase-remove If` | 1.11 s | 775.54 ms | ~30% slower |
+| `Operator==` (differing sizes) | 133.54 μs | 66.77 μs | ~50% slower |
+| `Operator<=> less` | 1.17 ms | 690.23 μs | ~41% slower |
+| `Shrink To Fit` | 193.69 ms | 141.89 ms | ~27% slower |
+| `Insert front` | 218.50 ms | 181.91 ms | ~17% slower |
 
 <details>
 <summary>Why the gap on these specific operations</summary>
 
-The overhead traces to the event-notification hooks and exception-safety
+Some of this traces to the event-notification hooks and exception-safety
 bookkeeping VectorPro performs on every mutation — the cost of the opt-in
 observer system and strong exception guarantees. `push_back` itself
 carries no measurable per-call cost when nothing is subscribed; the
-overhead scales with the number of active listeners. Reallocation-heavy
-and comparison-heavy workloads are where this shows up most — worth
-profiling your own use case if it leans on those specifically.
+overhead scales with the number of active listeners (see raw data for
+the `Observer` benchmark group). The pre-reserved `Push Back` and
+`Growth reallocation` gaps specifically are still under investigation —
+their size suggests something beyond notification overhead alone, since
+neither involves an active listener.
+
+A few results in the full dataset (`Copy assignment`, `Accumulate` at 1M
+scale) show larger deltas than the rest of the suite and are being
+re-verified before being treated as reliable — see
+`benchmarks/baselines/v1.0.0.json` for the raw numbers if you want to
+look yourself.
 
 </details>
 
@@ -314,8 +324,8 @@ Issues and pull requests are welcome. Before submitting a PR:
 
 - Run the test suite (`ctest --test-dir build`)
 - Format with `clang-format` (or let the `Clang Format` CI check catch it)
-- If you're changing a hot path, run `./build/compare` and
-  `./build/regression` and mention the results in your PR description
+- If you're changing a hot path, run `./build/regression` and mention the
+  results in your PR description
 
 ## 📝 Changelog
 

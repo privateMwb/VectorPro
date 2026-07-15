@@ -30,7 +30,7 @@ static void printRegression(const VectorPro::Vector<BenchmarkResult>& baseline,
 int main() {
     try {
         auto baselineResults = loadResults("benchmarks/baselines/v1.0.0.json");
-        auto currentResults = loadResults("benchmark_results.json");
+        auto currentResults = loadResults("benchmarks/results/benchmark_results.json");
 
         printRegression(baselineResults, currentResults);
 

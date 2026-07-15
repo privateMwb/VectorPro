@@ -1,18 +1,22 @@
 #pragma once
 
-#include <algorithm>
-#include <cctype>
-#include <iomanip>
-#include <iostream>
-#include <string>
+// clang-format off
+#include <algorithm>     // std::transform
+#include <cctype>        // std::toupper, std::tolower
+#include <iostream>      // std::cout
+#include <string>        // std::string
+#include <string_view>   // std::string_view
+// clang-format on
 
+// clang-format off
 // ANSI terminal color codes.
-constexpr const char* RESET = "\033[0m";
-constexpr const char* GREEN = "\033[92m";
-constexpr const char* RED = "\033[91m";
-constexpr const char* CYAN = "\033[96m";
-constexpr const char* GRAY = "\033[37m";
-constexpr const char* BLUE = "\033[94m";
+inline constexpr const char* RESET = "\033[0m";
+inline constexpr const char* GREEN = "\033[92m";
+inline constexpr const char* RED   = "\033[91m";
+inline constexpr const char* CYAN  = "\033[96m";
+inline constexpr const char* GRAY  = "\033[37m";
+inline constexpr const char* BLUE  = "\033[94m";
+// clang-format on
 
 // Prints a horizontal separator line.
 inline void borderLine() {
