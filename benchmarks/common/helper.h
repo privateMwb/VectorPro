@@ -151,7 +151,6 @@ inline void printSoloRow(std::string_view name, std::string_view iteration, nano
 }
 // clang-format on
 
-
 // Prints the benchmark table header.
 inline void setHeader(std::string_view header) {
     borderLine();
