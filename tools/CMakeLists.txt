@@ -1,7 +1,6 @@
 # ============================================================
 # tools/CMakeLists.txt
 # Build configuration for benchmark analysis tools:
-#   - compare:    compares VectorPro against std::vector results.
 #   - regression: compares benchmark results across versions.
 # ============================================================
 
