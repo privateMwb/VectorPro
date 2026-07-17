@@ -1,3 +1,11 @@
+/**
+ * @file VectorPro.tpp
+ * @brief HashMap template implementation.
+ *
+ * Contains the implementation of VectorPro template member
+ * functions and internal implementation details.
+ */
+
 // ============================================================
 // Vector.tpp
 // Template implementation for VectorPro::Vector.
