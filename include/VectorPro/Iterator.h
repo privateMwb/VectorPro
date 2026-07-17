@@ -1,3 +1,11 @@
+/**
+ * @file Iterator.h
+ * @brief Iterator implementation for VectorPro.
+ *
+ * Contains the iterator types used by VectorPro for traversing
+ * elements stored within the container.
+ */
+
 #pragma once
 
 // clang-format off
