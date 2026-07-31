@@ -14,7 +14,7 @@
 // - mixed push_back/insert/erase under a custom ratio still mirrors a
 //   default-ratio Vector's logical contents
 
-#include <common/framework.h>
+#include <support/framework.h>
 
 using namespace VectorPro;
 

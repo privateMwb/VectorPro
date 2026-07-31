@@ -1,6 +1,6 @@
 # ============================================================
 # tests/CMakeLists.txt
-# Build configuration for the VectorPro test suite.
+# Build configuration for the test suite.
 # ============================================================
 
 # Collect all test source files.
@@ -14,21 +14,22 @@ add_executable(
     ${TEST_SOURCES}
 )
 
-# Allow simple test includes.
+# Allow test files to include local headers directly (e.g. "support/framework.h").
 target_include_directories(
     tests
     PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-# Link VectorPro to the test executable.
+# Link the library under test into the test executable.
 target_link_libraries(
     tests
     PRIVATE
-    VectorPro
+        ${PROJECT_NAME}
 )
 
+# Register the test executable with ctest.
 add_test(
-    NAME VectorProTests
+    NAME ${PROJECT_NAME}Tests
     COMMAND tests
 )

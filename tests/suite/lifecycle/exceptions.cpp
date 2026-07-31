@@ -11,7 +11,7 @@
 // - push_back-triggered reallocation throws and preserves the original vector
 // - emplace_back constructor throws without incrementing size
 
-#include <common/framework.h>
+#include <support/framework.h>
 
 using namespace VectorPro;
 

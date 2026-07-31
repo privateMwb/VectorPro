@@ -5,7 +5,7 @@
 // - Custom growth factors (3/2, 4/1)
 // - Reallocation behavior differences across policies
 
-#include <common/framework.h>
+#include <support/framework.h>
 
 using namespace VectorPro;
 

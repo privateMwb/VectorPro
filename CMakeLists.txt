@@ -1,15 +1,25 @@
 # ============================================================
 # CMakeLists.txt
-# Build configuration for the VectorPro library.
+# Build configuration for this library.
 # ============================================================
 #
 # Sections:
 #   1. C++ Configuration
-#   2. VectorPro Library
+#   2. Library
 #   3. Subdirectories
 #   4. Installation
 #   5. Packaging
 #
+# Retargeting this skeleton at a new library: change only the name
+# passed to project() below, and rename the src/<name> and
+# include/<name> directories to match. Everything else in this file
+# derives from ${PROJECT_NAME} automatically.
+#
+# The Library section below auto-detects whether src/<name>/*.cpp
+# files exist. If none are found, it builds an INTERFACE (header-only)
+# target. If sources are found, it builds a STATIC library instead.
+# No manual edits needed when a project grows from header-only into
+# having compiled sources.
 # ============================================================
 
 cmake_minimum_required(VERSION 3.20)
@@ -34,26 +44,57 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 # ============================================================================
-# VectorPro (Header-only Library)
+# Library (auto: header-only INTERFACE if no .cpp files, STATIC otherwise)
 # ============================================================================
 
-# Define the header-only VectorPro library.
-add_library(VectorPro INTERFACE)
-
-# Expose the public include directory to consumers.
-target_include_directories(
-    VectorPro
-    INTERFACE
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include>
+# Collect any library source files under src/<project_name>/.
+# CONFIGURE_DEPENDS makes CMake re-run this glob on reconfigure, so
+# adding sources to a previously header-only project is picked up
+# automatically on the next cmake run — no manual editing required.
+file(GLOB_RECURSE LIB_SOURCES CONFIGURE_DEPENDS
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/${PROJECT_NAME}/*.cpp"
 )
 
-# Require C++23 for all targets that consume VectorPro.
-target_compile_features(
-    VectorPro
-    INTERFACE
-    cxx_std_23
-)
+if(LIB_SOURCES)
+    # Sources found: build a real compiled static library.
+    add_library(
+        ${PROJECT_NAME}
+        STATIC
+        ${LIB_SOURCES}
+    )
+
+    target_include_directories(
+        ${PROJECT_NAME}
+        PUBLIC
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+            $<INSTALL_INTERFACE:include>
+    )
+
+    target_compile_features(
+        ${PROJECT_NAME}
+        PUBLIC
+            cxx_std_23
+    )
+else()
+    # No sources: header-only library, INTERFACE target.
+    add_library(
+        ${PROJECT_NAME}
+        INTERFACE
+    )
+
+    target_include_directories(
+        ${PROJECT_NAME}
+        INTERFACE
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+            $<INSTALL_INTERFACE:include>
+    )
+
+    target_compile_features(
+        ${PROJECT_NAME}
+        INTERFACE
+            cxx_std_23
+    )
+endif()
 
 # ============================================================================
 # Subdirectories
@@ -62,26 +103,29 @@ target_compile_features(
 # Consumers (e.g. vcpkg) should disable these — only the library itself
 # needs to be configured/installed for downstream projects. Defaults to
 # ON so local development and existing CI workflows are unaffected.
-option(VECTORPRO_BUILD_TESTS "Build the VectorPro test suite" ON)
-option(VECTORPRO_BUILD_BENCHMARKS "Build the VectorPro benchmark suite" ON)
-option(VECTORPRO_BUILD_TOOLS "Build the compare/regression benchmark tools" ON)
-option(VECTORPRO_BUILD_EXAMPLES "Build the VectorPro examples" ON)
+# Kept as a fixed prefix rather than ${PROJECT_NAME}-derived: downstream
+# projects that reference these flags (e.g. -DBUILD_TESTS=OFF) expect a
+# stable name that doesn't change when this skeleton is retargeted.
+option(BUILD_TESTS "Build the test suite" ON)
+option(BUILD_BENCHMARKS "Build the benchmark suite" ON)
+option(BUILD_REGRESSION "Build the regression benchmark tools" ON)
+option(BUILD_EXAMPLES "Build the examples suite" ON)
 
 enable_testing()
 
-if(VECTORPRO_BUILD_TESTS)
+if(BUILD_TESTS)
     add_subdirectory(tests tests_build)
 endif()
 
-if(VECTORPRO_BUILD_BENCHMARKS)
+if(BUILD_BENCHMARKS)
     add_subdirectory(benchmarks benchmarks_build)
 endif()
 
-if(VECTORPRO_BUILD_TOOLS)
-    add_subdirectory(tools tools_build)
+if(BUILD_REGRESSION)
+    add_subdirectory(regression regression_build)
 endif()
 
-if(VECTORPRO_BUILD_EXAMPLES)
+if(BUILD_EXAMPLES)
     add_subdirectory(examples examples_build)
 endif()
 
@@ -89,18 +133,18 @@ endif()
 # Installation
 # ============================================================================
 
-# Install the VectorPro target and export it for downstream projects.
+# Install the library target and export it for downstream projects.
 install(
-    TARGETS VectorPro
-    EXPORT VectorProTargets
+    TARGETS ${PROJECT_NAME}
+    EXPORT ${PROJECT_NAME}Targets
 )
 
 # Install the exported CMake targets.
 install(
-    EXPORT VectorProTargets
-    FILE VectorProTargets.cmake
-    NAMESPACE VectorPro::
-    DESTINATION lib/cmake/VectorPro
+    EXPORT ${PROJECT_NAME}Targets
+    FILE ${PROJECT_NAME}Targets.cmake
+    NAMESPACE ${PROJECT_NAME}::
+    DESTINATION lib/cmake/${PROJECT_NAME}
 )
 
 # Install the public header files.
@@ -117,14 +161,14 @@ include(CMakePackageConfigHelpers)
 
 # Generate the package configuration file.
 configure_package_config_file(
-    cmake/VectorProConfig.cmake.in
-    ${CMAKE_CURRENT_BINARY_DIR}/VectorProConfig.cmake
-    INSTALL_DESTINATION lib/cmake/VectorPro
+    cmake/${PROJECT_NAME}Config.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
+    INSTALL_DESTINATION lib/cmake/${PROJECT_NAME}
 )
 
 # Generate the package version file.
 write_basic_package_version_file(
-    ${CMAKE_CURRENT_BINARY_DIR}/VectorProConfigVersion.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
     VERSION ${PROJECT_VERSION}
     COMPATIBILITY SameMajorVersion
 )
@@ -132,7 +176,7 @@ write_basic_package_version_file(
 # Install the package configuration files.
 install(
     FILES
-        ${CMAKE_CURRENT_BINARY_DIR}/VectorProConfig.cmake
-        ${CMAKE_CURRENT_BINARY_DIR}/VectorProConfigVersion.cmake
-    DESTINATION lib/cmake/VectorPro
+        ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
+        ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
+    DESTINATION lib/cmake/${PROJECT_NAME}
 )

@@ -14,7 +14,7 @@
 // - Self copy assignment
 // - Self move assignment
 
-#include <common/framework.h>
+#include <support/framework.h>
 
 using namespace VectorPro;
 

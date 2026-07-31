@@ -1,3 +1,9 @@
+# ============================================================
+# .github/workflows/clang-format.yml
+# Checks that all first-party source files are clang-format
+# clean on every push and pull request.
+# ============================================================
+
 name: Clang Format
 
 on:
@@ -9,13 +15,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Install clang-format
         run: sudo apt update && sudo apt install -y clang-format
 
       - name: Check formatting
         run: |
-          find include tests examples benchmarks \
+          find include tests examples benchmarks regression \
             \( -name "*.h" -o -name "*.hpp" -o -name "*.cpp" -o -name "*.tpp" \) \
             -exec clang-format --dry-run --Werror {} +

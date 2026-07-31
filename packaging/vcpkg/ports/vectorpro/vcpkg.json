@@ -1,0 +1,11 @@
+{
+  "name": "vectorpro",
+  "version": "1.0.0",
+  "description": "High-performance, header-only dynamic array with configurable growth policy, custom allocator support, and optional modification-event notifications.",
+  "homepage": "https://github.com/privateMwb/VectorPro",
+  "license": "MIT",
+  "dependencies": [
+    "vcpkg-cmake",
+    "vcpkg-cmake-config"
+  ]
+}

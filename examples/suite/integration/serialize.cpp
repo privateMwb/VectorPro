@@ -5,7 +5,7 @@
 // - reading a Vector<int> back in from a std::istringstream
 // - round-tripping through <sstream> with no external dependencies
 
-#include <common/framework.h>
+#include <support/framework.h>
 
 #include <sstream>
 

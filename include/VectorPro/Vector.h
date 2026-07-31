@@ -1,12 +1,12 @@
 /**
  * @file            Vector.hpp
  *
- * @date            2026-14-7
+ * @date            2026-07-14
  *
  * @version         1.0.0
  *
- * @copyright       Copyright (c) 2026 PrivateMwb
- *                  All rigts reserved.
+ * @copyright       Copyright (c) 2026 MWB
+ *                  All rights reserved.
  *                  https://github.com/privateMwb/VectorPro
  *
  * @attention       This source is released under the MIT license

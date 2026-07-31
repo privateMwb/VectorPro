@@ -1,7 +1,0 @@
-{
-  "name": "vectorpro",
-  "version": "1.0.0",
-  "description": "High-performance std::vector-compatible contiguous container.",
-  "homepage": "https://github.com/privateMwb/VectorPro",
-  "license": "MIT"
-}

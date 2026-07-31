@@ -13,7 +13,7 @@
 // - a larger starting capacity with the same ratio grows correctly
 //   (isolates the bug to small starting capacities specifically)
 
-#include <common/framework.h>
+#include <support/framework.h>
 
 using namespace VectorPro;
 

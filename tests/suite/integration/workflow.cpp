@@ -14,7 +14,7 @@
 // - copy/move/swap operations performed mid-sequence preserve equivalence
 
 #include <algorithm>
-#include <common/framework.h>
+#include <support/framework.h>
 #include <random>
 #include <vector>
 

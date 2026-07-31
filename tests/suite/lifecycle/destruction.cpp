@@ -14,7 +14,7 @@
 // - move construction does not copy or move individual elements
 // - destructing a moved-from vector is safe
 
-#include <common/framework.h>
+#include <support/framework.h>
 
 using namespace VectorPro;
 

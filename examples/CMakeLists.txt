@@ -1,6 +1,6 @@
 # ============================================================
 # examples/CMakeLists.txt
-# Build configuration for the VectorPro examples.
+# Build configuration for the examples.
 # ============================================================
 
 # Collect all example source files.
@@ -14,16 +14,16 @@ add_executable(
     ${EXAMPLE_SOURCES}
 )
 
-# Allow simple example includes.
+# Allow example files to include local headers directly (e.g. "support/framework.h").
 target_include_directories(
     examples
     PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-# Link VectorPro to the example executable.
+# Link the library under test into the example executable.
 target_link_libraries(
     examples
     PRIVATE
-    VectorPro
+        ${PROJECT_NAME}
 )

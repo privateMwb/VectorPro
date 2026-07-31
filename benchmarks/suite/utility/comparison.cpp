@@ -6,7 +6,7 @@
 // - operator== (equal, differing early, differing late, different sizes)
 // - operator<=>
 
-#include <common/framework.h>
+#include <support/framework.h>
 
 #include <vector>
 

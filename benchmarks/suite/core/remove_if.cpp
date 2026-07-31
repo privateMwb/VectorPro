@@ -4,7 +4,7 @@
 // Covers:
 // - remove_if
 
-#include <common/framework.h>
+#include <support/framework.h>
 
 #include <algorithm>
 #include <vector>

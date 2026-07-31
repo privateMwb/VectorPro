@@ -1,8 +1,8 @@
 /**
  * @file VectorPro.tpp
- * @brief HashMap template implementation.
+ * @brief Vector template implementation.
  *
- * Contains the implementation of VectorPro template member
+ * Contains the implementation of VectorPro::Vector template member
  * functions and internal implementation details.
  */
 
@@ -697,7 +697,7 @@ void Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::unsubscribe(Liste
         listenerStore_.listeners_[i] = std::move(listenerStore_.listeners_[i + 1]);
     }
 
-    listenerStore_.listeners_[listenerStore_.lsize_ - 1] = nullptr;
+    listenerStore_.listeners_[listenerStore_.lsize_ - 1] = ListenerFn{};
     --listenerStore_.lsize_;
 }
 

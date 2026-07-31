@@ -13,7 +13,7 @@
 // - random-access iterator operations
 // - contiguous_iterator conformance
 
-#include <common/framework.h>
+#include <support/framework.h>
 
 using namespace VectorPro;
 

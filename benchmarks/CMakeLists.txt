@@ -1,6 +1,6 @@
 # ============================================================
 # benchmarks/CMakeLists.txt
-# Build configuration for the VectorPro benchmark suite.
+# Build configuration for the project benchmark suite.
 # ============================================================
 
 if(NOT CMAKE_BUILD_TYPE)
@@ -16,7 +16,7 @@ file(GLOB_RECURSE BENCH_SOURCES CONFIGURE_DEPENDS
 add_executable(
     benchmarks
     ${BENCH_SOURCES}
-    ${CMAKE_CURRENT_SOURCE_DIR}/bench_all.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/bench_main.cpp
 )
 
 # Allow simple benchmark includes.
@@ -28,9 +28,9 @@ target_include_directories(
         ${CMAKE_SOURCE_DIR}/include
 )
 
-# Link VectorPro to the benchmark executable.
+# Link the library under test into the benchmark executable.
 target_link_libraries(
     benchmarks
     PRIVATE
-        VectorPro
+        ${PROJECT_NAME}
 )

@@ -11,7 +11,7 @@
 // - equality via three-way comparison
 // - shorter prefix ordering
 
-#include <common/framework.h>
+#include <support/framework.h>
 
 using namespace VectorPro;
 

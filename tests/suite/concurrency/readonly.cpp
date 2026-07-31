@@ -17,7 +17,7 @@
 // - concurrent find() calls are consistent across threads
 // - concurrent contains() calls are consistent across threads
 
-#include <common/framework.h>
+#include <support/framework.h>
 
 #include <numeric>
 #include <thread>

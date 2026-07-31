@@ -5,7 +5,7 @@
 // - iterators/pointers invalidated by insert() and erase()
 // - the correct pattern: re-fetch iterators after a mutating call
 
-#include <common/framework.h>
+#include <support/framework.h>
 
 using namespace VectorPro;
 
