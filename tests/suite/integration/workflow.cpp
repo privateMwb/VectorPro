@@ -14,8 +14,8 @@
 // - copy/move/swap operations performed mid-sequence preserve equivalence
 
 #include <algorithm>
-#include <support/framework.h>
 #include <random>
+#include <support/framework.h>
 #include <vector>
 
 using namespace VectorPro;

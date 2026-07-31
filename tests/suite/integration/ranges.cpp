@@ -15,10 +15,10 @@
 // - std::back_inserter works with Vector::push_back
 
 #include <algorithm>
-#include <support/framework.h>
 #include <iterator>
 #include <numeric>
 #include <ranges>
+#include <support/framework.h>
 
 using namespace VectorPro;
 
