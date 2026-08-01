@@ -544,9 +544,15 @@ using ObservableVector = Vector<T, Allocator, GrowthNum, GrowthDen, true>;
 
 } // namespace VectorPro
 
-/// @brief Short alias so this library can be used as `rain::Vector` while
-/// its true namespace (and all internal diagnostics/static_asserts) remains
-/// `VectorPro`. See Iterator.h for the same alias applied to `rain::Iterator`.
-namespace rain = VectorPro;
+/// @brief Umbrella alias so this library's types are reachable as
+/// `rain::Vector`, alongside every other project library, while its true
+/// namespace (and all internal diagnostics/static_asserts) remains
+/// `VectorPro`. Reopens `rain` rather than aliasing it, since multiple
+/// libraries each contribute their own names into the same `rain`
+/// namespace -- an alias (`namespace rain = VectorPro;`) can only ever
+/// bind to one target and collides the moment a second library declares
+/// its own `rain` alias to something else. Declared here only (VectorPro's
+/// main header); internal headers like Iterator.h do not redeclare this.
+namespace rain { using namespace VectorPro; }
 
 #include "Vector.tpp"

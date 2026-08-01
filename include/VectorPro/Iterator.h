@@ -190,9 +190,3 @@ template <typename T> class Iterator {
 };
 
 } // namespace VectorPro
-
-/// @brief Short alias so this library can be used as `rain::Iterator` while
-/// its true namespace remains `VectorPro`. Same alias is defined in Vector.h;
-/// C++ permits redefining an identical namespace alias, so including both
-/// headers together is safe.
-namespace rain = VectorPro;
