@@ -553,6 +553,8 @@ using ObservableVector = Vector<T, Allocator, GrowthNum, GrowthDen, true>;
 /// bind to one target and collides the moment a second library declares
 /// its own `rain` alias to something else. Declared here only (VectorPro's
 /// main header); internal headers like Iterator.h do not redeclare this.
-namespace rain { using namespace VectorPro; }
+namespace rain {
+using namespace VectorPro;
+}
 
 #include "Vector.tpp"
