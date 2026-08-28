@@ -126,8 +126,8 @@ template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t Gro
 // place. Splitting it purely to satisfy this metric risks introducing a
 // real bug in exception-sensitive code for no correctness or readability
 // gain, so it's intentionally suppressed rather than refactored.
-// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>&
+// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::operator=(const Vector& other) {
     if (this == &other) {
         return *this;
@@ -225,8 +225,8 @@ template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t Gro
 // See the same note above operator=(const Vector&) -- the canSteal /
 // element-move branches here are exception-sensitive and intentionally
 // kept together rather than split purely to satisfy this metric.
-// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>&
+// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::operator=(Vector&& other) noexcept {
     if (this != &other) {
         constexpr bool kPropagate =
