@@ -1,6 +1,19 @@
 /**
- * @file Iterator.h
- * @brief Iterator implementation for VectorPro.
+ * @file            Iterator.h
+ *
+ * @date            2026-07-14
+ *
+ * @version         1.0.0
+ *
+ * @copyright       Copyright (c) 2026 MWB
+ *                  All rights reserved.
+ *                  https://github.com/privateMwb/VectorPro
+ *
+ * @attention       This source is released under the MIT license
+ *                  SPDX-License-Identifier: MIT
+ *                  <http://opensource.org/licenses/MIT>
+ *
+ * @brief           Iterator implementation for VectorPro.
  *
  * Contains the iterator types used by VectorPro for traversing
  * elements stored within the container.
@@ -89,6 +102,13 @@ template <typename T> class Iterator {
 
     /// @brief Post-increments the iterator to point to the next element.
     /// @return A copy of the iterator's value before incrementing.
+    /// @note cert-dcl21-cpp asks postfix ++/-- to return a const object to
+    /// block `it++ = x`-style misuse. That conflicts with C++20's
+    /// `std::incrementable` concept (required by `std::contiguous_iterator`,
+    /// which this type satisfies), which mandates `{ i++ } -> std::same_as<I>`
+    /// -- an exact, non-const `Iterator` return type. The concept requirement
+    /// wins here, so this diagnostic is intentionally suppressed.
+    // NOLINTNEXTLINE(cert-dcl21-cpp)
     [[nodiscard]] constexpr Iterator operator++(int) noexcept {
         auto t = *this;
         ++ptr_;
@@ -104,6 +124,10 @@ template <typename T> class Iterator {
 
     /// @brief Post-decrements the iterator to point to the previous element.
     /// @return A copy of the iterator's value before decrementing.
+    /// @note See the @c operator++(int) note above -- the same
+    /// `std::incrementable`/concept conflict applies here, so cert-dcl21-cpp
+    /// is intentionally suppressed rather than adding `const`.
+    // NOLINTNEXTLINE(cert-dcl21-cpp)
     [[nodiscard]] constexpr Iterator operator--(int) noexcept {
         auto t = *this;
         --ptr_;

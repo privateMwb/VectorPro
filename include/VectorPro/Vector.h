@@ -1,5 +1,5 @@
 /**
- * @file            Vector.hpp
+ * @file            Vector.h
  *
  * @date            2026-07-14
  *
@@ -23,6 +23,7 @@
 #include <compare>          // std::strong_ordering / operator<=>
 #include <concepts>         // std::invocable, std::input_iterator (Listener concept, iterator-pair ctor)
 #include <cstddef>          // std::size_t, std::ptrdiff_t
+#include <cstdint>          // std::uint8_t (EventType underlying type)
 #include <cstring>          // std::memcpy (trivial-type fast path in insert/erase/push_back)
 #include <functional>       // std::function (ListenerFn storage)
 #include <initializer_list> // std::initializer_list ctor/assign
@@ -112,7 +113,7 @@ class Vector {
                   "VectorPro::Vector: GrowthNum must be greater than GrowthDen to ensure growth");
 
     /// @brief Event types emitted when the vector is modified.
-    enum class EventType {
+    enum class EventType : std::uint8_t {
         PUSHBACK,    ///< Emitted by push_back().
         EMPLACEBACK, ///< Emitted by emplace_back().
         POPBACK,     ///< Emitted by pop_back().
