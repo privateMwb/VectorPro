@@ -39,8 +39,9 @@ template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t Gro
     requires std::destructible<T>
 Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::Vector(std::size_t count,
                                                                  const T& value) {
-    if (count == 0)
+    if (count == 0) {
         return;
+    }
 
     data_ = std::allocator_traits<Allocator>::allocate(alloc_, count);
     vcap_ = count;
@@ -62,8 +63,9 @@ template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t Gro
           bool EnableEvents>
     requires std::destructible<T>
 Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::Vector(std::initializer_list<T> init) {
-    if (init.size() == 0)
+    if (init.size() == 0) {
         return;
+    }
 
     data_ = std::allocator_traits<Allocator>::allocate(alloc_, init.size());
     vcap_ = init.size();
@@ -119,10 +121,17 @@ Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::Vector(const Vector& o
 template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
           bool EnableEvents>
     requires std::destructible<T>
+// Complexity here is inherent to correctly handling allocator propagation,
+// the in-capacity fast/slow paths, and exception safety together in one
+// place. Splitting it purely to satisfy this metric risks introducing a
+// real bug in exception-sensitive code for no correctness or readability
+// gain, so it's intentionally suppressed rather than refactored.
 Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>&
+// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::operator=(const Vector& other) {
-    if (this == &other)
+    if (this == &other) {
         return *this;
+    }
 
     constexpr bool kPropagate =
         std::allocator_traits<Allocator>::propagate_on_container_copy_assignment::value;
@@ -213,7 +222,11 @@ Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::Vector(Vector&& other)
 template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t GrowthDen,
           bool EnableEvents>
     requires std::destructible<T>
+// See the same note above operator=(const Vector&) -- the canSteal /
+// element-move branches here are exception-sensitive and intentionally
+// kept together rather than split purely to satisfy this metric.
 Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>&
+// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::operator=(Vector&& other) noexcept {
     if (this != &other) {
         constexpr bool kPropagate =
@@ -358,8 +371,9 @@ template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t Gro
 template <typename... Args>
     requires std::constructible_from<T, Args...>
 void Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::emplace_back(Args&&... args) {
-    if (vsize_ == vcap_)
+    if (vsize_ == vcap_) {
         reallocate(growCapacity());
+    }
 
     std::allocator_traits<Allocator>::construct(alloc_, data_ + vsize_,
                                                 std::forward<Args>(args)...);
@@ -392,14 +406,16 @@ Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::insert(const_iterator 
             offset = std::addressof(value) - data_;
         }
 
-        if (willReallocate)
+        if (willReallocate) {
             reallocate(growCapacity());
+        }
 
         // Snapshot before shifting — the shift loop can overwrite `offset`
         // before we'd otherwise read it.
         std::optional<T> snapshot;
-        if (offset >= 0)
+        if (offset >= 0) {
             snapshot.emplace(data_[offset]);
+        }
         const T& src = snapshot ? *snapshot : value;
 
         if (index == vsize_) {
@@ -407,8 +423,9 @@ Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::insert(const_iterator 
         } else {
             std::allocator_traits<Allocator>::construct(alloc_, data_ + vsize_,
                                                         std::move(data_[vsize_ - 1]));
-            for (std::size_t i = vsize_ - 1; i > index; --i)
+            for (std::size_t i = vsize_ - 1; i > index; --i) {
                 data_[i] = std::move(data_[i - 1]);
+            }
             data_[index] = src;
         }
     }
@@ -437,30 +454,35 @@ Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::insert(const_iterator 
             offset = std::addressof(value) - data_;
         }
 
-        if (willReallocate)
+        if (willReallocate) {
             reallocate(growCapacity());
+        }
 
         std::optional<T> snapshot;
-        if (offset >= 0)
+        if (offset >= 0) {
             snapshot.emplace(std::move(data_[offset]));
+        }
 
         if (index == vsize_) {
-            if (snapshot)
+            if (snapshot) {
                 std::allocator_traits<Allocator>::construct(alloc_, data_ + index,
                                                             std::move(*snapshot));
-            else
+            } else {
                 std::allocator_traits<Allocator>::construct(alloc_, data_ + index,
                                                             std::move(value));
+            }
         } else {
             std::allocator_traits<Allocator>::construct(alloc_, data_ + vsize_,
                                                         std::move(data_[vsize_ - 1]));
-            for (std::size_t i = vsize_ - 1; i > index; --i)
+            for (std::size_t i = vsize_ - 1; i > index; --i) {
                 data_[i] = std::move(data_[i - 1]);
+            }
 
-            if (snapshot)
+            if (snapshot) {
                 data_[index] = std::move(*snapshot);
-            else
+            } else {
                 data_[index] = std::move(value);
+            }
         }
     }
 
@@ -497,8 +519,9 @@ Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::emplace(const_iterator
                                                                   Args&&... args) {
     std::size_t index = pos - cbegin();
 
-    if (vsize_ == vcap_)
+    if (vsize_ == vcap_) {
         reallocate(growCapacity());
+    }
 
     if (index == vsize_) {
         std::allocator_traits<Allocator>::construct(alloc_, data_ + index,
@@ -508,8 +531,9 @@ Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::emplace(const_iterator
 
         std::allocator_traits<Allocator>::construct(alloc_, data_ + vsize_,
                                                     std::move(data_[vsize_ - 1]));
-        for (std::size_t i = vsize_ - 1; i > index; --i)
+        for (std::size_t i = vsize_ - 1; i > index; --i) {
             data_[i] = std::move(data_[i - 1]);
+        }
 
         data_[index] = std::move(tmp);
     }
@@ -531,8 +555,9 @@ std::size_t Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::remove_if(
 
     for (std::size_t i = 0; i < vsize_; ++i) {
         if (!pred(data_[i])) {
-            if (dest != i)
+            if (dest != i) {
                 data_[dest] = std::move(data_[i]);
+            }
             ++dest;
         }
         // Removed elements are intentionally left untouched here — the
@@ -555,8 +580,9 @@ template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t Gro
           bool EnableEvents>
     requires std::destructible<T>
 void Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::pop_back() {
-    if (vsize_ == 0)
+    if (vsize_ == 0) {
         return;
+    }
 
     std::size_t old = vsize_;
     std::allocator_traits<Allocator>::destroy(alloc_, data_ + vsize_ - 1);
@@ -595,8 +621,9 @@ Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::erase(const_iterator f
     std::size_t indexLast = last - cbegin();
     std::size_t count = indexLast - indexFirst;
 
-    if (count == 0)
+    if (count == 0) {
         return iterator(data_ + indexFirst);
+    }
 
     for (std::size_t i = indexFirst; i + count < vsize_; ++i) {
         data_[i] = std::move(data_[i + count]);
@@ -617,8 +644,9 @@ template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t Gro
           bool EnableEvents>
     requires std::destructible<T>
 void Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::clear() noexcept {
-    if (vsize_ == 0)
+    if (vsize_ == 0) {
         return;
+    }
 
     for (std::size_t i = 0; i < vsize_; ++i) {
         std::allocator_traits<Allocator>::destroy(alloc_, data_ + i);
@@ -634,8 +662,9 @@ template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t Gro
           bool EnableEvents>
     requires std::destructible<T>
 void Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::reserve(std::size_t newCap) {
-    if (newCap <= vcap_)
+    if (newCap <= vcap_) {
         return;
+    }
 
     std::size_t old = vcap_;
     reallocate(newCap);
@@ -647,8 +676,9 @@ template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t Gro
           bool EnableEvents>
     requires std::destructible<T>
 void Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::shrink_to_fit() {
-    if (vsize_ == vcap_)
+    if (vsize_ == vcap_) {
         return;
+    }
 
     std::size_t old = vcap_;
     reallocate(vsize_);
@@ -669,7 +699,7 @@ typename Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::ListenerHandl
 Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::subscribe(F&& listeners) {
     if (listenerStore_.lsize_ == listenerStore_.lcap_) {
         std::size_t newCap = listenerStore_.lcap_ == 0 ? INITIAL_CAP : listenerStore_.lcap_ * 2;
-        ListenerFn* newBuf = new ListenerFn[newCap];
+        auto* newBuf = new ListenerFn[newCap];
 
         for (std::size_t i = 0; i < listenerStore_.lsize_; ++i) {
             newBuf[i] = std::move(listenerStore_.listeners_[i]);
@@ -690,8 +720,9 @@ template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t Gro
 void Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::unsubscribe(ListenerHandle handle)
     requires EnableEvents
 {
-    if (handle >= listenerStore_.lsize_)
+    if (handle >= listenerStore_.lsize_) {
         return;
+    }
 
     for (std::size_t i = handle; i < listenerStore_.lsize_ - 1; ++i) {
         listenerStore_.listeners_[i] = std::move(listenerStore_.listeners_[i + 1]);
@@ -711,11 +742,13 @@ template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t Gro
     requires std::destructible<T>
 bool Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::operator==(const Vector& other) const
     noexcept(noexcept(std::declval<const T&>() == std::declval<const T&>())) {
-    if (vsize_ != other.vsize_)
+    if (vsize_ != other.vsize_) {
         return false;
+    }
 
-    if (vsize_ == 0)
+    if (vsize_ == 0) {
         return true;
+    }
 
     // Fast path: for trivially-copyable T with the default allocator, the
     // underlying storage is a flat byte buffer, so a single memcmp() over
@@ -786,8 +819,9 @@ template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t Gro
     requires std::destructible<T>
 typename Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::reference
 Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::at(std::size_t index) {
-    if (index >= vsize_)
+    if (index >= vsize_) {
         throw std::out_of_range("Vector::at() index out of range");
+    }
 
     return data_[index];
 }
@@ -797,8 +831,9 @@ template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t Gro
     requires std::destructible<T>
 typename Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::const_reference
 Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::at(std::size_t index) const {
-    if (index >= vsize_)
+    if (index >= vsize_) {
         throw std::out_of_range("Vector::at() index out of range");
+    }
 
     return data_[index];
 }
@@ -861,8 +896,9 @@ template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t Gro
     requires std::destructible<T>
 bool Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::contains(const T& value) const
     noexcept(noexcept(std::declval<const T&>() == std::declval<const T&>())) {
-    if (vsize_ == 0)
+    if (vsize_ == 0) {
         return false;
+    }
 
     // std::find() on a raw pointer range picks up libstdc++'s internal
     // fast paths (manual loop-unrolling for scalar types, memchr for
@@ -1057,8 +1093,9 @@ template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t Gro
           bool EnableEvents>
     requires std::destructible<T>
 void Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::copyBufferFrom(const Vector& other) {
-    if (other.vcap_ == 0)
+    if (other.vcap_ == 0) {
         return;
+    }
 
     data_ = std::allocator_traits<Allocator>::allocate(alloc_, other.vcap_);
     vcap_ = other.vcap_;
@@ -1076,8 +1113,9 @@ void Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::copyBufferFrom(co
                                                             other.data_[constructed]);
             }
         } catch (...) {
-            for (std::size_t i = 0; i < constructed; ++i)
+            for (std::size_t i = 0; i < constructed; ++i) {
                 std::allocator_traits<Allocator>::destroy(alloc_, data_ + i);
+            }
             std::allocator_traits<Allocator>::deallocate(alloc_, data_, vcap_);
             data_ = nullptr;
             vcap_ = 0;
@@ -1093,12 +1131,14 @@ template <typename T, typename Allocator, std::size_t GrowthNum, std::size_t Gro
     requires std::destructible<T>
 std::size_t
 Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::growCapacity() const noexcept {
-    if (vcap_ == 0)
+    if (vcap_ == 0) {
         return INITIAL_CAP;
+    }
 
     constexpr std::size_t kMax = std::numeric_limits<std::size_t>::max();
-    if (vcap_ > kMax / GrowthNum)
+    if (vcap_ > kMax / GrowthNum) {
         return kMax;
+    }
 
     std::size_t grown = vcap_ * GrowthNum / GrowthDen;
 
@@ -1106,8 +1146,9 @@ Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::growCapacity() const n
     // small vcap_ values combined with a fractional growth ratio (e.g.
     // 1 * 3 / 2 == 1). Guarantee growth always strictly increases capacity
     // by at least one element, saturating at SIZE_MAX instead of overflowing.
-    if (grown <= vcap_)
+    if (grown <= vcap_) {
         grown = (vcap_ < kMax) ? vcap_ + 1 : kMax;
+    }
 
     return grown;
 }
@@ -1130,8 +1171,9 @@ void Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::reallocate(std::s
                     alloc_, newData + constructed, std::move_if_noexcept(data_[constructed]));
             }
         } catch (...) {
-            for (std::size_t i = 0; i < constructed; ++i)
+            for (std::size_t i = 0; i < constructed; ++i) {
                 std::allocator_traits<Allocator>::destroy(alloc_, newData + i);
+            }
             std::allocator_traits<Allocator>::deallocate(alloc_, newData, newCap);
             throw;
         }
@@ -1160,8 +1202,9 @@ void Vector<T, Allocator, GrowthNum, GrowthDen, EnableEvents>::notify(EventData 
     // real function call behind — the whole call site collapses to nothing.
     if constexpr (EnableEvents) {
         for (std::size_t i = 0; i < listenerStore_.lsize_; ++i) {
-            if (listenerStore_.listeners_[i])
+            if (listenerStore_.listeners_[i]) {
                 listenerStore_.listeners_[i](*this, data);
+            }
         }
     }
 }
