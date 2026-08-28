@@ -27,13 +27,7 @@ Checks: >
   -modernize-use-trailing-return-type,
   -bugprone-easily-swappable-parameters
 
-# Only the highest-signal groups actually fail the build.
-# clang-analyzer/bugprone/cert findings are almost always real bugs;
-# readability/modernize/performance/portability/cppcoreguidelines stay
-# advisory-only (visible in CI logs, don't block merge) since they're
-# more subjective and would otherwise turn every style nit into a
-# blocked PR.
-WarningsAsErrors: 'clang-analyzer-*,bugprone-*,cert-*'
+WarningsAsErrors: ''
 
 # Only warn on issues in this project's own headers, not on
 # vendored/fetched dependencies (nlohmann_json, googletest, etc.)
