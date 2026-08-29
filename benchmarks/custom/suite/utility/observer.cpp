@@ -27,7 +27,7 @@ static void bench_push_back_no_listeners() {
         doNotOptimize(v);
     };
 
-    BENCH_SOLO("push_back, 0 listeners", vp);
+    BENCH_SOLO_CUSTOM("push_back, 0 listeners", vp);
 }
 
 // Measures push_back with a single subscribed listener.
@@ -41,7 +41,7 @@ static void bench_push_back_one_listener() {
         doNotOptimize(v);
     };
 
-    BENCH_SOLO("push_back, 1 listener", vp);
+    BENCH_SOLO_CUSTOM("push_back, 1 listener", vp);
 }
 
 // Measures push_back with multiple subscribed listeners.
@@ -57,7 +57,7 @@ static void bench_push_back_many_listeners() {
         doNotOptimize(v);
     };
 
-    BENCH_SOLO("push_back, 8 listeners", vp);
+    BENCH_SOLO_CUSTOM("push_back, 8 listeners", vp);
 }
 
 // Measures push_back with a listener that captures external state.
@@ -75,7 +75,7 @@ static void bench_push_back_capturing_listener() {
         doNotOptimize(total);
     };
 
-    BENCH_SOLO("push_back, capturing listener", vp);
+    BENCH_SOLO_CUSTOM("push_back, capturing listener", vp);
 }
 
 // Measures listener registration.
@@ -88,7 +88,7 @@ static void bench_subscribe() {
         doNotOptimize(v);
     };
 
-    BENCH_SOLO("subscribe x100", vp);
+    BENCH_SOLO_CUSTOM("subscribe x100", vp);
 }
 
 // Measures listener removal.
@@ -106,7 +106,7 @@ static void bench_unsubscribe() {
 
         doNotOptimize(v);
     };
-    BENCH_SOLO("unsubscribe x100", vp);
+    BENCH_SOLO_CUSTOM("unsubscribe x100", vp);
 }
 
 // Executes all observer benchmark cases.

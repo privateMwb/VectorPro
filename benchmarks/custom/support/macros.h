@@ -89,6 +89,24 @@
         printComparisonRow(name, "100", cNs, sNs);                                                 \
     } while (0)
 
+// Like BENCH_SOLO, but for suites whose payload is too heavy for
+// BENCH_SOLO's default 10K/100K/1M tiers (e.g. large structures, deep
+// recursion) — at those tiers a single expensive call multiplied out
+// would never finish in reasonable time. Uses 100/1K/10K instead.
+#define BENCH_SOLO_CUSTOM(name, expr)                                                              \
+    do {                                                                                           \
+        nanoseconds ns{};                                                                          \
+                                                                                                   \
+        BENCHMARK(std::string(name), 100, expr, ns, true);                                         \
+        printSoloRow(name, "100", ns);                                                             \
+                                                                                                   \
+        BENCHMARK(std::string(name), 1000, expr, ns, true);                                        \
+        printSoloRow(name, "1K", ns);                                                              \
+                                                                                                   \
+        BENCHMARK(std::string(name), 10000, expr, ns, true);                                       \
+        printSoloRow(name, "10k", ns);                                                             \
+    } while (0)
+
 // Registers this file's run_benchmarks with the global registry so it
 // runs automatically at startup. The anonymous namespace gives
 // `registrar` internal linkage, preventing duplicate-symbol errors when
