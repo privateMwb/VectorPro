@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/banner.svg" alt="VectorPro" width="100%">
+  <img src=".github/assets/banner.svg" alt="VectorPro" width="100%">
 </p>
 
 <p align="center">
@@ -49,7 +49,7 @@
 </p>
 
 <p align="center">
-  <img src="assets/divider.svg" alt="" width="100%">
+  <img src=".github/assets/divider.svg" alt="" width="100%">
 </p>
 
 <p align="center">VectorPro is a header-only, <code>std::vector</code>-like dynamic array for modern C++ — a configurable growth policy, full custom-allocator support, a real <code>std::contiguous_iterator</code>, and optional zero-overhead modification-event notifications, so you only pay for the parts you actually use.</p>
@@ -82,14 +82,14 @@
 - **A real `std::contiguous_iterator`** — not a raw pointer `typedef`. Supports the full random-access iterator interface, implicit `iterator` → `const_iterator` conversion, and zero-copy `std::span` views via `as_span()`.
 - **Exception-safe reallocation and copy paths** — `reallocate()`, `copyBufferFrom()`, and the copy-and-swap fallback in `operator=()` all roll back cleanly on a throwing constructor, leaving the vector exactly as it was before the call.
 
-<div align="right"><a href="#-table-of-contents"><img src="assets/back-to-top.svg" alt="Back to top" height="28"></a></div>
+<div align="right"><a href="#-table-of-contents"><img src=".github/assets/back-to-top.svg" alt="Back to top" height="28"></a></div>
 
 ## <a id="requirements"></a>📋 Requirements
 
 - A C++20-conformant compiler (tested: GCC, Clang, MSVC, AppleClang)
 - CMake 3.20+
 
-<div align="right"><a href="#-table-of-contents"><img src="assets/back-to-top.svg" alt="Back to top" height="28"></a></div>
+<div align="right"><a href="#-table-of-contents"><img src=".github/assets/back-to-top.svg" alt="Back to top" height="28"></a></div>
 
 ## <a id="installation"></a>📦 Installation
 
@@ -118,7 +118,7 @@ target_link_libraries(your_target PRIVATE VectorPro::VectorPro)
 > but not yet published to the public registries. This section will be
 > updated once they are.
 
-<div align="right"><a href="#-table-of-contents"><img src="assets/back-to-top.svg" alt="Back to top" height="28"></a></div>
+<div align="right"><a href="#-table-of-contents"><img src=".github/assets/back-to-top.svg" alt="Back to top" height="28"></a></div>
 
 ## <a id="quick-start"></a>🚀 Quick Start
 
@@ -167,7 +167,7 @@ try {
 }
 ```
 
-<div align="right"><a href="#-table-of-contents"><img src="assets/back-to-top.svg" alt="Back to top" height="28"></a></div>
+<div align="right"><a href="#-table-of-contents"><img src=".github/assets/back-to-top.svg" alt="Back to top" height="28"></a></div>
 
 ## <a id="project-structure"></a>🗂️ Project Structure
 
@@ -183,47 +183,46 @@ VectorPro/
 │       └── Iterator.h
 │
 ├── tests/
-│   ├── support/
-│   ├── suite/
-│   ├── test_main.cpp
-│   └── CMakeLists.txt
+│   ├── custom/
+│   ├── google/
+│   ├── CMakeLists.txt
+│   └── README.md
 │
 ├── benchmarks/
-│   ├── support/
-│   ├── suite/
 │   ├── baselines/
-│   ├── bench_main.cpp
-│   └── CMakeLists.txt
+│   ├── custom/
+│   ├── google/
+│   ├── result/
+│   ├── CMakeLists.txt
+│   └── README.md
 │
 ├── examples/
 │   ├── support/
 │   ├── suite/
 │   ├── example_main.cpp
-│   └── CMakeLists.txt
+│   ├── CMakeLists.txt
+│   └── README.md
 │
 ├── regression/
-│   ├── support/
-│   ├── regression_main.cpp
-│   └── CMakeLists.txt
+│   ├── custom/
+│   ├── google/
+│   ├── results/
+│   ├── CMakeLists.txt
+│   └── README.md
 │
 ├── packaging/
 │   ├── README.md
 │   ├── recipes/
-│   │   └── vectorpro/
 │   ├── vcpkg/
-│   │   └── ports/
-│   │       └── vectorpro/
 │   └── vcpkg-smoke-test/
 │
 ├── scripts/
 │   └── update_package_files.py
 │
 ├── .github/
+│   ├── assets/
 │   ├── releases/
 │   ├── workflows/
-│   │   └── ...                    # build, benchmark, coverage, sanitizers,
-│   │                               # clang-tidy, clang-format, codeql, docs,
-│   │                               # release, packaging, scorecard
 │   └── dependabot.yml
 │
 ├── cmake/
@@ -232,11 +231,6 @@ VectorPro/
 ├── docs/
 │   ├── Doxyfile
 │   └── README.md
-│
-├── assets/
-│   ├── banner.svg
-│   ├── divider.svg
-│   └── back-to-top.svg
 │
 ├── .clang-format
 ├── .clang-tidy
@@ -252,7 +246,7 @@ VectorPro/
 
 </details>
 
-<div align="right"><a href="#-table-of-contents"><img src="assets/back-to-top.svg" alt="Back to top" height="28"></a></div>
+<div align="right"><a href="#-table-of-contents"><img src=".github/assets/back-to-top.svg" alt="Back to top" height="28"></a></div>
 
 ## <a id="development"></a>🛠️ Development
 
@@ -287,7 +281,7 @@ auto-names its output (`regression_v1.2.0_vs_current.md`/`.json`, etc.).
 See [packaging/README.md](packaging/README.md) for notes on verifying the vcpkg
 port and Conan recipe locally.
 
-<div align="right"><a href="#-table-of-contents"><img src="assets/back-to-top.svg" alt="Back to top" height="28"></a></div>
+<div align="right"><a href="#-table-of-contents"><img src=".github/assets/back-to-top.svg" alt="Back to top" height="28"></a></div>
 
 ## <a id="benchmarks"></a>📊 Benchmarks
 
@@ -319,7 +313,7 @@ loop runs behind `std::vector`'s erase-remove idiom at every scale
 tested, and `reserve()`'s no-op check carries a small fixed branch
 overhead that only shows up at the smallest (10K) iteration count.
 
-<div align="right"><a href="#-table-of-contents"><img src="assets/back-to-top.svg" alt="Back to top" height="28"></a></div>
+<div align="right"><a href="#-table-of-contents"><img src=".github/assets/back-to-top.svg" alt="Back to top" height="28"></a></div>
 
 ## <a id="documentation"></a>📖 Documentation
 
@@ -327,7 +321,7 @@ Full API reference, generated with Doxygen from `docs/Doxyfile`:
 
 **https://privateMwb.github.io/VectorPro/**
 
-<div align="right"><a href="#-table-of-contents"><img src="assets/back-to-top.svg" alt="Back to top" height="28"></a></div>
+<div align="right"><a href="#-table-of-contents"><img src=".github/assets/back-to-top.svg" alt="Back to top" height="28"></a></div>
 
 ## <a id="contributing"></a>🤝 Contributing
 
@@ -339,7 +333,7 @@ every PR. Short version, before submitting:
 - If you're changing a hot path, run `./build/regression` and mention
   the results in your PR description
 
-<div align="right"><a href="#-table-of-contents"><img src="assets/back-to-top.svg" alt="Back to top" height="28"></a></div>
+<div align="right"><a href="#-table-of-contents"><img src=".github/assets/back-to-top.svg" alt="Back to top" height="28"></a></div>
 
 ## <a id="changelog"></a>📝 Changelog
 
@@ -347,7 +341,7 @@ See [CHANGELOG.md](CHANGELOG.md) for a curated, per-release summary of
 changes, or the [Releases](https://github.com/privateMwb/VectorPro/releases)
 page for the full release notes.
 
-<div align="right"><a href="#-table-of-contents"><img src="assets/back-to-top.svg" alt="Back to top" height="28"></a></div>
+<div align="right"><a href="#-table-of-contents"><img src=".github/assets/back-to-top.svg" alt="Back to top" height="28"></a></div>
 
 ## <a id="security"></a>🔒 Security
 
@@ -355,7 +349,7 @@ See [SECURITY.md](SECURITY.md) for the supported versions, how to report
 a vulnerability (including privately, via GitHub Security Advisories),
 and the disclosure timeline.
 
-<div align="right"><a href="#-table-of-contents"><img src="assets/back-to-top.svg" alt="Back to top" height="28"></a></div>
+<div align="right"><a href="#-table-of-contents"><img src=".github/assets/back-to-top.svg" alt="Back to top" height="28"></a></div>
 
 ## <a id="license"></a>📄 License
 
@@ -366,5 +360,5 @@ MIT — see [LICENSE](LICENSE) for details.
 </p>
 
 <p align="center">
-  <a href="#-table-of-contents"><img src="assets/back-to-top.svg" alt="Back to top" height="28"></a>
+  <a href="#-table-of-contents"><img src=".github/assets/back-to-top.svg" alt="Back to top" height="28"></a>
 </p>
