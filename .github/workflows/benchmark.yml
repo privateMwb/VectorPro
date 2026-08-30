@@ -217,4 +217,3 @@ jobs:
         with:
           name: regression-results-md
           path: benchmarks/results/regression_results.md
-0
