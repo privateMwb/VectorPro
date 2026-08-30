@@ -1,9 +1,11 @@
-# VectorPro
+<p align="center">
+  <img src=".github/assets/banner.svg" alt="VectorPro" width="100%">
+</p>
 
 <p align="center">
-  <img src="https://img.shields.io/github/v/release/privateMwb/VectorPro?style=for-the-badge&logo=github&color=yellow" alt="Version">
-  <img src="https://img.shields.io/badge/License-MIT-orange?style=for-the-badge" alt="License - MIT">
-  <img src="https://img.shields.io/badge/C%2B%2B-20-blue?style=for-the-badge&logo=c%2B%2B" alt="C++ - 20">
+  <img src="https://img.shields.io/github/v/release/privateMwb/VectorPro?style=for-the-badge&logo=github&color=E63946&labelColor=0D0705" alt="Version">
+  <img src="https://img.shields.io/badge/License-MIT-F77F00?style=for-the-badge&labelColor=0D0705" alt="License - MIT">
+  <img src="https://img.shields.io/badge/C%2B%2B-20-FCBF49?style=for-the-badge&logo=c%2B%2B&labelColor=0D0705" alt="C++ - 20">
 </p>
 
 <p align="center">
@@ -25,6 +27,9 @@
   <a href="https://github.com/privateMwb/VectorPro/actions/workflows/clang-format.yml">
     <img src="https://github.com/privateMwb/VectorPro/actions/workflows/clang-format.yml/badge.svg" alt="Clang Format">
   </a>
+  <a href="https://github.com/privateMwb/VectorPro/actions/workflows/codeql.yml">
+    <img src="https://github.com/privateMwb/VectorPro/actions/workflows/codeql.yml/badge.svg" alt="CodeQL">
+  </a>
   <a href="https://github.com/privateMwb/VectorPro/actions/workflows/docs.yml">
     <img src="https://github.com/privateMwb/VectorPro/actions/workflows/docs.yml/badge.svg" alt="Documentation">
   </a>
@@ -43,7 +48,13 @@
   <img src="https://img.shields.io/badge/AppleClang-support-000000?style=flat&logo=apple" alt="AppleClang - support">
 </p>
 
-VectorPro is a header-only, `std::vector`-like dynamic array for modern C++ — a configurable growth policy, full custom-allocator support, a real `std::contiguous_iterator`, and optional zero-overhead modification-event notifications, so you only pay for the parts you actually use.
+<p align="center">
+  <img src=".github/assets/divider.svg" alt="" width="100%">
+</p>
+
+<p align="center">VectorPro is a header-only, <code>std::vector</code>-like dynamic array for modern C++ — a configurable growth policy, full custom-allocator support, a real <code>std::contiguous_iterator</code>, and optional zero-overhead modification-event notifications, so you only pay for the parts you actually use.</p>
+
+<br>
 
 ## 📑 Table of Contents
 
@@ -57,7 +68,10 @@ VectorPro is a header-only, `std::vector`-like dynamic array for modern C++ — 
 - [Documentation](#documentation)
 - [Contributing](#contributing)
 - [Changelog](#changelog)
+- [Security](#security)
 - [License](#license)
+
+<br>
 
 ## <a id="features"></a>✨ Features
 
@@ -68,10 +82,14 @@ VectorPro is a header-only, `std::vector`-like dynamic array for modern C++ — 
 - **A real `std::contiguous_iterator`** — not a raw pointer `typedef`. Supports the full random-access iterator interface, implicit `iterator` → `const_iterator` conversion, and zero-copy `std::span` views via `as_span()`.
 - **Exception-safe reallocation and copy paths** — `reallocate()`, `copyBufferFrom()`, and the copy-and-swap fallback in `operator=()` all roll back cleanly on a throwing constructor, leaving the vector exactly as it was before the call.
 
+<div align="right"><a href="#-table-of-contents"><img src=".github/assets/back-to-top.svg" alt="Back to top" height="28"></a></div>
+
 ## <a id="requirements"></a>📋 Requirements
 
 - A C++20-conformant compiler (tested: GCC, Clang, MSVC, AppleClang)
 - CMake 3.20+
+
+<div align="right"><a href="#-table-of-contents"><img src=".github/assets/back-to-top.svg" alt="Back to top" height="28"></a></div>
 
 ## <a id="installation"></a>📦 Installation
 
@@ -99,6 +117,8 @@ target_link_libraries(your_target PRIVATE VectorPro::VectorPro)
 > `packaging/recipes/vectorpro/`, port in `packaging/vcpkg/ports/vectorpro/`),
 > but not yet published to the public registries. This section will be
 > updated once they are.
+
+<div align="right"><a href="#-table-of-contents"><img src=".github/assets/back-to-top.svg" alt="Back to top" height="28"></a></div>
 
 ## <a id="quick-start"></a>🚀 Quick Start
 
@@ -147,7 +167,12 @@ try {
 }
 ```
 
+<div align="right"><a href="#-table-of-contents"><img src=".github/assets/back-to-top.svg" alt="Back to top" height="28"></a></div>
+
 ## <a id="project-structure"></a>🗂️ Project Structure
+
+<details>
+<summary>Expand full tree</summary>
 
 ```
 VectorPro/
@@ -158,44 +183,47 @@ VectorPro/
 │       └── Iterator.h
 │
 ├── tests/
-│   ├── support/
-│   ├── suite/
-│   ├── test_main.cpp
-│   └── CMakeLists.txt
+│   ├── custom/
+│   ├── google/
+│   ├── CMakeLists.txt
+│   └── README.md
 │
 ├── benchmarks/
-│   ├── support/
-│   ├── suite/
 │   ├── baselines/
-│   ├── bench_main.cpp
-│   └── CMakeLists.txt
+│   ├── custom/
+│   ├── google/
+│   ├── result/
+│   ├── CMakeLists.txt
+│   └── README.md
 │
 ├── examples/
 │   ├── support/
 │   ├── suite/
 │   ├── example_main.cpp
-│   └── CMakeLists.txt
+│   ├── CMakeLists.txt
+│   └── README.md
 │
 ├── regression/
-│   ├── support/
-│   ├── regression_main.cpp
-│   └── CMakeLists.txt
+│   ├── custom/
+│   ├── google/
+│   ├── results/
+│   ├── CMakeLists.txt
+│   └── README.md
 │
 ├── packaging/
 │   ├── README.md
 │   ├── recipes/
-│   │   └── vectorpro/
 │   ├── vcpkg/
-│   │   └── ports/
-│   │       └── vectorpro/
 │   └── vcpkg-smoke-test/
 │
 ├── scripts/
 │   └── update_package_files.py
 │
 ├── .github/
+│   ├── assets/
 │   ├── releases/
-│   └── workflows/
+│   ├── workflows/
+│   └── dependabot.yml
 │
 ├── cmake/
 │   └── VectorProConfig.cmake.in
@@ -204,11 +232,21 @@ VectorPro/
 │   ├── Doxyfile
 │   └── README.md
 │
+├── .clang-format
+├── .clang-tidy
 ├── .gitignore
 ├── CMakeLists.txt
 ├── README.md
+├── CONTRIBUTING.md
+├── CHANGELOG.md
+├── SECURITY.md
+├── CODEOWNERS
 └── LICENSE
 ```
+
+</details>
+
+<div align="right"><a href="#-table-of-contents"><img src=".github/assets/back-to-top.svg" alt="Back to top" height="28"></a></div>
 
 ## <a id="development"></a>🛠️ Development
 
@@ -243,6 +281,8 @@ auto-names its output (`regression_v1.2.0_vs_current.md`/`.json`, etc.).
 See [packaging/README.md](packaging/README.md) for notes on verifying the vcpkg
 port and Conan recipe locally.
 
+<div align="right"><a href="#-table-of-contents"><img src=".github/assets/back-to-top.svg" alt="Back to top" height="28"></a></div>
+
 ## <a id="benchmarks"></a>📊 Benchmarks
 
 Measured against `std::vector`, same build, at 10K / 100K / 1M iterations
@@ -273,25 +313,52 @@ loop runs behind `std::vector`'s erase-remove idiom at every scale
 tested, and `reserve()`'s no-op check carries a small fixed branch
 overhead that only shows up at the smallest (10K) iteration count.
 
+<div align="right"><a href="#-table-of-contents"><img src=".github/assets/back-to-top.svg" alt="Back to top" height="28"></a></div>
+
 ## <a id="documentation"></a>📖 Documentation
 
 Full API reference, generated with Doxygen from `docs/Doxyfile`:
 
 **https://privateMwb.github.io/VectorPro/**
 
+<div align="right"><a href="#-table-of-contents"><img src=".github/assets/back-to-top.svg" alt="Back to top" height="28"></a></div>
+
 ## <a id="contributing"></a>🤝 Contributing
 
-Issues and pull requests are welcome. Before submitting a PR:
+Issues and pull requests are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md)
+for the full process, coding standard reference, and what CI checks on
+every PR. Short version, before submitting:
 
 - Run the test suite (`ctest --test-dir build`)
 - If you're changing a hot path, run `./build/regression` and mention
   the results in your PR description
 
+<div align="right"><a href="#-table-of-contents"><img src=".github/assets/back-to-top.svg" alt="Back to top" height="28"></a></div>
+
 ## <a id="changelog"></a>📝 Changelog
 
-See the [Releases](https://github.com/privateMwb/VectorPro/releases)
-page for version history and release notes.
+See [CHANGELOG.md](CHANGELOG.md) for a curated, per-release summary of
+changes, or the [Releases](https://github.com/privateMwb/VectorPro/releases)
+page for the full release notes.
+
+<div align="right"><a href="#-table-of-contents"><img src=".github/assets/back-to-top.svg" alt="Back to top" height="28"></a></div>
+
+## <a id="security"></a>🔒 Security
+
+See [SECURITY.md](SECURITY.md) for the supported versions, how to report
+a vulnerability (including privately, via GitHub Security Advisories),
+and the disclosure timeline.
+
+<div align="right"><a href="#-table-of-contents"><img src=".github/assets/back-to-top.svg" alt="Back to top" height="28"></a></div>
 
 ## <a id="license"></a>📄 License
 
 MIT — see [LICENSE](LICENSE) for details.
+
+<p align="center">
+  <sub>Built with C++20</sub>
+</p>
+
+<p align="center">
+  <a href="#-table-of-contents"><img src=".github/assets/back-to-top.svg" alt="Back to top" height="28"></a>
+</p>

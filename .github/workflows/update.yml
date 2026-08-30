@@ -97,6 +97,8 @@ jobs:
             --vcpkg-dir "$VCPKG_PORT_DIR"
 
       - name: Commit changes
+        env:
+          GH_TOKEN: ${{ secrets.BASELINE_PUSH_TOKEN }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -113,5 +115,24 @@ jobs:
             exit 0
           fi
 
+          BRANCH="update-package-recipes-${{ steps.tag.outputs.tag }}"
+          git checkout -b "$BRANCH"
           git commit -m "Update package recipes for ${{ steps.tag.outputs.tag }}"
-          git push origin HEAD:${{ steps.branch.outputs.branch }}
+
+          # Same reasoning as benchmark.yml: GITHUB_TOKEN pushes/PRs don't
+          # trigger other workflows (GitHub's loop-prevention), so required
+          # status checks would never run and this PR would be stuck
+          # forever. A PAT belonging to the repo owner makes this look like
+          # a normal push from them, so CI triggers normally and their
+          # existing bypass permission (for pull requests only) lets it
+          # self-merge once checks pass.
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${{ env.REPOSITORY }}.git"
+          git push origin "$BRANCH"
+
+          gh pr create \
+            --title "Update package recipes for ${{ steps.tag.outputs.tag }}" \
+            --body "Automated recipe update from the update-package-recipes workflow." \
+            --base "${{ steps.branch.outputs.branch }}" \
+            --head "$BRANCH"
+
+          gh pr merge "$BRANCH" --auto --squash
