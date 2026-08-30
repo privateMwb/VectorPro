@@ -136,7 +136,10 @@ jobs:
           git checkout main
 
           BRANCH="benchmark-baseline-${{ steps.version.outputs.version }}"
-          git checkout -b "$BRANCH"
+          # -B (not -b): this branch is regenerated fresh each run and
+          # isn't meant to accumulate history across attempts, so reset
+          # it locally if a stale local ref happens to exist.
+          git checkout -B "$BRANCH"
 
           mkdir -p benchmarks/baselines
           cp /tmp/baseline-results/benchmark_results.json "benchmarks/baselines/${{ steps.version.outputs.version }}.json"
@@ -165,7 +168,11 @@ jobs:
           # triggers normally and that same identity's bypass permission
           # (for pull requests only) lets it self-merge once checks pass.
           git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
-          git push origin "$BRANCH"
+          # --force: a prior run (e.g. an aborted test, or re-running for
+          # the same version) may have left a branch of this same name
+          # with unrelated history. This branch is disposable and
+          # regenerated fresh each run, so overwrite it rather than fail.
+          git push origin "$BRANCH" --force
 
           gh pr create \
             --title "benchmarks: add baseline snapshot for ${{ steps.version.outputs.version }}" \
@@ -210,3 +217,4 @@ jobs:
         with:
           name: regression-results-md
           path: benchmarks/results/regression_results.md
+0
