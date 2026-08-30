@@ -116,19 +116,33 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.BASELINE_PUSH_TOKEN }}
         run: |
-          mkdir -p benchmarks/baselines
-
-          cp benchmarks/results/benchmark_results.json "benchmarks/baselines/${{ steps.version.outputs.version }}.json"
-          cp benchmarks/results/benchmark_results.md "benchmarks/baselines/${{ steps.version.outputs.version }}.md"
-
-          cp benchmarks/results/google_benchmark_results.json "benchmarks/baselines/g${{ steps.version.outputs.version }}.json"
-          cp benchmarks/results/google_benchmark_results.md "benchmarks/baselines/g${{ steps.version.outputs.version }}.md"
+          # Stash the freshly-generated results before switching branches --
+          # whatever branch triggered this run (main, a release tag, or a
+          # manually-selected feature branch) is what produced these
+          # numbers, and that's fine. What must NOT happen is basing the
+          # new branch on that branch's checkout: if it's not main, the
+          # resulting PR would propose merging that entire branch's
+          # unrelated changes, not just a baseline snapshot.
+          mkdir -p /tmp/baseline-results
+          cp benchmarks/results/benchmark_results.json /tmp/baseline-results/
+          cp benchmarks/results/benchmark_results.md /tmp/baseline-results/
+          cp benchmarks/results/google_benchmark_results.json /tmp/baseline-results/
+          cp benchmarks/results/google_benchmark_results.md /tmp/baseline-results/
 
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
+          git fetch origin main
+          git checkout main
+
           BRANCH="benchmark-baseline-${{ steps.version.outputs.version }}"
           git checkout -b "$BRANCH"
+
+          mkdir -p benchmarks/baselines
+          cp /tmp/baseline-results/benchmark_results.json "benchmarks/baselines/${{ steps.version.outputs.version }}.json"
+          cp /tmp/baseline-results/benchmark_results.md "benchmarks/baselines/${{ steps.version.outputs.version }}.md"
+          cp /tmp/baseline-results/google_benchmark_results.json "benchmarks/baselines/g${{ steps.version.outputs.version }}.json"
+          cp /tmp/baseline-results/google_benchmark_results.md "benchmarks/baselines/g${{ steps.version.outputs.version }}.md"
 
           git add \
             "benchmarks/baselines/${{ steps.version.outputs.version }}.json" \
