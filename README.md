@@ -291,6 +291,11 @@ port and Conan recipe locally.
 Measured against `std::vector`, same build, at 10K / 100K / 1M iterations
 (`benchmarks/baselines/v1.0.0.json` has the full dataset).
 
+*Environment: 4-core CI runner @ 3.26 GHz, 32 KiB L1 / 512 KiB L2 / 32 MiB
+L3, Release build — see the `context` block in
+`benchmarks/baselines/gv1.0.0.json` for the exact machine and library
+version each run was captured on.*
+
 | Operation | VectorPro (1M) | std::vector (1M) | Δ |
 |---|---|---|---|
 | `Pop Back()` | 63.81 ms | 577.46 ms | +804.9% |

@@ -19,12 +19,10 @@ security vulnerability, please report it to us responsibly.
 
 Instead, please report them via one of the following methods:
 
-- **GitHub Security Advisories** (preferred): Use the
+- **GitHub Security Advisories**: Use the
   ["Report a vulnerability"](../../security/advisories/new) button in this
   repository's Security tab. This creates a private discussion with
-  maintainers.
-- **Email**: security@YOUR-DOMAIN.example (replace with your actual security
-  contact email)
+  maintainers and is the only supported reporting channel for this project.
 
 Please include as much of the following information as possible:
 
