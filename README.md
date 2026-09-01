@@ -226,6 +226,7 @@ VectorPro/
 │   ├── assets/
 │   ├── releases/
 │   ├── workflows/
+│   ├── CODEOWNERS
 │   └── dependabot.yml
 │
 ├── cmake/
@@ -243,7 +244,6 @@ VectorPro/
 ├── CONTRIBUTING.md
 ├── CHANGELOG.md
 ├── SECURITY.md
-├── CODEOWNERS
 └── LICENSE
 ```
 
