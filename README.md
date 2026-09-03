@@ -9,12 +9,27 @@
 </p>
 
 <p align="center">
+  <img src=".github/assets/divider.svg" alt="" width="100%">
+</p>
+
+<p align="center"><sub><b>CI / CD</b></sub></p>
+<p align="center">
   <a href="https://github.com/privateMwb/VectorPro/actions/workflows/build.yml">
     <img src="https://github.com/privateMwb/VectorPro/actions/workflows/build.yml/badge.svg" alt="Build and Test">
   </a>
   <a href="https://github.com/privateMwb/VectorPro/actions/workflows/benchmark.yml">
     <img src="https://github.com/privateMwb/VectorPro/actions/workflows/benchmark.yml/badge.svg" alt="Benchmarks">
   </a>
+  <a href="https://github.com/privateMwb/VectorPro/actions/workflows/packaging.yml">
+    <img src="https://github.com/privateMwb/VectorPro/actions/workflows/packaging.yml/badge.svg" alt="Packaging">
+  </a>
+  <a href="https://github.com/privateMwb/VectorPro/actions/workflows/release.yml">
+    <img src="https://github.com/privateMwb/VectorPro/actions/workflows/release.yml/badge.svg" alt="Release">
+  </a>
+</p>
+
+<p align="center"><sub><b>Code Quality &amp; Safety</b></sub></p>
+<p align="center">
   <a href="https://github.com/privateMwb/VectorPro/actions/workflows/coverage.yml">
     <img src="https://github.com/privateMwb/VectorPro/actions/workflows/coverage.yml/badge.svg" alt="Coverage">
   </a>
@@ -30,20 +45,23 @@
   <a href="https://github.com/privateMwb/VectorPro/actions/workflows/codeql.yml">
     <img src="https://github.com/privateMwb/VectorPro/actions/workflows/codeql.yml/badge.svg" alt="CodeQL">
   </a>
-  <a href="https://github.com/privateMwb/VectorPro/actions/workflows/docs.yml">
-    <img src="https://github.com/privateMwb/VectorPro/actions/workflows/docs.yml/badge.svg" alt="Documentation">
-  </a>
-  <a href="https://github.com/privateMwb/VectorPro/actions/workflows/release.yml">
-    <img src="https://github.com/privateMwb/VectorPro/actions/workflows/release.yml/badge.svg" alt="Release">
-  </a>
-  <a href="https://github.com/privateMwb/VectorPro/actions/workflows/packaging.yml">
-    <img src="https://github.com/privateMwb/VectorPro/actions/workflows/packaging.yml/badge.svg" alt="Packaging">
-  </a>
   <a href="https://www.bestpractices.dev/projects/14257">
     <img src="https://www.bestpractices.dev/projects/14257/badge" alt="OpenSSF Best Practices">
   </a>
 </p>
 
+<p align="center"><sub><b>Documentation</b></sub></p>
+<p align="center">
+  <a href="https://github.com/privateMwb/VectorPro/actions/workflows/docs.yml">
+    <img src="https://github.com/privateMwb/VectorPro/actions/workflows/docs.yml/badge.svg" alt="Documentation">
+  </a>
+</p>
+
+<p align="center">
+  <img src=".github/assets/divider.svg" alt="" width="100%">
+</p>
+
+<p align="center"><sub><b>Compiler Support</b></sub></p>
 <p align="center">
   <img src="https://img.shields.io/badge/GCC-support-B46F1B?style=flat&logo=gnu" alt="GCC - support">
   <img src="https://img.shields.io/badge/Clang-support-045891?style=flat&logo=llvm" alt="Clang - support">
@@ -174,9 +192,6 @@ try {
 
 ## <a id="project-structure"></a>🗂️ Project Structure
 
-<details>
-<summary>Expand full tree</summary>
-
 ```
 VectorPro/
 ├── include/
@@ -246,8 +261,6 @@ VectorPro/
 ├── SECURITY.md
 └── LICENSE
 ```
-
-</details>
 
 <div align="right"><a href="#-table-of-contents"><img src=".github/assets/back-to-top.svg" alt="Back to top" height="28"></a></div>
 
