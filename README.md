@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/github/v/release/privateMwb/VectorPro?style=for-the-badge&logo=github&color=E63946&labelColor=0D0705" alt="Version">
+  <img src="https://img.shields.io/github/v/release/privateMwb/VectorPro?style=for-the-badge&logo=github&color=D45113&labelColor=0D0705" alt="Version">
   <img src="https://img.shields.io/badge/License-MIT-F77F00?style=for-the-badge&labelColor=0D0705" alt="License - MIT">
   <img src="https://img.shields.io/badge/C%2B%2B-20-FCBF49?style=for-the-badge&logo=c%2B%2B&labelColor=0D0705" alt="C++ - 20">
 </p>

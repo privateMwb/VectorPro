@@ -21,11 +21,14 @@ int main(int argc, char* argv[]) {
                 printList();
                 return 0;
             }
-            baselineFile = "benchmarks/baselines/" + std::string(argv[1]) + ".json";
+            baselineFile = "benchmarks/baselines/" + std::string(argv[1]) + "/" +
+                           std::string(argv[1]) + ".json";
             currentFile = "benchmarks/results/benchmark_results.json";
         } else if (argc == 3) {
-            baselineFile = "benchmarks/baselines/" + std::string(argv[1]) + ".json";
-            currentFile = "benchmarks/baselines/" + std::string(argv[2]) + ".json";
+            baselineFile = "benchmarks/baselines/" + std::string(argv[1]) + "/" +
+                           std::string(argv[1]) + ".json";
+            currentFile = "benchmarks/baselines/" + std::string(argv[2]) + "/" +
+                          std::string(argv[2]) + ".json";
         } else {
             std::cerr << "Usage:\n"
                       << "  regression\n"

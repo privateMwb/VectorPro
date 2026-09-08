@@ -32,7 +32,7 @@ inline constexpr const char* BLUE = "\033[94m";
 // ── Data structures ─────────────────────────────────────────────────
 
 // Shape of one entry loaded from a benchmark JSON snapshot
-// (benchmarks/baselines/*.json or benchmark_results.json).
+// (benchmarks/baselines/<tag>/<tag>.json or benchmark_results.json).
 struct BenchmarkResult {
     std::string suite;
     std::string operation;
@@ -53,7 +53,7 @@ struct RegressionRow {
     double pct_change;
 };
 
-// One parsed baseline snapshot filename (e.g. "v1.2.0.json" -> 1.2.0),
+// One parsed baseline version folder (e.g. "v1.2.0" -> 1.2.0),
 // ordered by semantic version so the newest baseline can be found.
 struct Baseline {
     int major{};
@@ -134,10 +134,10 @@ inline std::string convertIter(std::size_t iter) {
     return iter == 10'000 ? "10K" : iter == 100'000 ? "100K" : "1M";
 }
 
-// Parses a baseline snapshot's filename (e.g. "v1.2.0.json") into a
+// Parses a baseline version folder's name (e.g. "v1.2.0") into a
 // comparable Baseline. Accepts an optional leading 'v'/'V'.
 inline Baseline parseBaseline(const fs::path& path) {
-    std::string name = path.stem().string();
+    std::string name = path.filename().string();
 
     std::string version = name;
     if (!version.empty() && (version.front() == 'v' || version.front() == 'V'))
@@ -157,27 +157,27 @@ inline Baseline parseBaseline(const fs::path& path) {
     return baseline;
 }
 
-// True if a baselines-directory filename belongs to this tool -- i.e.
-// it's a "v"/"V"-prefixed custom-suite snapshot, not one of the
-// google_regressions tool's "gv"/"GV"-prefixed snapshots sitting in
-// the same directory (different, incompatible JSON schema). A "gv..."
-// filename's first character is 'g', so it's excluded by this check
-// without needing special-casing.
+// True if a baselines-directory entry belongs to this tool -- i.e.
+// it's a "v"/"V"-prefixed custom-suite version folder, not one of the
+// google_regressions tool's "gv"/"GV"-prefixed snapshot files sitting
+// inside these same folders (different, incompatible JSON schema). A
+// "gv..." name's first character is 'g', so it's excluded by this
+// check without needing special-casing.
 inline bool isCustomBaselineName(const fs::path& path) {
-    std::string stem = path.stem().string();
-    return !stem.empty() && (stem.front() == 'v' || stem.front() == 'V');
+    std::string name = path.filename().string();
+    return !name.empty() && (name.front() == 'v' || name.front() == 'V');
 }
 
 // Returns the path to the newest baseline snapshot in
 // benchmarks/baselines, considering only this tool's "v"-prefixed
-// snapshots.
+// version folders (e.g. benchmarks/baselines/v1.2.0/v1.2.0.json).
 inline std::string latestBaseline() {
     bool found = false;
     Baseline latest;
-    fs::path latestPath;
+    fs::path latestDir;
 
     for (const auto& entry : fs::directory_iterator("benchmarks/baselines")) {
-        if (!entry.is_regular_file() || entry.path().extension() != ".json")
+        if (!entry.is_directory())
             continue;
 
         if (!isCustomBaselineName(entry.path()))
@@ -187,7 +187,7 @@ inline std::string latestBaseline() {
 
         if (!found || current > latest) {
             latest = current;
-            latestPath = entry.path();
+            latestDir = entry.path();
             found = true;
         }
     }
@@ -195,7 +195,7 @@ inline std::string latestBaseline() {
     if (!found)
         throw std::runtime_error("No baseline snapshots found.");
 
-    return latestPath.string();
+    return (latestDir / (latestDir.filename().string() + ".json")).string();
 }
 
 // ── Output / printing ───────────────────────────────────────────────
