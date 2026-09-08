@@ -175,24 +175,30 @@ inline bool isGoogleBaselineName(const fs::path& path) {
 
 // Returns the path to the newest baseline snapshot in
 // benchmarks/baselines, considering only this tool's "gv"-prefixed
-// snapshots.
+// snapshots. Version folders are named by tag alone (e.g. "v1.2.0"),
+// containing both this tool's "gv"-prefixed snapshot and the custom
+// suite's "v"-prefixed snapshot side by side -- so folders themselves
+// aren't "gv"-prefixed; only the file inside is. Each candidate
+// folder's would-be Google snapshot path is built and checked instead.
 inline std::string latestBaseline() {
     bool found = false;
     Baseline latest;
-    fs::path latestPath;
+    fs::path latestFile;
 
     for (const auto& entry : fs::directory_iterator("benchmarks/baselines")) {
-        if (!entry.is_regular_file() || entry.path().extension() != ".json")
+        if (!entry.is_directory())
             continue;
 
-        if (!isGoogleBaselineName(entry.path()))
+        fs::path candidate = entry.path() / ("g" + entry.path().filename().string() + ".json");
+
+        if (!isGoogleBaselineName(candidate) || !fs::exists(candidate))
             continue;
 
-        Baseline current = parseBaseline(entry.path());
+        Baseline current = parseBaseline(candidate);
 
         if (!found || current > latest) {
             latest = current;
-            latestPath = entry.path();
+            latestFile = candidate;
             found = true;
         }
     }
@@ -200,7 +206,7 @@ inline std::string latestBaseline() {
     if (!found)
         throw std::runtime_error("No baseline snapshots found.");
 
-    return latestPath.string();
+    return latestFile.string();
 }
 
 // ── Output / printing ───────────────────────────────────────────────

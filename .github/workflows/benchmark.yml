@@ -141,17 +141,17 @@ jobs:
           # it locally if a stale local ref happens to exist.
           git checkout -B "$BRANCH"
 
-          mkdir -p benchmarks/baselines
+          mkdir -p benchmarks/baselines/${{ steps.version.outputs.version }}
           cp /tmp/baseline-results/benchmark_results.json "benchmarks/baselines/${{ steps.version.outputs.version }}.json"
           cp /tmp/baseline-results/benchmark_results.md "benchmarks/baselines/${{ steps.version.outputs.version }}.md"
           cp /tmp/baseline-results/google_benchmark_results.json "benchmarks/baselines/g${{ steps.version.outputs.version }}.json"
           cp /tmp/baseline-results/google_benchmark_results.md "benchmarks/baselines/g${{ steps.version.outputs.version }}.md"
 
           git add \
-            "benchmarks/baselines/${{ steps.version.outputs.version }}.json" \
-            "benchmarks/baselines/${{ steps.version.outputs.version }}.md" \
-            "benchmarks/baselines/g${{ steps.version.outputs.version }}.json" \
-            "benchmarks/baselines/g${{ steps.version.outputs.version }}.md"
+            "benchmarks/baselines/${{ steps.version.outputs.version }}/${{ steps.version.outputs.version }}.json" \
+            "benchmarks/baselines/${{ steps.version.outputs.version }}/${{ steps.version.outputs.version }}.md" \
+            "benchmarks/baselines/${{ steps.version.outputs.version }}/g${{ steps.version.outputs.version }}.json" \
+            "benchmarks/baselines/${{ steps.version.outputs.version }}/g${{ steps.version.outputs.version }}.md"
 
           if git diff --staged --quiet; then
             echo "No baseline changes to commit."
