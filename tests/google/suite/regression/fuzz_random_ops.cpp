@@ -32,7 +32,7 @@ using namespace VectorPro;
 // and a std::vector<int>, asserting they stay in lockstep after every step.
 // A fixed seed keeps this reproducible: a failure here always fails the
 // same way, rather than flaking based on run-to-run RNG state.
-TEST(FuzzRandomOps, MatchesReferenceModelOverFiveThousandSteps) {
+TEST(FuzzRandomOps, MatchesModelOver5000Steps) {
     std::mt19937 rng(42);
     Vector<int> actual;
     std::vector<int> reference;
@@ -72,7 +72,7 @@ TEST(FuzzRandomOps, MatchesReferenceModelOverFiveThousandSteps) {
 // the vector's own storage right as it's about to be reallocated, which is
 // exactly the scenario grow_and_push_back()'s offset-snapshot exists to
 // handle; this exercises it across dozens of reallocations rather than once.
-TEST(FuzzRandomOps, SelfAliasingPushBackSurvivesManyReallocations) {
+TEST(FuzzRandomOps, SelfAliasingPushSurvivesRealloc) {
     Vector<int> v;
     v.push_back(1);
 
@@ -91,7 +91,7 @@ TEST(FuzzRandomOps, SelfAliasingPushBackSurvivesManyReallocations) {
 // reallocated. Confirms grow_and_push_back(T&&) reads the pre-move value
 // from the *new* buffer's snapshot offset, not a dangling pointer into the
 // freed old one.
-TEST(FuzzRandomOps, SelfAliasingMovePushBackSurvivesManyReallocations) {
+TEST(FuzzRandomOps, SelfAliasingMoveSurvivesRealloc) {
     Vector<int> v;
     v.push_back(1);
 
@@ -110,7 +110,7 @@ TEST(FuzzRandomOps, SelfAliasingMovePushBackSurvivesManyReallocations) {
 // code path that silently assumes T is copyable (e.g. a stray construct()
 // call using an lvalue) would fail to compile rather than fail at runtime,
 // but this also checks ownership actually transfers rather than double-frees.
-TEST(FuzzRandomOps, MoveOnlyElementSurvivesPushBackAndMove) {
+TEST(FuzzRandomOps, MoveOnlyElementSurvivesPushMove) {
     Vector<std::unique_ptr<int>> v;
     for (int i = 0; i < 50; ++i) {
         v.push_back(std::make_unique<int>(i));

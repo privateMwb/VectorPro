@@ -23,7 +23,7 @@ using namespace VectorPro;
 // position down to index 1, and that the handle originally issued for the
 // third listener (h2 == 2) is now past the valid range, so it can never be
 // used to remove that listener again.
-static void unsubscribe_earlier_handle_strands_later_handle() {
+static void earlier_unsubscribe_strands_later_handle() {
     ObservableVector<int> v;
 
     int count0 = 0, count1 = 0, count2 = 0;
@@ -57,7 +57,7 @@ static void unsubscribe_earlier_handle_strands_later_handle() {
 // Verifies that a handle which *does* remain in range after an earlier
 // removal ends up identifying a different listener than the one it was
 // originally issued for.
-static void unsubscribe_shifted_handle_removes_wrong_listener() {
+static void shifted_handle_removes_wrong_listener() {
     ObservableVector<int> v;
 
     int count0 = 0, count1 = 0, count2 = 0;
@@ -85,8 +85,8 @@ static void unsubscribe_shifted_handle_removes_wrong_listener() {
 
 // Executes all listener handle regression test cases.
 static void run_tests() {
-    RUN(unsubscribe_earlier_handle_strands_later_handle);
-    RUN(unsubscribe_shifted_handle_removes_wrong_listener);
+    RUN(earlier_unsubscribe_strands_later_handle);
+    RUN(shifted_handle_removes_wrong_listener);
 }
 
 REGISTER_TEST_SUITE();

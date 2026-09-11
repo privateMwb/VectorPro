@@ -172,20 +172,10 @@ static void bench_spaceship_less() {
 // Executes all comparison benchmark cases.
 static void run_benchmarks() {
     bench_equal_true();
-    std::cout << "\n";
-
     bench_equal_differs_early();
-    std::cout << "\n";
-
     bench_equal_differs_late();
-    std::cout << "\n";
-
     bench_equal_different_sizes();
-    std::cout << "\n";
-
     bench_spaceship_equal();
-    std::cout << "\n";
-
     bench_spaceship_less();
 }
 

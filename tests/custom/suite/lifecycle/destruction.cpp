@@ -182,7 +182,7 @@ static void reallocate_preserves_alive_count() {
 
 // Verifies copy construction produces fully independent live objects rather
 // than sharing or double-counting the source's elements.
-static void copy_construction_creates_independent_live_objects() {
+static void copy_construction_creates_live_objects() {
     reset_probe_counters();
 
     Vector<Probe> a;
@@ -201,7 +201,7 @@ static void copy_construction_creates_independent_live_objects() {
 
 // Verifies move construction transfers ownership at the buffer level without
 // invoking any per-element copy or move constructor.
-static void move_construction_does_not_touch_elements() {
+static void move_construction_skips_elements() {
     reset_probe_counters();
 
     Vector<Probe> a;
@@ -250,8 +250,8 @@ static void run_tests() {
     RUN(erase_range_destroys_count);
     RUN(remove_if_destroys_matched_elements);
     RUN(reallocate_preserves_alive_count);
-    RUN(copy_construction_creates_independent_live_objects);
-    RUN(move_construction_does_not_touch_elements);
+    RUN(copy_construction_creates_live_objects);
+    RUN(move_construction_skips_elements);
     RUN(destructing_moved_from_vector_is_safe);
 }
 

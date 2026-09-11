@@ -72,7 +72,7 @@ BENCHMARK(PushBack_ManyListeners);
 // push_back, capturing listener
 // ---------------------------------------------------------------------------
 
-static void PushBack_CapturingListener(benchmark::State& state) {
+static void PushBack_Capturing(benchmark::State& state) {
     for (auto _ : state) {
         ObservableVector<int> v;
         v.reserve(1000);
@@ -86,7 +86,7 @@ static void PushBack_CapturingListener(benchmark::State& state) {
         benchmark::DoNotOptimize(total);
     }
 }
-BENCHMARK(PushBack_CapturingListener);
+BENCHMARK(PushBack_Capturing);
 
 // ---------------------------------------------------------------------------
 // subscribe x100

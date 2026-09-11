@@ -73,11 +73,7 @@ static void bench_reserve_noop() {
 // Executes all reserve benchmark cases.
 static void run_benchmarks() {
     bench_reserve();
-    std::cout << "\n";
-
     bench_reserve_growth();
-    std::cout << "\n";
-
     bench_reserve_noop();
 }
 

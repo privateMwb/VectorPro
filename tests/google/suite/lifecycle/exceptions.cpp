@@ -78,7 +78,7 @@ void reset_faulty() {
 
 // Verifies a throwing copy constructor during Vector(const Vector&) leaves
 // the source completely untouched.
-TEST(ExceptionSafety, CopyConstructionThrowLeavesSourceUntouched) {
+TEST(ExceptionSafety, CopyThrowLeavesSourceUntouched) {
     reset_faulty();
 
     Vector<Faulty> source;
@@ -102,7 +102,7 @@ TEST(ExceptionSafety, CopyConstructionThrowLeavesSourceUntouched) {
 
 // Verifies a throwing copy constructor during Vector(const Vector&) does not
 // leak the elements that were already successfully copied before the throw.
-TEST(ExceptionSafety, CopyConstructionThrowDoesNotLeak) {
+TEST(ExceptionSafety, CopyThrowDoesNotLeak) {
     reset_faulty();
 
     Vector<Faulty> source;
@@ -127,7 +127,7 @@ TEST(ExceptionSafety, CopyConstructionThrowDoesNotLeak) {
 // exception guarantee). The source must exceed INITIAL_CAP (8) so the
 // target's default capacity is actually insufficient and the grow path
 // (as opposed to the fits-in-place fast path) is the one under test.
-TEST(ExceptionSafety, CopyAssignmentGrowPathThrowPreservesTarget) {
+TEST(ExceptionSafety, GrowPathThrowPreservesTarget) {
     reset_faulty();
 
     Vector<Faulty> target;
@@ -151,7 +151,7 @@ TEST(ExceptionSafety, CopyAssignmentGrowPathThrowPreservesTarget) {
 // Verifies copy assignment's fast path (target capacity already sufficient)
 // leaves size() at its pre-call value if the extension loop throws (basic
 // guarantee, as documented in Vector.tpp).
-TEST(ExceptionSafety, CopyAssignmentFitsPathThrowBasicGuarantee) {
+TEST(ExceptionSafety, FitsPathThrowKeepsBasicGuarantee) {
     reset_faulty();
 
     Vector<Faulty> target;
@@ -174,7 +174,7 @@ TEST(ExceptionSafety, CopyAssignmentFitsPathThrowBasicGuarantee) {
 
 // Verifies that a push_back-triggered reallocation which throws mid-move
 // leaves the original vector completely unchanged (strong guarantee).
-TEST(ExceptionSafety, PushBackReallocationThrowPreservesOriginal) {
+TEST(ExceptionSafety, PushBackThrowPreservesOriginal) {
     reset_faulty();
 
     Vector<Faulty> v;
@@ -202,7 +202,7 @@ TEST(ExceptionSafety, PushBackReallocationThrowPreservesOriginal) {
 }
 
 // Verifies emplace_back does not increment size() if T's constructor throws.
-TEST(ExceptionSafety, EmplaceBackConstructorThrowDoesNotGrowSize) {
+TEST(ExceptionSafety, EmplaceThrowDoesNotGrowSize) {
     reset_faulty();
 
     Vector<Faulty> v;

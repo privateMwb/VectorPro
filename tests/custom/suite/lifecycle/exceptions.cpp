@@ -76,7 +76,7 @@ void reset_faulty() {
 
 // Verifies a throwing copy constructor during Vector(const Vector&) leaves
 // the source completely untouched.
-static void copy_construction_throw_leaves_source_untouched() {
+static void copy_throw_leaves_source_untouched() {
     reset_faulty();
 
     Vector<Faulty> source;
@@ -100,7 +100,7 @@ static void copy_construction_throw_leaves_source_untouched() {
 
 // Verifies a throwing copy constructor during Vector(const Vector&) does not
 // leak the elements that were already successfully copied before the throw.
-static void copy_construction_throw_does_not_leak() {
+static void copy_throw_does_not_leak() {
     reset_faulty();
 
     Vector<Faulty> source;
@@ -125,7 +125,7 @@ static void copy_construction_throw_does_not_leak() {
 // exception guarantee). The source must exceed INITIAL_CAP (8) so the
 // target's default capacity is actually insufficient and the grow path
 // (as opposed to the fits-in-place fast path) is the one under test.
-static void copy_assignment_grow_path_throw_preserves_target() {
+static void grow_path_throw_preserves_target() {
     reset_faulty();
 
     Vector<Faulty> target;
@@ -149,7 +149,7 @@ static void copy_assignment_grow_path_throw_preserves_target() {
 // Verifies copy assignment's fast path (target capacity already sufficient)
 // leaves size() at its pre-call value if the extension loop throws (basic
 // guarantee, as documented in Vector.tpp).
-static void copy_assignment_fits_path_throw_basic_guarantee() {
+static void fits_path_throw_keeps_basic_guarantee() {
     reset_faulty();
 
     Vector<Faulty> target;
@@ -172,7 +172,7 @@ static void copy_assignment_fits_path_throw_basic_guarantee() {
 
 // Verifies that a push_back-triggered reallocation which throws mid-move
 // leaves the original vector completely unchanged (strong guarantee).
-static void push_back_reallocation_throw_preserves_original() {
+static void push_back_throw_preserves_original() {
     reset_faulty();
 
     Vector<Faulty> v;
@@ -200,7 +200,7 @@ static void push_back_reallocation_throw_preserves_original() {
 }
 
 // Verifies emplace_back does not increment size() if T's constructor throws.
-static void emplace_back_constructor_throw_does_not_grow_size() {
+static void emplace_throw_does_not_grow_size() {
     reset_faulty();
 
     Vector<Faulty> v;
@@ -219,12 +219,12 @@ static void emplace_back_constructor_throw_does_not_grow_size() {
 
 // Executes all exception-safety test cases.
 static void run_tests() {
-    RUN(copy_construction_throw_leaves_source_untouched);
-    RUN(copy_construction_throw_does_not_leak);
-    RUN(copy_assignment_grow_path_throw_preserves_target);
-    RUN(copy_assignment_fits_path_throw_basic_guarantee);
-    RUN(push_back_reallocation_throw_preserves_original);
-    RUN(emplace_back_constructor_throw_does_not_grow_size);
+    RUN(copy_throw_leaves_source_untouched);
+    RUN(copy_throw_does_not_leak);
+    RUN(grow_path_throw_preserves_target);
+    RUN(fits_path_throw_keeps_basic_guarantee);
+    RUN(push_back_throw_preserves_original);
+    RUN(emplace_throw_does_not_grow_size);
 }
 
 REGISTER_TEST_SUITE();

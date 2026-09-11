@@ -22,7 +22,7 @@ using namespace VectorPro;
 // truncates to 1 under integer division, so growCapacity() would return the
 // vector's current capacity unchanged, and the following push_back would
 // write past the end of the allocated buffer.
-static void small_count_constructed_capacity_grows_on_push() {
+static void small_count_capacity_grows_on_push() {
     Vector<int, std::allocator<int>, 3, 2> v(1, 5);
     std::size_t capBefore = v.capacity();
     CHK(capBefore == 1);
@@ -37,7 +37,7 @@ static void small_count_constructed_capacity_grows_on_push() {
 
 // Same scenario, but the small starting capacity comes from a one-element
 // initializer_list instead of the sized constructor.
-static void small_initializer_list_capacity_grows_on_push() {
+static void small_init_list_grows_on_push() {
     Vector<int, std::allocator<int>, 3, 2> v{7};
     std::size_t capBefore = v.capacity();
     CHK(capBefore == 1);
@@ -73,7 +73,7 @@ static void larger_starting_capacity_grows_correctly() {
 // Verifies repeated growth from a small, non-INITIAL_CAP starting capacity
 // doesn't get permanently stuck: each push past capacity must strictly
 // increase capacity, not just the first one.
-static void repeated_growth_from_small_capacity_never_stalls() {
+static void repeated_growth_never_stalls_capacity() {
     Vector<int, std::allocator<int>, 3, 2> v(1, 0);
 
     for (int i = 1; i < 50; ++i) {
@@ -91,10 +91,10 @@ static void repeated_growth_from_small_capacity_never_stalls() {
 
 // Executes all growth regression test cases.
 static void run_tests() {
-    RUN(small_count_constructed_capacity_grows_on_push);
-    RUN(small_initializer_list_capacity_grows_on_push);
+    RUN(small_count_capacity_grows_on_push);
+    RUN(small_init_list_grows_on_push);
     RUN(larger_starting_capacity_grows_correctly);
-    RUN(repeated_growth_from_small_capacity_never_stalls);
+    RUN(repeated_growth_never_stalls_capacity);
 }
 
 REGISTER_TEST_SUITE();

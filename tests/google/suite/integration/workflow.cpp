@@ -88,7 +88,7 @@ TEST(MixedWorkflow, RandomizedSequenceMirrorsStdVector) {
 // Verifies reserve()/shrink_to_fit() calls interleaved with mutations never
 // desynchronize Vector's contents from the oracle, even though they change
 // capacity without changing size.
-TEST(MixedWorkflow, ReserveAndShrinkInterleavedWithMutations) {
+TEST(MixedWorkflow, ReserveShrinkInterleavedWithMutations) {
     Vector<int> v;
     std::vector<int> oracle;
 
@@ -119,7 +119,7 @@ TEST(MixedWorkflow, ReserveAndShrinkInterleavedWithMutations) {
 
 // Verifies remove_if interleaved with push_back mirrors the effect of
 // std::vector's erase-remove idiom on the oracle.
-TEST(MixedWorkflow, RemoveIfInterleavedMirrorsEraseRemoveIdiom) {
+TEST(MixedWorkflow, RemoveIfMatchesEraseIdiom) {
     Vector<int> v;
     std::vector<int> oracle;
 
@@ -146,7 +146,7 @@ TEST(MixedWorkflow, RemoveIfInterleavedMirrorsEraseRemoveIdiom) {
 
 // Verifies copy, move, and swap performed mid-sequence preserve equivalence
 // with the oracle throughout.
-TEST(MixedWorkflow, CopyMoveSwapMidSequencePreserveEquivalence) {
+TEST(MixedWorkflow, CopyMoveSwapPreserveEquivalence) {
     Vector<int> a;
     std::vector<int> oracleA;
 

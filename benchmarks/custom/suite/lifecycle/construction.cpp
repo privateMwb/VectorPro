@@ -60,11 +60,7 @@ static void bench_init_list_construct() {
 // Executes all construction benchmark cases.
 static void run_benchmarks() {
     bench_default_construct();
-    std::cout << "\n";
-
     bench_fill_construct();
-    std::cout << "\n";
-
     bench_init_list_construct();
 }
 

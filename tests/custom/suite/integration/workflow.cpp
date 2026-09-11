@@ -85,7 +85,7 @@ static void randomized_sequence_mirrors_std_vector() {
 // Verifies reserve()/shrink_to_fit() calls interleaved with mutations never
 // desynchronize Vector's contents from the oracle, even though they change
 // capacity without changing size.
-static void reserve_and_shrink_interleaved_with_mutations() {
+static void reserve_shrink_interleaved_with_mutations() {
     Vector<int> v;
     std::vector<int> oracle;
 
@@ -116,7 +116,7 @@ static void reserve_and_shrink_interleaved_with_mutations() {
 
 // Verifies remove_if interleaved with push_back mirrors the effect of
 // std::vector's erase-remove idiom on the oracle.
-static void remove_if_interleaved_mirrors_erase_remove_idiom() {
+static void remove_if_matches_erase_idiom() {
     Vector<int> v;
     std::vector<int> oracle;
 
@@ -143,7 +143,7 @@ static void remove_if_interleaved_mirrors_erase_remove_idiom() {
 
 // Verifies copy, move, and swap performed mid-sequence preserve equivalence
 // with the oracle throughout.
-static void copy_move_swap_mid_sequence_preserve_equivalence() {
+static void copy_move_swap_preserve_equivalence() {
     Vector<int> a;
     std::vector<int> oracleA;
 
@@ -177,9 +177,9 @@ static void copy_move_swap_mid_sequence_preserve_equivalence() {
 // Executes all mixed-workflow integration test cases.
 static void run_tests() {
     RUN(randomized_sequence_mirrors_std_vector);
-    RUN(reserve_and_shrink_interleaved_with_mutations);
-    RUN(remove_if_interleaved_mirrors_erase_remove_idiom);
-    RUN(copy_move_swap_mid_sequence_preserve_equivalence);
+    RUN(reserve_shrink_interleaved_with_mutations);
+    RUN(remove_if_matches_erase_idiom);
+    RUN(copy_move_swap_preserve_equivalence);
 }
 
 REGISTER_TEST_SUITE();

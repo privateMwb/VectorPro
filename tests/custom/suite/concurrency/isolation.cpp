@@ -37,7 +37,7 @@ constexpr int kElementsPerThread = 2000;
 // Verifies that many threads, each building its own Vector via push_back,
 // end up with exactly the contents that thread produced -- no values
 // leaked in from, or lost to, another thread's vector.
-static void independent_push_back_across_threads_is_uncorrupted() {
+static void push_back_threads_stay_uncorrupted() {
     std::vector<Vector<int>> results(kThreadCount);
     std::vector<std::thread> threads;
 
@@ -65,7 +65,7 @@ static void independent_push_back_across_threads_is_uncorrupted() {
 // Verifies that many threads, each performing a mixed insert/erase/sort
 // sequence on their own Vector, all produce the correct final result with
 // no cross-thread corruption.
-static void independent_mixed_operations_across_threads_is_uncorrupted() {
+static void mixed_ops_threads_stay_uncorrupted() {
     std::vector<Vector<int>> results(kThreadCount);
     std::vector<std::thread> threads;
 
@@ -100,7 +100,7 @@ static void independent_mixed_operations_across_threads_is_uncorrupted() {
 
 // Verifies that each thread's own Vector's listener system only ever sees
 // notifications for that thread's own mutations, never another thread's.
-static void independent_listener_counts_across_threads_is_uncorrupted() {
+static void listener_counts_stay_thread_safe() {
     std::vector<int> notificationCounts(kThreadCount, 0);
     std::vector<std::size_t> finalSizes(kThreadCount, 0);
     std::vector<std::thread> threads;
@@ -136,9 +136,9 @@ static void independent_listener_counts_across_threads_is_uncorrupted() {
 
 // Executes all thread-isolation test cases.
 static void run_tests() {
-    RUN(independent_push_back_across_threads_is_uncorrupted);
-    RUN(independent_mixed_operations_across_threads_is_uncorrupted);
-    RUN(independent_listener_counts_across_threads_is_uncorrupted);
+    RUN(push_back_threads_stay_uncorrupted);
+    RUN(mixed_ops_threads_stay_uncorrupted);
+    RUN(listener_counts_stay_thread_safe);
 }
 
 REGISTER_TEST_SUITE();

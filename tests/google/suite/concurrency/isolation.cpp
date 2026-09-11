@@ -38,7 +38,7 @@ constexpr int kElementsPerThread = 2000;
 // Verifies that many threads, each building its own Vector via push_back,
 // end up with exactly the contents that thread produced -- no values
 // leaked in from, or lost to, another thread's vector.
-TEST(ThreadIsolation, IndependentPushBackAcrossThreadsIsUncorrupted) {
+TEST(ThreadIsolation, PushBackThreadsStayUncorrupted) {
     std::vector<Vector<int>> results(kThreadCount);
     std::vector<std::thread> threads;
 
@@ -66,7 +66,7 @@ TEST(ThreadIsolation, IndependentPushBackAcrossThreadsIsUncorrupted) {
 // Verifies that many threads, each performing a mixed insert/erase/sort
 // sequence on their own Vector, all produce the correct final result with
 // no cross-thread corruption.
-TEST(ThreadIsolation, IndependentMixedOperationsAcrossThreadsIsUncorrupted) {
+TEST(ThreadIsolation, MixedOpsThreadsStayUncorrupted) {
     std::vector<Vector<int>> results(kThreadCount);
     std::vector<std::thread> threads;
 
@@ -101,7 +101,7 @@ TEST(ThreadIsolation, IndependentMixedOperationsAcrossThreadsIsUncorrupted) {
 
 // Verifies that each thread's own Vector's listener system only ever sees
 // notifications for that thread's own mutations, never another thread's.
-TEST(ThreadIsolation, IndependentListenerCountsAcrossThreadsIsUncorrupted) {
+TEST(ThreadIsolation, ListenerCountsStayThreadSafe) {
     std::vector<int> notificationCounts(kThreadCount, 0);
     std::vector<std::size_t> finalSizes(kThreadCount, 0);
     std::vector<std::thread> threads;

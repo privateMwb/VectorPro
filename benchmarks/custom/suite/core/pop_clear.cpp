@@ -50,8 +50,6 @@ static void bench_clear() {
 // Executes all pop_back/clear benchmark cases.
 static void run_benchmarks() {
     bench_pop_back();
-    std::cout << "\n";
-
     bench_clear();
 }
 
