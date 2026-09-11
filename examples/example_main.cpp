@@ -4,7 +4,7 @@
                                 // prettify(), toLower()
 // clang-format on
 
-#include <vector>  // std::vector (category-match collection)
+#include <vector> // std::vector (category-match collection)
 
 int main(int argc, char* argv[]) {
     // No args: run every registered suite.

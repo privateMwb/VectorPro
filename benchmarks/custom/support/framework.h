@@ -68,14 +68,14 @@ inline void printBenchSuiteList() {
 
     for (const auto& [category, suites] : grouped) {
         std::cout << "\n"
-                   << BOLD << CYAN << prettify(category) << RESET << DIM << " (" << suites.size()
-                   << ")" << RESET << "\n";
+                  << BOLD << CYAN << prettify(category) << RESET << DIM << " (" << suites.size()
+                  << ")" << RESET << "\n";
 
         for (std::size_t i = 0; i < suites.size(); ++i) {
             bool last = (i + 1 == suites.size());
             std::cout << CYAN << (last ? "└─ " : "├─ ") << RESET << GREEN << "[" << std::left
-                       << std::setw(static_cast<int>(idWidth)) << suites[i]->id << "]" << RESET
-                       << "  " << suites[i]->name << "\n";
+                      << std::setw(static_cast<int>(idWidth)) << suites[i]->id << "]" << RESET
+                      << "  " << suites[i]->name << "\n";
         }
     }
 
@@ -98,7 +98,7 @@ inline void printBenchSuiteList() {
         valueWidth = std::max(valueWidth, static_cast<std::size_t>(visualWidth(row.value)));
     }
 
-    const int boxW = static_cast<int>(labelWidth + valueWidth + 3);  // padding on both sides
+    const int boxW = static_cast<int>(labelWidth + valueWidth + 3); // padding on both sides
 
     drawBorder(TL, TM, TR, {boxW});
     for (const auto& row : counts) {
@@ -131,9 +131,11 @@ inline void printUsage() {
     const std::vector<Row> rows = {
         {{{CYAN, "benchmarks"}}, "run every suite, print tables, export results"},
         {{{CYAN, "benchmarks"}, {YELLOW, " list"}}, "list all suites, grouped by category"},
-        {{{CYAN, "benchmarks"}, {GRAY, " <category>"}}, "run every suite in a category, e.g. search"},
+        {{{CYAN, "benchmarks"}, {GRAY, " <category>"}},
+         "run every suite in a category, e.g. search"},
         {{{CYAN, "benchmarks"}, {GRAY, " <id>"}}, "run a single suite by id, e.g. S1"},
-        {{{CYAN, "benchmarks"}, {GRAY, " <name>"}}, "run a single suite by file name, e.g. binary_search"},
+        {{{CYAN, "benchmarks"}, {GRAY, " <name>"}},
+         "run a single suite by file name, e.g. binary_search"},
         {{{CYAN, "benchmarks"}, {YELLOW, " -h | --help"}}, "show this help message"},
     };
 

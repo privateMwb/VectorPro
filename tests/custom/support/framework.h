@@ -56,18 +56,19 @@ inline void printTestSuiteList() {
 
     // Align the [ID] column across the whole tree, not just per category.
     size_t idWidth = 0;
-    for (const auto& suite : test_registry()) idWidth = std::max(idWidth, suite.id.size());
+    for (const auto& suite : test_registry())
+        idWidth = std::max(idWidth, suite.id.size());
 
     for (const auto& [category, suites] : grouped) {
         std::cout << "\n"
-                   << BOLD << CYAN << prettify(category) << RESET << DIM << " (" << suites.size()
-                   << ")" << RESET << "\n";
+                  << BOLD << CYAN << prettify(category) << RESET << DIM << " (" << suites.size()
+                  << ")" << RESET << "\n";
 
         for (size_t i = 0; i < suites.size(); ++i) {
             bool last = (i + 1 == suites.size());
-            std::cout << CYAN << (last ? "\u2514\u2500 " : "\u251c\u2500 ") << RESET << GREEN
-                       << "[" << std::left << std::setw(static_cast<int>(idWidth)) << suites[i]->id
-                       << "]" << RESET << "  " << suites[i]->name << "\n";
+            std::cout << CYAN << (last ? "\u2514\u2500 " : "\u251c\u2500 ") << RESET << GREEN << "["
+                      << std::left << std::setw(static_cast<int>(idWidth)) << suites[i]->id << "]"
+                      << RESET << "  " << suites[i]->name << "\n";
         }
     }
 
@@ -119,7 +120,8 @@ inline void printUsage() {
         {{{CYAN, "tests"}, {YELLOW, " list"}}, "list all suites, grouped by category"},
         {{{CYAN, "tests"}, {GRAY, " <category>"}}, "run every suite in a category, e.g. unit"},
         {{{CYAN, "tests"}, {GRAY, " <id>"}}, "run a single suite by id, e.g. U1"},
-        {{{CYAN, "tests"}, {GRAY, " <name>"}}, "run a single suite by file name, e.g. basic_behavior"},
+        {{{CYAN, "tests"}, {GRAY, " <name>"}},
+         "run a single suite by file name, e.g. basic_behavior"},
         {{{CYAN, "tests"}, {YELLOW, " -h | --help"}}, "show this help message"},
     };
 

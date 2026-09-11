@@ -74,7 +74,7 @@ inline std::string lastRowGroup;
 // than eagerly by the caller, since a suite's mix of BENCH()/
 // BENCH_SOLO() calls isn't known until it actually runs — see
 // ensureTable() below.
-inline bool tableOpen  = false;
+inline bool tableOpen = false;
 inline bool tableIsSolo = false;
 
 // Accumulates a markdown-formatted transcript of the run, built up by
@@ -92,9 +92,9 @@ inline std::string& markdown_buffer() {
 // end of a full run. Solo benchmarks (no reference to compare against)
 // don't contribute.
 struct ResultTally {
-    int customWins  = 0;
+    int customWins = 0;
     int standardWins = 0;
-    int ties         = 0;
+    int ties = 0;
 
     int total() const {
         return customWins + standardWins + ties;
@@ -131,7 +131,7 @@ inline void beginSuite(const std::string& name) {
     setSuite(name);
     tableOpen = false;
     lastRowGroup.clear();
-}// ── String utilities ────────────────────────────────────────────────
+} // ── String utilities ────────────────────────────────────────────────
 
 // Formats a duration using the most appropriate time unit.
 inline auto formatDuration(nanoseconds ns) {
@@ -220,7 +220,8 @@ inline constexpr const char* BL = "└"; inline constexpr const char* BM = "┴"
 inline std::string repeat(const char* token, int n) {
     std::string out;
     out.reserve(static_cast<std::size_t>(n) * 3);
-    for (int i = 0; i < n; ++i) out += token;
+    for (int i = 0; i < n; ++i)
+        out += token;
     return out;
 }
 
@@ -233,7 +234,8 @@ inline std::string repeat(const char* token, int n) {
 inline int visualWidth(const std::string& s) {
     int width = 0;
     for (unsigned char c : s)
-        if ((c & 0xC0) != 0x80) ++width;
+        if ((c & 0xC0) != 0x80)
+            ++width;
     return width;
 }
 
@@ -251,7 +253,8 @@ inline void drawBorder(const char* left, const char* mid, const char* right,
     std::cout << GRAY << left;
     bool first = true;
     for (int w : widths) {
-        if (!first) std::cout << mid;
+        if (!first)
+            std::cout << mid;
         first = false;
         std::cout << repeat(H, w);
     }
@@ -345,7 +348,7 @@ inline void endSoloTable() {
 // back to back rather than one another can't cleanly represent.
 // Called at the top of printComparisonRow()/printSoloRow(); suite
 // code never calls setHeader()/setSoloHeader() directly.
-inline void closeTable();  // fwd decl — defined just below, mutually used by ensureTable()
+inline void closeTable(); // fwd decl — defined just below, mutually used by ensureTable()
 inline void ensureTable(bool solo) {
     if (tableOpen && tableIsSolo != solo) {
         closeTable();
@@ -353,9 +356,11 @@ inline void ensureTable(bool solo) {
     }
 
     if (!tableOpen) {
-        if (solo) setSoloHeader(suiteName);
-        else setHeader(suiteName);
-        tableOpen   = true;
+        if (solo)
+            setSoloHeader(suiteName);
+        else
+            setHeader(suiteName);
+        tableOpen = true;
         tableIsSolo = solo;
         lastRowGroup.clear();
     }
@@ -367,9 +372,12 @@ inline void ensureTable(bool solo) {
 // once a suite finishes, so its final table gets closed. A no-op if no
 // table is open — e.g. a suite with zero benchmarks.
 inline void closeTable() {
-    if (!tableOpen) return;
-    if (tableIsSolo) endSoloTable();
-    else endTable();
+    if (!tableOpen)
+        return;
+    if (tableIsSolo)
+        endSoloTable();
+    else
+        endTable();
     tableOpen = false;
 }
 
@@ -381,8 +389,10 @@ inline void closeTable() {
 // predecessor's name (the 10K/100K/1M rows of the same operation).
 inline void drawGroupSeparatorIfNeeded(std::string_view name) {
     if (!lastRowGroup.empty() && lastRowGroup != name) {
-        if (tableIsSolo) drawBorder(ML, MM, MR, {TEST_W, ITER_W, SOLO_VAL_W});
-        else             drawBorder(ML, MM, MR, {TEST_W, ITER_W, VAL_W, VAL_W, DELTA_W});
+        if (tableIsSolo)
+            drawBorder(ML, MM, MR, {TEST_W, ITER_W, SOLO_VAL_W});
+        else
+            drawBorder(ML, MM, MR, {TEST_W, ITER_W, VAL_W, VAL_W, DELTA_W});
     }
     lastRowGroup = std::string(name);
 }
@@ -432,9 +442,12 @@ inline void printComparisonRow(std::string_view name, std::string_view iteration
     const char* deltaColor = (pct > 0.0) ? GREEN : (pct < 0.0) ? RED : GRAY;
     const char* arrow = (pct > 0.0) ? "▲ " : (pct < 0.0) ? "▼ " : "— ";
 
-    if (pct > 0.0) ++resultTally().customWins;
-    else if (pct < 0.0) ++resultTally().standardWins;
-    else ++resultTally().ties;
+    if (pct > 0.0)
+        ++resultTally().customWins;
+    else if (pct < 0.0)
+        ++resultTally().standardWins;
+    else
+        ++resultTally().ties;
 
     const nanoseconds maxNs = std::max(customNs, stdNs);
 
@@ -445,7 +458,7 @@ inline void printComparisonRow(std::string_view name, std::string_view iteration
         " " + padCell(formatDuration(customNs), DUR_W) + " " + bar(customNs, maxNs);
     const std::string stdCell =
         " " + padCell(formatDuration(stdNs), DUR_W) + " " + bar(stdNs, maxNs);
-    const std::string deltaCell  = " " + std::string(arrow) + deltaStream.str();
+    const std::string deltaCell = " " + std::string(arrow) + deltaStream.str();
 
     // clang-format off
     std::cout << GRAY << V << RESET
@@ -485,10 +498,8 @@ inline void printSummary() {
     std::cout << "\n";
     drawBorder(TL, TM, TR, {labelW, valueW});
 
-    std::cout << GRAY << V << RESET
-              << BOLD << CYAN << padCell(" Summary", labelW) << RESET
-              << GRAY << V << RESET
-              << padCell(" " + std::to_string(t.total()) + " comparisons", valueW)
+    std::cout << GRAY << V << RESET << BOLD << CYAN << padCell(" Summary", labelW) << RESET << GRAY
+              << V << RESET << padCell(" " + std::to_string(t.total()) + " comparisons", valueW)
               << GRAY << V << RESET << "\n";
 
     drawBorder(ML, MM, MR, {labelW, valueW});
@@ -499,14 +510,12 @@ inline void printSummary() {
         std::ostringstream countPct;
         countPct << count << " (" << std::fixed << std::setprecision(1) << share << "%)";
 
-        const std::string val =
-            " " + padCell(countPct.str(), 12) + " " + bar(nanoseconds(static_cast<long long>(share)), nanoseconds(100));
+        const std::string val = " " + padCell(countPct.str(), 12) + " " +
+                                bar(nanoseconds(static_cast<long long>(share)), nanoseconds(100));
 
-        std::cout << GRAY << V << RESET
-                  << color << padCell(" " + label, labelW) << RESET
-                  << GRAY << V << RESET
-                  << color << padCell(val, valueW) << RESET
-                  << GRAY << V << RESET << "\n";
+        std::cout << GRAY << V << RESET << color << padCell(" " + label, labelW) << RESET << GRAY
+                  << V << RESET << color << padCell(val, valueW) << RESET << GRAY << V << RESET
+                  << "\n";
 
         markdown_buffer() += "| " + label + " | " + std::to_string(count) + " (" +
                              std::to_string(static_cast<int>(share)) + "%) |\n";

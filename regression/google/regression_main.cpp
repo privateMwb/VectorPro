@@ -74,7 +74,8 @@ void printUsage() {
             std::cerr << seg.color << seg.text << RESET;
             len += displayWidth(seg.text);
         }
-        std::cerr << std::string(colWidth - len, ' ') << DARK_GRAY << row.description << RESET << "\n";
+        std::cerr << std::string(colWidth - len, ' ') << DARK_GRAY << row.description << RESET
+                  << "\n";
     }
 
     std::cerr << "\n"
@@ -84,11 +85,11 @@ void printUsage() {
               << DARK_GRAY
               << "quoting: a <benchmark> with spaces (rare, but Google Benchmark allows it)\n"
               << "doesn't need quotes -- every word after the tag(s) joins back into the name\n\n"
-              << "shortcuts: <benchmark> can be a [LetterN] id from " << RESET << YELLOW << "methods"
-              << RESET << DARK_GRAY << " (e.g. \"a1\")" << RESET << "\n";
+              << "shortcuts: <benchmark> can be a [LetterN] id from " << RESET << YELLOW
+              << "methods" << RESET << DARK_GRAY << " (e.g. \"a1\")" << RESET << "\n";
 }
 
-}  // namespace
+} // namespace
 
 // Loads baseline + current benchmark snapshots, prints the regression
 // comparison (optionally restricted to a single benchmark), and

@@ -70,7 +70,8 @@ void printUsage() {
             std::cerr << seg.color << seg.text << RESET;
             len += displayWidth(seg.text);
         }
-        std::cerr << std::string(colWidth - len, ' ') << DARK_GRAY << row.description << RESET << "\n";
+        std::cerr << std::string(colWidth - len, ' ') << DARK_GRAY << row.description << RESET
+                  << "\n";
     }
 
     std::cerr << "\n"
@@ -83,7 +84,7 @@ void printUsage() {
               << RESET << DARK_GRAY << " (e.g. \"u1\")" << RESET << "\n";
 }
 
-}  // namespace
+} // namespace
 
 // Loads baseline + current benchmark snapshots, prints the regression
 // comparison (optionally restricted to a single benchmark method),

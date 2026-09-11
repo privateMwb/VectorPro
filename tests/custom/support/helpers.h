@@ -75,12 +75,12 @@ inline void setTitle(std::string_view title) {
 // Prints one RUN() result line: a colored check/cross mark, the
 // (prettified) test name, and how long it took.
 inline void printTestLine(bool passed, std::string_view name, double elapsedMs) {
-    const char* mark  = passed ? "\u2713" : "\u2717";
+    const char* mark = passed ? "\u2713" : "\u2717";
     const char* color = passed ? GREEN : RED;
 
-    std::cout << "  " << color << mark << " " << RESET << std::left << std::setw(42) << name
-               << DIM << std::right << std::setw(7) << std::fixed << std::setprecision(2)
-               << elapsedMs << "ms" << RESET << "\n";
+    std::cout << "  " << color << mark << " " << RESET << std::left << std::setw(42) << name << DIM
+              << std::right << std::setw(7) << std::fixed << std::setprecision(2) << elapsedMs
+              << "ms" << RESET << "\n";
 }
 
 // Counts visible characters rather than bytes, so multi-byte UTF-8
@@ -89,7 +89,8 @@ inline void printTestLine(bool passed, std::string_view name, double elapsedMs) 
 inline size_t visualWidth(const std::string& s) {
     size_t count = 0;
     for (unsigned char c : s) {
-        if ((c & 0xC0) != 0x80) ++count;  // skip UTF-8 continuation bytes
+        if ((c & 0xC0) != 0x80)
+            ++count; // skip UTF-8 continuation bytes
     }
     return count;
 }
@@ -127,7 +128,8 @@ inline void printStatBox(const std::vector<StatRow>& rows) {
     size_t innerWidth = labelWidth + valueWidth + 2 * horizontalPadding + 1;
 
     std::string rule;
-    for (size_t i = 0; i < innerWidth; ++i) rule += "\u2500";
+    for (size_t i = 0; i < innerWidth; ++i)
+        rule += "\u2500";
     std::string pad(horizontalPadding, ' ');
 
     std::cout << CYAN << "\u250c" << rule << "\u2510" << RESET << "\n";
@@ -136,10 +138,9 @@ inline void printStatBox(const std::vector<StatRow>& rows) {
         size_t labelPad = labelWidth - visualWidth(labelWithColon);
         size_t valuePad = valueWidth - visualWidth(r.plainValue);
 
-        std::cout << CYAN << "\u2502" << RESET << pad
-                   << BOLD << labelWithColon << RESET << std::string(labelPad, ' ')
-                   << " " << std::string(valuePad, ' ') << r.coloredValue
-                   << pad << CYAN << "\u2502" << RESET << "\n";
+        std::cout << CYAN << "\u2502" << RESET << pad << BOLD << labelWithColon << RESET
+                  << std::string(labelPad, ' ') << " " << std::string(valuePad, ' ')
+                  << r.coloredValue << pad << CYAN << "\u2502" << RESET << "\n";
     }
     std::cout << CYAN << "\u2514" << rule << "\u2518" << RESET << "\n";
 }

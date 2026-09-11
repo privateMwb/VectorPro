@@ -35,8 +35,9 @@ inline constexpr const char* GRAY = "\033[37m";
 // gray/white on most terminals) -- used for the per-letter benchmark
 // counts under `methods`, where GRAY read as too light.
 inline constexpr const char* DARK_GRAY = "\033[90m";
-inline constexpr const char* BLUE = "\033[94m";     // current column, matching the custom suite's tool
-inline constexpr const char* MAGENTA = "\033[95m";  // baseline column, matching the custom suite's tool
+inline constexpr const char* BLUE = "\033[94m"; // current column, matching the custom suite's tool
+inline constexpr const char* MAGENTA =
+    "\033[95m"; // baseline column, matching the custom suite's tool
 // Bright white, used for benchmark names under `methods` so they read
 // as plain, undecorated text against the colored tree/letters around
 // them.
@@ -226,7 +227,7 @@ inline std::vector<std::string> uniqueNames(const std::vector<BenchmarkResult>& 
 // relative order -- used to restrict a comparison to a single
 // benchmark (e.g. `google_regression BM_PushBack`).
 inline std::vector<BenchmarkResult> filterByName(const std::vector<BenchmarkResult>& results,
-                                                  const std::string& name) {
+                                                 const std::string& name) {
     std::vector<BenchmarkResult> filtered;
 
     for (const auto& result : results) {
@@ -254,7 +255,9 @@ groupMethodsByLetter(std::vector<std::string> names) {
 
     for (const auto& name : names) {
         char letter =
-            name.empty() ? '?' : static_cast<char>(std::toupper(static_cast<unsigned char>(name.front())));
+            name.empty()
+                ? '?'
+                : static_cast<char>(std::toupper(static_cast<unsigned char>(name.front())));
 
         if (!groups.empty() && groups.back().first == letter)
             groups.back().second.push_back(name);
@@ -272,9 +275,8 @@ groupMethodsByLetter(std::vector<std::string> names) {
 // it in the error, so the message points at the right side (e.g.
 // "v1.0.0" or "Current").
 inline void applyMethodFilter(std::vector<BenchmarkResult>& baselineResults,
-                              std::vector<BenchmarkResult>& currentResults,
-                              const std::string& name, const std::string& currentLabel,
-                              const std::string& baselineLabel) {
+                              std::vector<BenchmarkResult>& currentResults, const std::string& name,
+                              const std::string& currentLabel, const std::string& baselineLabel) {
     baselineResults = filterByName(baselineResults, name);
     currentResults = filterByName(currentResults, name);
 
@@ -444,7 +446,7 @@ inline void borderLine() {
 inline std::size_t displayWidth(const std::string& text) {
     std::size_t width = 0;
     for (unsigned char c : text)
-        if ((c & 0xC0) != 0x80)  // not a UTF-8 continuation byte
+        if ((c & 0xC0) != 0x80) // not a UTF-8 continuation byte
             ++width;
     return width;
 }

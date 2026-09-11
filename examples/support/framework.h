@@ -37,8 +37,8 @@ inline void printExampleHeader(const ExampleSuite& suite) {
     drawBorder(TL, TM, TR, {width});
 
     std::cout << GRAY << V << RESET << " " << YELLOW << idPrefix << RESET << BOLD
-              << padCell(suite.name, width - 2 - visualWidth(idPrefix)) << RESET << " " << GRAY
-              << V << RESET << "\n";
+              << padCell(suite.name, width - 2 - visualWidth(idPrefix)) << RESET << " " << GRAY << V
+              << RESET << "\n";
 
     std::cout << GRAY << V << RESET << " " << DIM << padCell(suite.category, width - 2) << RESET
               << " " << GRAY << V << RESET << "\n";
@@ -70,7 +70,7 @@ inline void printRunSummary(std::size_t exampleCount, std::size_t categoryCount,
         valueWidth = std::max(valueWidth, static_cast<std::size_t>(visualWidth(row.value)));
     }
 
-    const int boxW = static_cast<int>(labelWidth + valueWidth + 3);  // padding on both sides
+    const int boxW = static_cast<int>(labelWidth + valueWidth + 3); // padding on both sides
 
     std::cout << "\n";
     drawBorder(TL, TM, TR, {boxW});
@@ -141,14 +141,14 @@ inline void printExampleSuiteList() {
 
     for (const auto& [category, suites] : grouped) {
         std::cout << "\n"
-                   << BOLD << CYAN << prettify(category) << RESET << DIM << " (" << suites.size()
-                   << ")" << RESET << "\n";
+                  << BOLD << CYAN << prettify(category) << RESET << DIM << " (" << suites.size()
+                  << ")" << RESET << "\n";
 
         for (std::size_t i = 0; i < suites.size(); ++i) {
             bool last = (i + 1 == suites.size());
             std::cout << CYAN << (last ? "└─ " : "├─ ") << RESET << GREEN << "[" << std::left
-                       << std::setw(static_cast<int>(idWidth)) << suites[i]->id << "]" << RESET
-                       << "  " << suites[i]->name << "\n";
+                      << std::setw(static_cast<int>(idWidth)) << suites[i]->id << "]" << RESET
+                      << "  " << suites[i]->name << "\n";
         }
     }
 
@@ -171,7 +171,7 @@ inline void printExampleSuiteList() {
         valueWidth = std::max(valueWidth, static_cast<std::size_t>(visualWidth(row.value)));
     }
 
-    const int boxW = static_cast<int>(labelWidth + valueWidth + 3);  // padding on both sides
+    const int boxW = static_cast<int>(labelWidth + valueWidth + 3); // padding on both sides
 
     drawBorder(TL, TM, TR, {boxW});
     for (const auto& row : counts) {
@@ -204,9 +204,11 @@ inline void printUsage() {
     const std::vector<Row> rows = {
         {{{CYAN, "examples"}}, "run every example in order"},
         {{{CYAN, "examples"}, {YELLOW, " list"}}, "list all examples, grouped by category"},
-        {{{CYAN, "examples"}, {GRAY, " <category>"}}, "run every example in a category, e.g. quickstart"},
+        {{{CYAN, "examples"}, {GRAY, " <category>"}},
+         "run every example in a category, e.g. quickstart"},
         {{{CYAN, "examples"}, {GRAY, " <id>"}}, "run a single example by id, e.g. Q1"},
-        {{{CYAN, "examples"}, {GRAY, " <name>"}}, "run a single example by file name, e.g. basic_behavior"},
+        {{{CYAN, "examples"}, {GRAY, " <name>"}},
+         "run a single example by file name, e.g. basic_behavior"},
         {{{CYAN, "examples"}, {YELLOW, " -h | --help"}}, "show this help message"},
     };
 

@@ -87,10 +87,9 @@ inline void printSummary() {
     std::cout << "\n";
     drawBorder(TL, TM, TR, {labelW, valueW});
 
-    std::cout << GRAY << V << RESET << BOLD << CYAN << padCell(" Summary", labelW) << RESET
-              << GRAY << V << RESET
-              << padCell(" " + std::to_string(total) + " comparisons", valueW) << GRAY << V
-              << RESET << "\n";
+    std::cout << GRAY << V << RESET << BOLD << CYAN << padCell(" Summary", labelW) << RESET << GRAY
+              << V << RESET << padCell(" " + std::to_string(total) + " comparisons", valueW) << GRAY
+              << V << RESET << "\n";
 
     drawBorder(ML, MM, MR, {labelW, valueW});
 

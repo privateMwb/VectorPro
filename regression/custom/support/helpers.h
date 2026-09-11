@@ -35,8 +35,8 @@ inline constexpr const char* GRAY = "\033[37m";
 // gray/white on most terminals) -- used for the per-letter method
 // counts under `methods`, where GRAY read as too light.
 inline constexpr const char* DARK_GRAY = "\033[90m";
-inline constexpr const char* BLUE = "\033[94m";     // current column, matching the benchmark tool
-inline constexpr const char* MAGENTA = "\033[95m";  // baseline column, matching the benchmark tool
+inline constexpr const char* BLUE = "\033[94m";    // current column, matching the benchmark tool
+inline constexpr const char* MAGENTA = "\033[95m"; // baseline column, matching the benchmark tool
 // Bright white, used for method names under `methods` so they read as
 // plain, undecorated text against the colored tree/letters around them.
 inline constexpr const char* WHITE = "\033[97m";
@@ -186,7 +186,7 @@ inline std::vector<std::string> uniqueOperations(const std::vector<BenchmarkResu
 // preserving relative order -- used to restrict a comparison to a
 // single method (e.g. `regression element_access`).
 inline std::vector<BenchmarkResult> filterByOperation(const std::vector<BenchmarkResult>& results,
-                                                       const std::string& operation) {
+                                                      const std::string& operation) {
     std::vector<BenchmarkResult> filtered;
 
     for (const auto& result : results) {
@@ -213,8 +213,10 @@ groupMethodsByLetter(std::vector<std::string> operations) {
     std::vector<std::pair<char, std::vector<std::string>>> groups;
 
     for (const auto& operation : operations) {
-        char letter = operation.empty() ? '?' : static_cast<char>(std::toupper(
-                                                     static_cast<unsigned char>(operation.front())));
+        char letter =
+            operation.empty()
+                ? '?'
+                : static_cast<char>(std::toupper(static_cast<unsigned char>(operation.front())));
 
         if (!groups.empty() && groups.back().first == letter)
             groups.back().second.push_back(operation);
@@ -401,7 +403,7 @@ inline void borderLine() {
 inline std::size_t displayWidth(const std::string& text) {
     std::size_t width = 0;
     for (unsigned char c : text)
-        if ((c & 0xC0) != 0x80)  // not a UTF-8 continuation byte
+        if ((c & 0xC0) != 0x80) // not a UTF-8 continuation byte
             ++width;
     return width;
 }
@@ -521,7 +523,8 @@ inline void setHeader(std::string_view header) {
     drawBorder(ML, MM, MR, {TEST_W, ITER_W, VAL_W, VAL_W, DELTA_W});
 
     markdown_buffer() += "\n## " + std::string(header) + "\n\n";
-    markdown_buffer() += "| Test | Iteration | " + currentLabel + " | " + baselineLabel + " | Δ |\n";
+    markdown_buffer() +=
+        "| Test | Iteration | " + currentLabel + " | " + baselineLabel + " | Δ |\n";
     markdown_buffer() += "|---|---|---|---|---|\n";
 }
 
