@@ -77,7 +77,7 @@ template <typename T> struct TaggedAllocator {
 // to the source's (default select_on_container_copy_construction behavior:
 // the allocator itself is copy-constructed), observed indirectly via the
 // tag under which the new buffer's allocation is recorded.
-TEST(AllocatorPropagation, CopyConstructionSelectsSourceAllocatorTag) {
+TEST(AllocatorPropagation, CopyConstructionSelectsSourceAllocator) {
     reset_alloc_stats();
 
     Vector<int, TaggedAllocator<int>> a(TaggedAllocator<int>(5));
@@ -99,7 +99,7 @@ TEST(AllocatorPropagation, CopyConstructionSelectsSourceAllocatorTag) {
 // Verifies copy assignment never propagates the allocator (POCCA = false):
 // the target keeps using its own allocator's tag for any new allocation,
 // regardless of the source's tag.
-TEST(AllocatorPropagation, CopyAssignmentDoesNotPropagateAllocator) {
+TEST(AllocatorPropagation, CopyAssignmentDoesNotPropagate) {
     reset_alloc_stats();
 
     Vector<int, TaggedAllocator<int>> target(TaggedAllocator<int>(1));
@@ -122,7 +122,7 @@ TEST(AllocatorPropagation, CopyAssignmentDoesNotPropagateAllocator) {
 // Verifies move assignment steals the source's buffer outright (no new
 // allocation at all) when the two allocators compare equal, even though
 // propagate_on_container_move_assignment is false for this allocator.
-TEST(AllocatorPropagation, MoveAssignmentEqualAllocatorsStealsBuffer) {
+TEST(AllocatorPropagation, EqualAllocatorMoveStealsBuffer) {
     reset_alloc_stats();
 
     Vector<int, TaggedAllocator<int>> target(TaggedAllocator<int>(7));
@@ -146,7 +146,7 @@ TEST(AllocatorPropagation, MoveAssignmentEqualAllocatorsStealsBuffer) {
 // Verifies move assignment falls back to allocating under the target's own
 // allocator (and moving elements one by one) when the allocators compare
 // unequal and neither propagates nor is always-equal.
-TEST(AllocatorPropagation, MoveAssignmentUnequalAllocatorsUsesTargetAllocator) {
+TEST(AllocatorPropagation, UnequalAllocatorMoveUsesTarget) {
     reset_alloc_stats();
 
     Vector<int, TaggedAllocator<int>> target(TaggedAllocator<int>(10));

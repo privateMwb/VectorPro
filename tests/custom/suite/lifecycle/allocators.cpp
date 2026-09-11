@@ -74,7 +74,7 @@ template <typename T> struct TaggedAllocator {
 // to the source's (default select_on_container_copy_construction behavior:
 // the allocator itself is copy-constructed), observed indirectly via the
 // tag under which the new buffer's allocation is recorded.
-static void copy_construction_selects_source_allocator_tag() {
+static void copy_construction_selects_source_allocator() {
     reset_alloc_stats();
 
     Vector<int, TaggedAllocator<int>> a(TaggedAllocator<int>(5));
@@ -96,7 +96,7 @@ static void copy_construction_selects_source_allocator_tag() {
 // Verifies copy assignment never propagates the allocator (POCCA = false):
 // the target keeps using its own allocator's tag for any new allocation,
 // regardless of the source's tag.
-static void copy_assignment_does_not_propagate_allocator() {
+static void copy_assignment_does_not_propagate() {
     reset_alloc_stats();
 
     Vector<int, TaggedAllocator<int>> target(TaggedAllocator<int>(1));
@@ -119,7 +119,7 @@ static void copy_assignment_does_not_propagate_allocator() {
 // Verifies move assignment steals the source's buffer outright (no new
 // allocation at all) when the two allocators compare equal, even though
 // propagate_on_container_move_assignment is false for this allocator.
-static void move_assignment_equal_allocators_steals_buffer() {
+static void equal_allocator_move_steals_buffer() {
     reset_alloc_stats();
 
     Vector<int, TaggedAllocator<int>> target(TaggedAllocator<int>(7));
@@ -143,7 +143,7 @@ static void move_assignment_equal_allocators_steals_buffer() {
 // Verifies move assignment falls back to allocating under the target's own
 // allocator (and moving elements one by one) when the allocators compare
 // unequal and neither propagates nor is always-equal.
-static void move_assignment_unequal_allocators_uses_target_allocator() {
+static void unequal_allocator_move_uses_target() {
     reset_alloc_stats();
 
     Vector<int, TaggedAllocator<int>> target(TaggedAllocator<int>(10));
@@ -181,10 +181,10 @@ static void destructor_deallocates_under_own_allocator() {
 
 // Executes all allocator-propagation test cases.
 static void run_tests() {
-    RUN(copy_construction_selects_source_allocator_tag);
-    RUN(copy_assignment_does_not_propagate_allocator);
-    RUN(move_assignment_equal_allocators_steals_buffer);
-    RUN(move_assignment_unequal_allocators_uses_target_allocator);
+    RUN(copy_construction_selects_source_allocator);
+    RUN(copy_assignment_does_not_propagate);
+    RUN(equal_allocator_move_steals_buffer);
+    RUN(unequal_allocator_move_uses_target);
     RUN(destructor_deallocates_under_own_allocator);
 }
 

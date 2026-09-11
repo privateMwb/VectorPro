@@ -57,8 +57,6 @@ static void bench_free_swap() {
 // Executes all swap benchmark cases.
 static void run_benchmarks() {
     bench_member_swap();
-    std::cout << "\n";
-
     bench_free_swap();
 }
 

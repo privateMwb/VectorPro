@@ -76,11 +76,7 @@ static void bench_emplace_back() {
 // Executes all push_back benchmark cases.
 static void run_benchmarks() {
     bench_push_back();
-    std::cout << "\n";
-
     bench_push_back_reserved();
-    std::cout << "\n";
-
     bench_emplace_back();
 }
 

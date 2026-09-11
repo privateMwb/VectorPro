@@ -75,7 +75,7 @@ static void bench_push_back_capturing_listener() {
         doNotOptimize(total);
     };
 
-    BENCH_SOLO_CUSTOM("push_back, capturing listener", vp);
+    BENCH_SOLO_CUSTOM("push_back, capturing", vp);
 }
 
 // Measures listener registration.
@@ -112,20 +112,10 @@ static void bench_unsubscribe() {
 // Executes all observer benchmark cases.
 static void run_benchmarks() {
     bench_push_back_no_listeners();
-    std::cout << "\n";
-
     bench_push_back_one_listener();
-    std::cout << "\n";
-
     bench_push_back_many_listeners();
-    std::cout << "\n";
-
     bench_push_back_capturing_listener();
-    std::cout << "\n";
-
     bench_subscribe();
-    std::cout << "\n";
-
     bench_unsubscribe();
 }
 

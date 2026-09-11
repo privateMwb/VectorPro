@@ -30,7 +30,7 @@ using namespace VectorPro;
 // and a std::vector<int>, asserting they stay in lockstep after every step.
 // A fixed seed keeps this reproducible: a failure here always fails the
 // same way, rather than flaking based on run-to-run RNG state.
-static void matches_reference_model_over_five_thousand_steps() {
+static void matches_model_over_5000_steps() {
     std::mt19937 rng(42);
     Vector<int> actual;
     std::vector<int> reference;
@@ -70,7 +70,7 @@ static void matches_reference_model_over_five_thousand_steps() {
 // the vector's own storage right as it's about to be reallocated, which is
 // exactly the scenario grow_and_push_back()'s offset-snapshot exists to
 // handle; this exercises it across dozens of reallocations rather than once.
-static void self_aliasing_push_back_survives_many_reallocations() {
+static void self_aliasing_push_survives_realloc() {
     Vector<int> v;
     v.push_back(1);
 
@@ -89,7 +89,7 @@ static void self_aliasing_push_back_survives_many_reallocations() {
 // reallocated. Confirms grow_and_push_back(T&&) reads the pre-move value
 // from the *new* buffer's snapshot offset, not a dangling pointer into the
 // freed old one.
-static void self_aliasing_move_push_back_survives_many_reallocations() {
+static void self_aliasing_move_survives_realloc() {
     Vector<int> v;
     v.push_back(1);
 
@@ -108,7 +108,7 @@ static void self_aliasing_move_push_back_survives_many_reallocations() {
 // code path that silently assumes T is copyable (e.g. a stray construct()
 // call using an lvalue) would fail to compile rather than fail at runtime,
 // but this also checks ownership actually transfers rather than double-frees.
-static void move_only_element_survives_push_back_and_move() {
+static void move_only_element_survives_push_move() {
     Vector<std::unique_ptr<int>> v;
     for (int i = 0; i < 50; ++i) {
         v.push_back(std::make_unique<int>(i));
@@ -132,10 +132,10 @@ static void move_only_element_survives_push_back_and_move() {
 
 // Executes all fuzz regression test cases.
 static void run_tests() {
-    RUN(matches_reference_model_over_five_thousand_steps);
-    RUN(self_aliasing_push_back_survives_many_reallocations);
-    RUN(self_aliasing_move_push_back_survives_many_reallocations);
-    RUN(move_only_element_survives_push_back_and_move);
+    RUN(matches_model_over_5000_steps);
+    RUN(self_aliasing_push_survives_realloc);
+    RUN(self_aliasing_move_survives_realloc);
+    RUN(move_only_element_survives_push_move);
 }
 
 REGISTER_TEST_SUITE();

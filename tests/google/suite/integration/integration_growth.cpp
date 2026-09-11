@@ -42,18 +42,18 @@ template <std::size_t GrowthNum, std::size_t GrowthDen> void exercise_growth_rat
 } // namespace
 
 // Verifies a 3/2 growth ratio sustains 5000 push_backs correctly.
-TEST(CustomGrowthPolicy, Ratio3_2SustainsManyPushBacks) {
+TEST(CustomGrowthPolicy, Ratio3_2SustainsManyPushes) {
     exercise_growth_ratio<3, 2>(5000);
 }
 
 // Verifies a 4/3 growth ratio sustains 5000 push_backs correctly.
-TEST(CustomGrowthPolicy, Ratio4_3SustainsManyPushBacks) {
+TEST(CustomGrowthPolicy, Ratio4_3SustainsManyPushes) {
     exercise_growth_ratio<4, 3>(5000);
 }
 
 // Verifies a large growth ratio (5/1) still preserves contents and the
 // capacity>=size invariant.
-TEST(CustomGrowthPolicy, Ratio5_1SustainsManyPushBacks) {
+TEST(CustomGrowthPolicy, Ratio5_1SustainsManyPushes) {
     exercise_growth_ratio<5, 1>(5000);
 }
 
@@ -81,7 +81,7 @@ TEST(CustomGrowthPolicy, CustomRatioAmortizesReallocation) {
 
 // Verifies mixed push_back/insert/erase under a custom growth ratio
 // produces the same logical contents as an equivalent default-ratio Vector.
-TEST(CustomGrowthPolicy, CustomRatioMixedOpsMatchDefaultRatioContents) {
+TEST(CustomGrowthPolicy, CustomRatioMatchesDefaultContents) {
     Vector<int, std::allocator<int>, 3, 2> custom;
     Vector<int> reference; // default 2/1 ratio
 

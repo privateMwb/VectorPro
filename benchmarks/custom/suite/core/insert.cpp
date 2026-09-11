@@ -64,11 +64,7 @@ static void bench_insert_end() {
 // Executes all insert benchmark cases.
 static void run_benchmarks() {
     bench_insert_front();
-    std::cout << "\n";
-
     bench_insert_middle();
-    std::cout << "\n";
-
     bench_insert_end();
 }
 

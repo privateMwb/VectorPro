@@ -25,7 +25,7 @@ using namespace VectorPro;
 // position down to index 1, and that the handle originally issued for the
 // third listener (h2 == 2) is now past the valid range, so it can never be
 // used to remove that listener again.
-TEST(ListenerHandleRegression, UnsubscribeEarlierHandleStrandsLaterHandle) {
+TEST(ListenerHandleRegression, EarlierUnsubscribeStrandsLaterHandle) {
     ObservableVector<int> v;
 
     int count0 = 0, count1 = 0, count2 = 0;
@@ -59,7 +59,7 @@ TEST(ListenerHandleRegression, UnsubscribeEarlierHandleStrandsLaterHandle) {
 // Verifies that a handle which *does* remain in range after an earlier
 // removal ends up identifying a different listener than the one it was
 // originally issued for.
-TEST(ListenerHandleRegression, UnsubscribeShiftedHandleRemovesWrongListener) {
+TEST(ListenerHandleRegression, ShiftedHandleRemovesWrongListener) {
     ObservableVector<int> v;
 
     int count0 = 0, count1 = 0, count2 = 0;

@@ -64,11 +64,7 @@ static void bench_erase_end() {
 // Executes all erase benchmark cases.
 static void run_benchmarks() {
     bench_erase_front();
-    std::cout << "\n";
-
     bench_erase_middle();
-    std::cout << "\n";
-
     bench_erase_end();
 }
 

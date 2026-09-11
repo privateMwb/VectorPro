@@ -49,8 +49,6 @@ static void bench_move_assignment() {
 // Executes all move benchmark cases.
 static void run_benchmarks() {
     bench_move_construct();
-    std::cout << "\n";
-
     bench_move_assignment();
 }
 

@@ -85,7 +85,7 @@ static void std_accumulate_over_vector() {
 }
 
 // Verifies std::min_element / std::max_element over a Vector.
-static void std_min_max_element_over_vector() {
+static void std_min_max_element_works() {
     Vector<int> v{4, 1, 7, 2, 9, 3};
 
     auto minIt = std::min_element(v.begin(), v.end());
@@ -136,7 +136,7 @@ static void run_tests() {
     RUN(ranges_find_over_vector);
     RUN(std_reverse_over_vector);
     RUN(std_accumulate_over_vector);
-    RUN(std_min_max_element_over_vector);
+    RUN(std_min_max_element_works);
     RUN(ranges_for_each_over_vector);
     RUN(ranges_distance_matches_size);
     RUN(back_inserter_populates_vector);

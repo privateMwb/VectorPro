@@ -37,18 +37,18 @@ static void exercise_growth_ratio(int count) {
 }
 
 // Verifies a 3/2 growth ratio sustains 5000 push_backs correctly.
-static void ratio_3_2_sustains_many_push_backs() {
+static void ratio_3_2_sustains_many_pushes() {
     exercise_growth_ratio<3, 2>(5000);
 }
 
 // Verifies a 4/3 growth ratio sustains 5000 push_backs correctly.
-static void ratio_4_3_sustains_many_push_backs() {
+static void ratio_4_3_sustains_many_pushes() {
     exercise_growth_ratio<4, 3>(5000);
 }
 
 // Verifies a large growth ratio (5/1) still preserves contents and the
 // capacity>=size invariant.
-static void ratio_5_1_sustains_many_push_backs() {
+static void ratio_5_1_sustains_many_pushes() {
     exercise_growth_ratio<5, 1>(5000);
 }
 
@@ -76,7 +76,7 @@ static void custom_ratio_amortizes_reallocation() {
 
 // Verifies mixed push_back/insert/erase under a custom growth ratio
 // produces the same logical contents as an equivalent default-ratio Vector.
-static void custom_ratio_mixed_ops_match_default_ratio_contents() {
+static void custom_ratio_matches_default_contents() {
     Vector<int, std::allocator<int>, 3, 2> custom;
     Vector<int> reference; // default 2/1 ratio
 
@@ -99,11 +99,11 @@ static void custom_ratio_mixed_ops_match_default_ratio_contents() {
 
 // Executes all custom growth policy integration test cases.
 static void run_tests() {
-    RUN(ratio_3_2_sustains_many_push_backs);
-    RUN(ratio_4_3_sustains_many_push_backs);
-    RUN(ratio_5_1_sustains_many_push_backs);
+    RUN(ratio_3_2_sustains_many_pushes);
+    RUN(ratio_4_3_sustains_many_pushes);
+    RUN(ratio_5_1_sustains_many_pushes);
     RUN(custom_ratio_amortizes_reallocation);
-    RUN(custom_ratio_mixed_ops_match_default_ratio_contents);
+    RUN(custom_ratio_matches_default_contents);
 }
 
 REGISTER_TEST_SUITE();

@@ -88,7 +88,7 @@ TEST(RangesStl, StdAccumulateOverVector) {
 }
 
 // Verifies std::min_element / std::max_element over a Vector.
-TEST(RangesStl, StdMinMaxElementOverVector) {
+TEST(RangesStl, StdMinMaxElementWorks) {
     Vector<int> v{4, 1, 7, 2, 9, 3};
 
     auto minIt = std::min_element(v.begin(), v.end());

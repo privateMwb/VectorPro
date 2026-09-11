@@ -47,8 +47,6 @@ static void bench_copy_assignment() {
 // Executes all copy benchmark cases.
 static void run_benchmarks() {
     bench_copy_construct();
-    std::cout << "\n";
-
     bench_copy_assignment();
 }
 

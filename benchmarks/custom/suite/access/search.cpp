@@ -142,17 +142,9 @@ static void bench_find_miss_small() {
 // Executes all search benchmark cases.
 static void run_benchmarks() {
     bench_contains_hit_small();
-    std::cout << "\n";
-
     bench_contains_miss_small();
-    std::cout << "\n";
-
     bench_contains_hit_large();
-    std::cout << "\n";
-
     bench_find_hit_small();
-    std::cout << "\n";
-
     bench_find_miss_small();
 }
 

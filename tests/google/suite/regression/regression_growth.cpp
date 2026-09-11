@@ -24,7 +24,7 @@ using namespace VectorPro;
 // truncates to 1 under integer division, so growCapacity() would return the
 // vector's current capacity unchanged, and the following push_back would
 // write past the end of the allocated buffer.
-TEST(GrowthRegression, SmallCountConstructedCapacityGrowsOnPush) {
+TEST(GrowthRegression, SmallCountCapacityGrowsOnPush) {
     Vector<int, std::allocator<int>, 3, 2> v(1, 5);
     std::size_t capBefore = v.capacity();
     EXPECT_EQ(capBefore, 1u);
@@ -39,7 +39,7 @@ TEST(GrowthRegression, SmallCountConstructedCapacityGrowsOnPush) {
 
 // Same scenario, but the small starting capacity comes from a one-element
 // initializer_list instead of the sized constructor.
-TEST(GrowthRegression, SmallInitializerListCapacityGrowsOnPush) {
+TEST(GrowthRegression, SmallInitListGrowsOnPush) {
     Vector<int, std::allocator<int>, 3, 2> v{7};
     std::size_t capBefore = v.capacity();
     EXPECT_EQ(capBefore, 1u);
@@ -75,7 +75,7 @@ TEST(GrowthRegression, LargerStartingCapacityGrowsCorrectly) {
 // Verifies repeated growth from a small, non-INITIAL_CAP starting capacity
 // doesn't get permanently stuck: each push past capacity must strictly
 // increase capacity, not just the first one.
-TEST(GrowthRegression, RepeatedGrowthFromSmallCapacityNeverStalls) {
+TEST(GrowthRegression, RepeatedGrowthNeverStallsCapacity) {
     Vector<int, std::allocator<int>, 3, 2> v(1, 0);
 
     for (int i = 1; i < 50; ++i) {

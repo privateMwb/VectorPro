@@ -160,17 +160,9 @@ static void bench_accumulate() {
 // Executes all iteration benchmark cases.
 static void run_benchmarks() {
     bench_range_for();
-    std::cout << "\n";
-
     bench_iterator_loop();
-    std::cout << "\n";
-
     bench_index_loop();
-    std::cout << "\n";
-
     bench_reverse_iteration();
-    std::cout << "\n";
-
     bench_accumulate();
 }
 

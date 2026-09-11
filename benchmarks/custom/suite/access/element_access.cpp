@@ -97,11 +97,7 @@ static void bench_data_ptr() {
 // Executes all element access benchmark cases.
 static void run_benchmarks() {
     bench_at();
-    std::cout << "\n";
-
     bench_front_back();
-    std::cout << "\n";
-
     bench_data_ptr();
 }
 

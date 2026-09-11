@@ -184,7 +184,7 @@ TEST(Destruction, ReallocatePreservesAliveCount) {
 
 // Verifies copy construction produces fully independent live objects rather
 // than sharing or double-counting the source's elements.
-TEST(Destruction, CopyConstructionCreatesIndependentLiveObjects) {
+TEST(Destruction, CopyConstructionCreatesLiveObjects) {
     reset_probe_counters();
 
     Vector<Probe> a;
@@ -203,7 +203,7 @@ TEST(Destruction, CopyConstructionCreatesIndependentLiveObjects) {
 
 // Verifies move construction transfers ownership at the buffer level without
 // invoking any per-element copy or move constructor.
-TEST(Destruction, MoveConstructionDoesNotTouchElements) {
+TEST(Destruction, MoveConstructionSkipsElements) {
     reset_probe_counters();
 
     Vector<Probe> a;
