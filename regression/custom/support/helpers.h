@@ -5,6 +5,7 @@
 
 #include <algorithm>           // std::sort (printList), std::clamp (bar)
 #include <cctype>              // std::toupper, std::isalpha, std::isdigit (groupMethodsByLetter, resolveMethodId)
+#include <chrono>              // nanoseconds, duration<> (formatDuration)
 #include <cmath>               // std::fabs, std::lround (printComparisonRow, printSummary, bar)
 #include <filesystem>          // std::filesystem::path, std::filesystem::directory_iterator
 #include <fstream>             // std::ifstream (loadResults)
@@ -18,6 +19,8 @@
 // clang-format on
 
 using json = nlohmann::json;
+
+using namespace std::chrono;
 
 namespace fs = std::filesystem;
 
@@ -430,8 +433,8 @@ inline constexpr int DELTA_W = 14;   // fits large deltas like "▲ +93904.5%" w
 inline constexpr int BAR_W   = 10;   // characters in the mini bar chart
 inline constexpr int DUR_W   = 10;   // fixed width reserved for the duration text before a
                                      // bar, so bars in the same column all start at the same
-                                     // x -- otherwise "744.84 ns" vs "0.28 ns" push the bar to
-                                     // a different offset each row.
+                                     // x -- otherwise "9.99 ms" vs "114.77 ms" vs "1.09 s" push
+                                     // the bar to a different offset each row.
 // clang-format on
 
 // Repeats a (possibly multi-byte) UTF-8 token `n` times.
@@ -449,6 +452,38 @@ inline std::string repeat(const char* token, int n) {
 inline std::string padCell(const std::string& s, int width) {
     const int w = static_cast<int>(displayWidth(s));
     return w >= width ? s : s + std::string(static_cast<std::size_t>(width - w), ' ');
+}
+
+// Truncates a string to at most `width` visible columns, replacing
+// the tail with a single-column ellipsis ("…") when it doesn't fit.
+// padCell() only ever pads short content out to width -- it never
+// shortens content that's already too wide, so a long benchmark or
+// suite name would otherwise spill past its cell and shove every
+// border/column to its right out of alignment. Walks codepoints
+// (not bytes) so a multi-byte character never gets cut in half.
+inline std::string truncateCell(const std::string& s, int width) {
+    if (width <= 0)
+        return "";
+    if (static_cast<int>(displayWidth(s)) <= width)
+        return s;
+    if (width == 1)
+        return "…";
+
+    std::string out;
+    int cols = 0;
+    for (std::size_t i = 0; i < s.size();) {
+        const unsigned char c = s[i];
+        const std::size_t len = (c & 0x80) == 0      ? 1
+                                : (c & 0xE0) == 0xC0 ? 2
+                                : (c & 0xF0) == 0xE0 ? 3
+                                                     : 4;
+        if (cols >= width - 1)
+            break;
+        out += s.substr(i, len);
+        ++cols;
+        i += len;
+    }
+    return out + "…";
 }
 
 // Draws one border row (top/mid/bottom) across the given column widths.
@@ -508,7 +543,7 @@ inline void setHeader(std::string_view header) {
 
     // clang-format off
     std::cout << GRAY << V << RESET
-              << BOLD << CYAN << padCell(" " + std::string(header), TEST_W) << RESET
+              << BOLD << CYAN << padCell(" " + truncateCell(std::string(header), TEST_W - 1), TEST_W) << RESET
               << GRAY << V << RESET
               << BOLD << CYAN << padCell(" Iteration", ITER_W) << RESET
               << GRAY << V << RESET
@@ -531,6 +566,57 @@ inline void setHeader(std::string_view header) {
 // Prints the closing border under a comparison table.
 inline void endTable() {
     drawBorder(BL, BM, BR, {TEST_W, ITER_W, VAL_W, VAL_W, DELTA_W});
+}
+
+// Formats a magnitude that's already in its final display unit (e.g.
+// a microsecond count as a plain double) to at most 5 significant
+// digits: values under 1000 keep up to 2 decimal places (already
+// <=5 sig figs), and values with more integer digits keep fewer
+// decimals, dropping to 0 and rounding to the nearest 10/100/etc. once
+// there are 5+ integer digits -- so formatDuration's per-unit number
+// never grows past 5 significant digits, even for an oddly long-
+// running "s"-scale benchmark. Shared with the framework's own
+// helpers.h so both tools' tables round durations the same way.
+inline std::string formatMagnitude(double value) {
+    const double av = std::fabs(value);
+    const int digits = (av < 1.0) ? 1 : static_cast<int>(std::floor(std::log10(av))) + 1;
+
+    std::ostringstream out;
+    if (digits >= 5) {
+        const double factor = std::pow(10.0, digits - 5);
+        const double rounded = std::round(value / factor) * factor;
+        out << std::fixed << std::setprecision(0) << rounded;
+    } else {
+        const int decimals = std::min(2, 5 - digits);
+        out << std::fixed << std::setprecision(decimals) << value;
+    }
+    return out.str();
+}
+
+// Formats a duration using the most appropriate time unit (ns/us/ms/s),
+// so a fast row like "201.42 ns" and a slow row like "1.09 s" both stay
+// short instead of a single fixed "ns" unit forcing huge digit counts
+// like "271462.00 ns".
+inline auto formatDuration(nanoseconds ns) {
+    std::ostringstream out;
+
+    if (ns < microseconds(1))
+        out << ns.count() << " ns";
+    else if (ns < milliseconds(1))
+        out << formatMagnitude(duration<double, std::micro>(ns).count()) << " us";
+    else if (ns < seconds(1))
+        out << formatMagnitude(duration<double, std::milli>(ns).count()) << " ms";
+    else
+        out << formatMagnitude(duration<double>(ns).count()) << " s";
+
+    return out.str();
+}
+
+// Overload for this tool's raw double nanoseconds (bNs/cNs, read
+// straight from JSON snapshots) -- rounds to the nearest whole
+// nanosecond and defers to the chrono overload above.
+inline std::string formatDuration(double ns) {
+    return formatDuration(nanoseconds(std::llround(ns)));
 }
 
 // Prints (and records, for export) one baseline-vs-current comparison
@@ -557,10 +643,10 @@ inline void printComparisonRow(std::string_view suite, std::string_view name, st
     deltaStream << std::showpos << std::fixed << std::setprecision(1) << pct << "%";
 
     std::ostringstream currentValStream;
-    currentValStream << std::fixed << std::setprecision(2) << cNs << " ns";
+    currentValStream << formatDuration(cNs);
 
     std::ostringstream baselineValStream;
-    baselineValStream << std::fixed << std::setprecision(2) << bNs << " ns";
+    baselineValStream << formatDuration(bNs);
 
     const double maxNs = std::max(bNs, cNs);
 
@@ -572,7 +658,7 @@ inline void printComparisonRow(std::string_view suite, std::string_view name, st
 
     // clang-format off
     std::cout << GRAY << V << RESET
-              << padCell(" " + std::string(name), TEST_W)
+              << padCell(" " + truncateCell(std::string(name), TEST_W - 1), TEST_W)
               << GRAY << V << RESET
               << padCell(" " + std::string(iteration), ITER_W)
               << GRAY << V << RESET
