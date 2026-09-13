@@ -242,6 +242,8 @@ VectorPro/
 │
 ├── packaging/
 │   ├── README.md
+│   ├── requirements.in
+│   ├── requirements-conan.txt
 │   ├── recipes/
 │   ├── vcpkg/
 │   └── vcpkg-smoke-test/
